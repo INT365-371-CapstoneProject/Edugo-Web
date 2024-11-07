@@ -13,4 +13,16 @@ const getPosts = async () => {
     }
 }
 
-export { getPosts };
+const getPostById = async (id) => {
+    try {
+        const res = await axios.get(`${url}/${id}`);
+        return res.data;
+    }
+    catch (error) {
+        console.error(error);
+        return null;
+    }
+}
+
+
+export { getPosts, getPostById, url };
