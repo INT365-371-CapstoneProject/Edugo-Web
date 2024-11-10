@@ -2,7 +2,12 @@ import React from 'react'
 import Nav from './Nav'
 import icon from '../assets/Vector.svg'
 import image2 from '../assets/2.png'
+import { useNavigate } from 'react-router-dom'
 function Homepage() {
+    const navigate = useNavigate();
+    const handletoAdd = () => {
+        navigate('/add')
+    }
     return (
         <>
             <Nav />
@@ -16,7 +21,7 @@ function Homepage() {
                                 <h1 className='font-bold text-4xl'>Scholarship Management</h1>
                             </div>
                             <div className='mt-5 flex justify-end '>
-                                <button className='btn hover:bg-blue-700 bg-blue-500 text-white border-none w-1/3'>Post Scholarship
+                                <button onClick={handletoAdd} className='btn hover:bg-blue-700 bg-blue-500 text-white border-none w-1/3'>Post Scholarship
                                     <img src={icon} alt="" />
                                 </button>
                             </div>
