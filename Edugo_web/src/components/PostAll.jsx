@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getPosts } from '../composable/getPosts'
+import { getAnnounce } from '../composable/getAnnounce'
 import { Link } from 'react-router-dom'
 import Nav from './Nav'
 function PostAll() {

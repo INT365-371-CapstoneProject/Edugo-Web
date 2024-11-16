@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { getPostById } from '../composable/getPosts'
+import { getAnnounceById } from '../composable/getAnnounce'
 import Nav from './Nav'
 function Detail() {
     const { id } = useParams()

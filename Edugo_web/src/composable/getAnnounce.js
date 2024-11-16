@@ -1,8 +1,8 @@
 import axios from "axios";
 const APT_ROOT = import.meta.env.VITE_API_ROOT;
-const url = `${APT_ROOT}/api/posts`;
+const url = `${APT_ROOT}/api/announce`;
 
-const getPosts = async () => {
+const getAnnounce = async () => {
     try {
         const res = await axios.get(url);
         return res.data;
@@ -13,7 +13,7 @@ const getPosts = async () => {
     }
 }
 
-const getPostById = async (id) => {
+const getAnnounceById = async (id) => {
     try {
         const res = await axios.get(`${url}/${id}`);
         return res.data;
@@ -25,4 +25,4 @@ const getPostById = async (id) => {
 }
 
 
-export { getPosts, getPostById, url };
+export { getAnnounce, getAnnounceById, url };
