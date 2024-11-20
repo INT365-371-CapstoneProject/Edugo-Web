@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { url } from '../composable/getAnnounce';
-import { Link } from 'react-router-dom';
 import axios from 'axios';
 import Nav from './Nav';
 import image from '../assets/bg-file-image.png';
@@ -10,7 +9,9 @@ import icon from '../assets/iconCarrier.svg';
 import icon1 from '../assets/icon-attach.svg';
 import icon2 from '../assets/Vector.svg'
 import image1 from '../assets/cancel-post.png';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function Add() {
     const navigate = useNavigate();
@@ -49,63 +50,72 @@ function Add() {
             });
     }, []);
 
-    // const navigate = useNavigate();
-    // const [addPost, setAddPost] = useState({
-    //     "title": "",
-    //     "description": "",
-    //     "url": "",
-    //     "attach_file": null,
-    //     "post_type": "Announce",
-    //     "published_date": "",
-    //     "closed_date": "",
-    //     "provider_id": 1,
-    //     "user_id": 0
-    // });
+
+    const [addPost, setAddPost] = useState({
+        "title": '',
+        "description": '',
+        "url": '',
+        "attach_file": null,
+        "image": null,
+        "posts_type": "Announce",
+        "publish_Date": '',
+        "close_date": '',
+        "category_id": 0,
+        "country_id": 0
+    });
 
 
-    // const [imagePreview, setImagePreview] = useState(null); // state สำหรับแสดงตัวอย่างรูป
+    const handleSubmit = async (e) => {
+        e.preventDefault(); // ป้องกันการรีเฟรชของหน้าเว็บ
+        if (addPost.title === '' || addPost.description === '' || addPost.category_id === 0 || addPost.country_id === 0 || formattedDate === '' || formattedTime === '' || formattedDateEnd === '' || formattedTimeEnd === '') {
+            toast.error('Please fill in all required fields');
+            return;
+        } else {
+            const startDateTime = new Date(`${StartDate}T${StartTime}`).toISOString();
+            const endDateTime = new Date(`${EndDate}T${EndTime}`).toISOString();
+            // อัพเดท state ทั้งหมดในครั้งเดียว
+            setAddPost(prevState => {
+                const updatedPost = {
+                    ...prevState,
+                    published_date: startDateTime,
+                    close_date: endDateTime
+                };
 
-    // const handleFileChange = (e) => {
-    //     const file = e.target.files[0]; // เลือกไฟล์รูปแรกที่ผู้ใช้เลือก
-    //     if (file) {
-    //         setAddPost({ ...addPost, attach_file: file }); // เก็บไฟล์ที่เลือกใน state
-    //         setImagePreview(URL.createObjectURL(file)); // สร้าง URL ของไฟล์เพื่อแสดงผล
-    //     }
-    // };
+                const formData = new FormData();
+                for (const key in updatedPost) {
+                    formData.append(key, updatedPost[key]);
+                }
 
-    // const CheckAddPost = (addPost) => {
-    //     const fieldsToCheck = Object.keys(addPost).filter(field => ['url', 'attach_file', 'published_date', 'closed_date', 'user_id'].includes(field));
-    //     fieldsToCheck.forEach(field => {
-    //         if (addPost[field] === "" || (field === 'user_id' && addPost[field] === 0)) {
-    //             addPost[field] = null;
-    //         }
-    //     });
-    //     CreatePost(addPost);
-    // };
+                if (formData.get('url') === '') {
+                    formData.delete('url');
+                    formData.append('url', null);
+                }
+                CreatePost(formData);
+                return updatedPost;
+            });
 
-    // const handleSubmit = async (e) => {
-    //     e.preventDefault(); // ป้องกันการรีเฟรชของหน้าเว็บ
-    //     CheckAddPost(addPost);
-    // };
+        }
+    };
 
-    // const CreatePost = async (addPost) => {
-    //     addPost.file = addPost.attach_file;
-    //     addPost.attach_file = null;
 
-    //     try {
-    //         const res = await axios.post(`${url}/create`, addPost, {
-    //             headers: {
-    //                 'Content-Type': 'multipart/form-data',
-    //             }
-    //         });
-    //         if (res.status === 201) {
-    //             navigate('/');
-    //         }
-    //     }
-    //     catch (error) {
-    //         console.error(error);
-    //     }
-    // }
+
+    const CreatePost = async (formData) => {
+        try {
+            if (formData) {
+                const res = await axios.post(`${url}/add`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    }
+                });
+                if (res.status === 201) {
+                    navigate('/');
+                }
+            }
+        }
+        catch (error) {
+            console.error(error);
+        }
+    }
 
     // เอาไว้เปลี่ยนสีข้อความในSelect
     const [selectedValue, setSelectedValue] = useState('');;
@@ -125,18 +135,24 @@ function Add() {
         if (file) {
             const previewUrl = URL.createObjectURL(file); // สร้าง URL ของไฟล์เพื่อแสดงผล
             setImagePreview(previewUrl); // อัพเดท state ด้วย URL ที่สร้างขึ้น
+            setAddPost({ ...addPost, image: file });
         }
     };
 
     const [formattedDate, setFormattedDate] = useState('');
+    const [StartDate, setStartDate] = useState('');
     const [formattedDateEnd, setFormattedDateEnd] = useState('');
+    const [EndDate, setEndDate] = useState('');
     const [formattedTime, setFormattedTime] = useState('');
+    const [StartTime, setStartTime] = useState('');
     const [formattedTimeEnd, setFormattedTimeEnd] = useState('');
+    const [EndTime, setEndTime] = useState('');
 
     // ฟังก์ชันจัดรูปแบบวันที่
     const handleDateChange = (e) => {
         const dateValue = e.target.value;
         if (dateValue) {
+            setStartDate(dateValue);
             const options = { day: 'numeric', month: 'long', year: 'numeric' };
             const formatted = new Intl.DateTimeFormat('en-GB', options).format(new Date(dateValue));
             setFormattedDate(formatted);
@@ -147,6 +163,7 @@ function Add() {
     const handleDateChangeEnd = (e) => {
         const dateValue = e.target.value;
         if (dateValue) {
+            setEndDate(dateValue);
             const options = { day: 'numeric', month: 'long', year: 'numeric' };
             const formatted = new Intl.DateTimeFormat('en-GB', options).format(new Date(dateValue));
             setFormattedDateEnd(formatted);
@@ -158,6 +175,7 @@ function Add() {
     const handleTimeChange = (e) => {
         const timeValue = e.target.value;
         if (timeValue) {
+            setStartTime(timeValue);
             const [hours, minutes] = timeValue.split(':');
             const date = new Date();
             date.setHours(hours);
@@ -171,6 +189,7 @@ function Add() {
     const handleTimeChangeEnd = (e) => {
         const timeValue = e.target.value;
         if (timeValue) {
+            setEndTime(timeValue);
             const [hours, minutes] = timeValue.split(':');
             const date = new Date();
             date.setHours(hours);
@@ -181,19 +200,29 @@ function Add() {
         }
     }
 
+    const handleCancel = (e) => {
+        e.preventDefault();
+        if (addPost.title || addPost.description || addPost.url || addPost.attach_file || addPost.image || formattedDate || formattedTime || formattedDateEnd || formattedTimeEnd) {
+            document.getElementById('my_modal_5').showModal();
+        } else {
+            handletoHome();
+        }
+    };
+
     return (
         <>
             <Nav />
+            <ToastContainer />
             <div className="w-2/3 m-auto h-auto mt-10 box-border">
                 <div className="border-2 border-gray-300 rounded-lg">
-                    {/* ส่วนหัวของเนื้อหา */}
+                    {/* ส่วนหัวของเนื้อห�� */}
                     <div className='mx-8'>
                         <div className='grid grid-cols-2'>
                             <div className='mt-5 '>
                                 <h1 className='font-bold text-4xl'>Add New Scholarship</h1>
                             </div>
                             <div className='mt-5 flex justify-end '>
-                                <Link to='/' className=' text-slate-400 underline underline-offset-2 hover:text-slate-500'>
+                                <Link to='/' className=' text-slate-400 underline underline-offset-2 hover:text-slate-500' onClick={handleCancel}>
                                     Back
                                 </Link>
                             </div>
@@ -219,11 +248,12 @@ function Add() {
                                                 <label className='text-2xl font-medium'>Scholarship Name
                                                     <span className="text-red-500">*</span>
                                                 </label>
-                                                <input type="text" className='-mt-2 h-full border-2 border-gray-300 rounded-lg placeholder:text-slate-300 p-3 font-sans' placeholder='Fill scholarship name (required)' />
+                                                <input type="text" className='-mt-2 h-full border-2 border-gray-300 rounded-lg placeholder:text-slate-300 p-3 font-sans' placeholder='Fill scholarship name (required)' value={addPost.title} onChange={(e) => setAddPost({ ...addPost, title: e.target.value })} />
                                             </div>
                                             <div className='grid grid-rows-2'>
                                                 <label className='text-2xl font-medium'>website (url)</label>
-                                                <input type="text" className='-mt-2 h-full border-2 border-gray-300 rounded-lg placeholder:text-slate-300 p-3 font-sans' placeholder='Fill your website’s company' />
+                                                <input type="url" className='-mt-2 h-full border-2 border-gray-300 rounded-lg placeholder:text-slate-300 p-3 font-sans' placeholder='Fill your website’s company' value={addPost.url}
+                                                    onChange={(e) => setAddPost({ ...addPost, url: e.target.value })} />
                                             </div>
                                             <div className='grid grid-rows-2'>
                                                 <label className='text-2xl font-medium'>Type of Scholarship
@@ -231,7 +261,10 @@ function Add() {
                                                 </label>
                                                 <select className={`-mt-1 border-2 border-gray-300 rounded-lg p-3 font-sans ${selectedValue ? 'text-black' : 'text-slate-300'}`}
                                                     value={selectedValue}
-                                                    onChange={handleChangeSelected}>
+                                                    onChange={(e) => {
+                                                        handleChangeSelected(e)
+                                                        setAddPost({ ...addPost, category_id: e.target.value })
+                                                    }}>
                                                     <option value="" disabled>
                                                         Select type of scholarship
                                                     </option>
@@ -241,12 +274,15 @@ function Add() {
                                                 </select>
                                             </div>
                                             <div className='grid grid-rows-2'>
-                                                <label className='text-2xl font-medium'>Country*
+                                                <label className='text-2xl font-medium'>Country
                                                     <span className="text-red-500">*</span>
                                                 </label>
                                                 <select className={`-mt-1 border-2 border-gray-300 rounded-lg p-3 font-sans ${selectedCountry ? 'text-black' : 'text-slate-300'}`}
                                                     value={selectedCountry}
-                                                    onChange={handleChangeSelectedCountry}>
+                                                    onChange={(e) => {
+                                                        handleChangeSelectedCountry(e)
+                                                        setAddPost({ ...addPost, country_id: e.target.value })
+                                                    }}>
                                                     <option value="" disabled>
                                                         Select country of scholarship
                                                     </option>
@@ -261,7 +297,9 @@ function Add() {
                                 <div className=' grid grid-rows-2 gap-10'>
                                     <div className='border-2 border-gray-300 rounded-lg h-2/3 grid grid-cols-2'>
                                         <div className='grid grid-rows-2 my-4 mx-8'>
-                                            <label className='text-2xl font-medium'>Start Date</label>
+                                            <label className='text-2xl font-medium'>Start Date
+                                                <span className="text-red-500">*</span>
+                                            </label>
                                             <div className='grid grid-cols-3 -mt-3 gap-14'>
                                                 {/* ช่องสำหรับวันที่ */}
                                                 <input
@@ -271,6 +309,7 @@ function Add() {
                                                     onFocus={(e) => (e.target.type = 'date')} // เปลี่ยนเป็น type="date" เมื่อ focus
                                                     onChange={handleDateChange} // จัดรูปแบบวันที่เมื่อมีการเลือก
                                                     className="col-span-2 border-2 border-gray-300 rounded-lg p-3 font-sans text-center"
+                                                    required
                                                 />
 
                                                 {/* ช่องสำหรับเวลา */}
@@ -281,11 +320,14 @@ function Add() {
                                                     onFocus={(e) => (e.target.type = 'time')} // เปลี่ยนเป็น type="time" เมื่อ focus
                                                     onChange={handleTimeChange} // จัดรูปแบบเวลาเมื่อมีการเลือก
                                                     className="border-2 border-gray-300 rounded-lg p-3 font-sans text-center"
+                                                    required
                                                 />
                                             </div>
                                         </div>
                                         <div className='grid grid-rows-2 my-4 mx-8'>
-                                            <label className='text-2xl font-medium'>End Date</label>
+                                            <label className='text-2xl font-medium'>End Date
+                                                <span className="text-red-500">*</span>
+                                            </label>
                                             <div className='grid grid-cols-3 -mt-3 gap-14'>
                                                 {/* ช่องสำหรับวันที่ */}
                                                 <input
@@ -295,6 +337,7 @@ function Add() {
                                                     onFocus={(e) => (e.target.type = 'date')} // เปลี่ยนเป็น type="date" เมื่อ focus
                                                     onChange={handleDateChangeEnd} // จัดรูปแบบวันที่เมื่อมีการเลือก
                                                     className="col-span-2 border-2 border-gray-300 rounded-lg p-3 font-sans text-center"
+                                                    required
                                                 />
 
                                                 {/* ช่องสำหรับเวลา */}
@@ -305,6 +348,7 @@ function Add() {
                                                     onFocus={(e) => (e.target.type = 'time')} // เปลี่ยนเป็น type="time" เมื่อ focus
                                                     onChange={handleTimeChangeEnd} // จัดรูปแบบเวลาเมื่อมีการเลือก
                                                     className="border-2 border-gray-300 rounded-lg p-3 font-sans text-center"
+                                                    required
                                                 />
                                             </div>
                                         </div>
@@ -324,6 +368,7 @@ function Add() {
                                                 <input id='fileInput' type="file" hidden onChange={(e) => {
                                                     const fileName = e.target.files[0]?.name;
                                                     document.getElementById('fileNameInput').placeholder = fileName || 'No file chosen';
+                                                    setAddPost({ ...addPost, attach_file: e.target.files[0] });
                                                 }} />
                                             </div>
                                             <div className='col-span-3 flex items-center'>
@@ -337,12 +382,15 @@ function Add() {
                                         <label className='text-2xl font-medium '>Description
                                             <span className="text-red-500">*</span>
                                         </label>
-                                        <textarea className='resize-none h-72 mt-2 font-sans p-3 border-2 border-gray-400 rounded-lg'></textarea>
+                                        <textarea className='resize-none h-72 mt-2 font-sans p-3 border-2 border-gray-400 rounded-lg' value={addPost.description}
+                                            onChange={(e) => {
+                                                setAddPost({ ...addPost, description: e.target.value })
+                                            }}></textarea>
                                     </div>
                                 </div>
                             </div>
                             <div className='-mt-32 flex justify-end'>
-                                <button type='button' className='btn hover:bg-gray-700 bg-gray-500 text-white border-none w-1/5 mr-10' onClick={() => document.getElementById('my_modal_5').showModal()}>Cancel Post
+                                <button type='button' className='btn hover:bg-gray-700 bg-gray-500 text-white border-none w-1/5 mr-10' onClick={handleCancel}>Cancel Post
                                     <img src={icon2} alt="" />
                                 </button>
                                 <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle justify-center items-center">
@@ -351,15 +399,31 @@ function Add() {
                                         <p className="py-5 text-2xl font-medium text-center">Are you sure you want to Discard this Edit?</p>
                                         <p className="text-center text-base font-medium text-gray-400 pb-5">“The Progress will not be saved”</p>
                                         <div className="modal-action flex flex-col justify-center items-center">
-                                            <form method="dialog" className='grid grid-cols-2 gap-10 w-full'>
-                                                {/* if there is a button in form, it will close the modal */}
-                                                <button className="btn bg-gray-400 hover:bg-gray-500">Cancel</button>
-                                                <button className="btn bg-pink-500 hover:bg-pink-600" onClick={handletoHome}>Yes, Discard this</button>
-                                            </form>
+                                            {/* เปลี่ยนจาก form เป็น div */}
+                                            <div className='grid grid-cols-2 gap-10 w-full'>
+                                                {/* ปุ่มปิด modal */}
+                                                <button
+                                                    type='button'
+                                                    className="btn bg-gray-400 hover:bg-gray-500"
+                                                    onClick={() => document.getElementById('my_modal_5').close()}
+                                                >
+                                                    Cancel
+                                                </button>
+                                                {/* ปุ่มยืนยัน */}
+                                                <button
+                                                    className="btn bg-pink-500 hover:bg-pink-600"
+                                                    onClick={() => {
+                                                        document.getElementById('my_modal_5').close();
+                                                        handletoHome();
+                                                    }}
+                                                >
+                                                    Yes, Discard this
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </dialog>
-                                <button type='button' className='btn hover:bg-blue-700 bg-blue-500 text-white border-none w-1/5'>Post Scholarship
+                                <button type='button' className='btn hover:bg-blue-700 bg-blue-500 text-white border-none w-1/5' onClick={handleSubmit}>Post Scholarship
                                     <img src={icon2} alt="" />
                                 </button>
                             </div>

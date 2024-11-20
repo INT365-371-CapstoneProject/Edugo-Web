@@ -25,4 +25,4 @@ const getAnnounceById = async (id) => {
 }
 
 
-export { getAnnounce, getAnnounceById, url };
+export { getAnnounce, getAnnounceById, url, APT_ROOT };
