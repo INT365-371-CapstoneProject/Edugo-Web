@@ -64,36 +64,35 @@ function Add() {
         "country_id": 0
     });
 
-
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const handleSubmit = async (e) => {
         e.preventDefault(); // ป้องกันการรีเฟรชของหน้าเว็บ
         if (addPost.title === '' || addPost.description === '' || addPost.category_id === 0 || addPost.country_id === 0 || formattedDate === '' || formattedTime === '' || formattedDateEnd === '' || formattedTimeEnd === '') {
             toast.error('Please fill in all required fields');
             return;
         } else {
+            setIsSubmitting(true); // ปิดปุ่ม submit
             const startDateTime = new Date(`${StartDate}T${StartTime}`).toISOString();
             const endDateTime = new Date(`${EndDate}T${EndTime}`).toISOString();
-            // อัพเดท state ทั้งหมดในครั้งเดียว
-            setAddPost(prevState => {
-                const updatedPost = {
-                    ...prevState,
-                    published_date: startDateTime,
-                    close_date: endDateTime
-                };
-
-                const formData = new FormData();
-                for (const key in updatedPost) {
-                    formData.append(key, updatedPost[key]);
+            const updatedPost = {
+                ...addPost,
+                publish_Date: startDateTime,
+                close_date: endDateTime
+            };
+            const formData = new FormData();
+            for (const key in updatedPost) {
+                if (key === 'url' && (updatedPost[key] === null || updatedPost[key] === '')) {
+                    continue;
                 }
-
-                if (formData.get('url') === '') {
-                    formData.delete('url');
-                    formData.append('url', null);
+                if (key === 'attach_file' && updatedPost[key] === null) {
+                    continue;
                 }
-                CreatePost(formData);
-                return updatedPost;
-            });
-
+                if (key === 'image' && updatedPost[key] === null) {
+                    continue;
+                }
+                formData.append(key, updatedPost[key]);
+            }
+            CreatePost(formData);
         }
     };
 
@@ -114,6 +113,8 @@ function Add() {
         }
         catch (error) {
             console.error(error);
+        } finally {
+            setIsSubmitting(false); // เปิดปุ่ม submit อีกครั้ง
         }
     }
 
@@ -153,10 +154,9 @@ function Add() {
         const dateValue = e.target.value;
         if (dateValue) {
             setStartDate(dateValue);
-            const options = { day: 'numeric', month: 'long', year: 'numeric' };
-            const formatted = new Intl.DateTimeFormat('en-GB', options).format(new Date(dateValue));
+            const formatted = dateValue
             setFormattedDate(formatted);
-            e.target.type = 'text'; // กลับไปเป็น text ทันทีที่เลือก
+
         }
     };
 
@@ -164,10 +164,8 @@ function Add() {
         const dateValue = e.target.value;
         if (dateValue) {
             setEndDate(dateValue);
-            const options = { day: 'numeric', month: 'long', year: 'numeric' };
-            const formatted = new Intl.DateTimeFormat('en-GB', options).format(new Date(dateValue));
+            const formatted = dateValue
             setFormattedDateEnd(formatted);
-            e.target.type = 'text'; // กลับไปเป็น text ทันทีที่เลือก
         }
     }
 
@@ -176,13 +174,8 @@ function Add() {
         const timeValue = e.target.value;
         if (timeValue) {
             setStartTime(timeValue);
-            const [hours, minutes] = timeValue.split(':');
-            const date = new Date();
-            date.setHours(hours);
-            date.setMinutes(minutes);
-            const formatted = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+            const formatted = timeValue
             setFormattedTime(formatted);
-            e.target.type = 'text'; // กลับไปเป็น text ทันทีที่เลือก
         }
     };
 
@@ -190,13 +183,8 @@ function Add() {
         const timeValue = e.target.value;
         if (timeValue) {
             setEndTime(timeValue);
-            const [hours, minutes] = timeValue.split(':');
-            const date = new Date();
-            date.setHours(hours);
-            date.setMinutes(minutes);
-            const formatted = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+            const formatted = timeValue
             setFormattedTimeEnd(formatted);
-            e.target.type = 'text'; // กลับไปเป็น text ทันทีที่เลือก
         }
     }
 
@@ -303,10 +291,9 @@ function Add() {
                                             <div className='grid grid-cols-3 -mt-3 gap-14'>
                                                 {/* ช่องสำหรับวันที่ */}
                                                 <input
-                                                    type="text"
+                                                    type="date"
                                                     placeholder="Select Date"
                                                     value={formattedDate}
-                                                    onFocus={(e) => (e.target.type = 'date')} // เปลี่ยนเป็น type="date" เมื่อ focus
                                                     onChange={handleDateChange} // จัดรูปแบบวันที่เมื่อมีการเลือก
                                                     className="col-span-2 border-2 border-gray-300 rounded-lg p-3 font-sans text-center"
                                                     required
@@ -314,10 +301,9 @@ function Add() {
 
                                                 {/* ช่องสำหรับเวลา */}
                                                 <input
-                                                    type="text"
+                                                    type="time"
                                                     placeholder="Select Time"
                                                     value={formattedTime}
-                                                    onFocus={(e) => (e.target.type = 'time')} // เปลี่ยนเป็น type="time" เมื่อ focus
                                                     onChange={handleTimeChange} // จัดรูปแบบเวลาเมื่อมีการเลือก
                                                     className="border-2 border-gray-300 rounded-lg p-3 font-sans text-center"
                                                     required
@@ -331,10 +317,9 @@ function Add() {
                                             <div className='grid grid-cols-3 -mt-3 gap-14'>
                                                 {/* ช่องสำหรับวันที่ */}
                                                 <input
-                                                    type="text"
+                                                    type="date"
                                                     placeholder="Select Date"
                                                     value={formattedDateEnd}
-                                                    onFocus={(e) => (e.target.type = 'date')} // เปลี่ยนเป็น type="date" เมื่อ focus
                                                     onChange={handleDateChangeEnd} // จัดรูปแบบวันที่เมื่อมีการเลือก
                                                     className="col-span-2 border-2 border-gray-300 rounded-lg p-3 font-sans text-center"
                                                     required
@@ -342,10 +327,9 @@ function Add() {
 
                                                 {/* ช่องสำหรับเวลา */}
                                                 <input
-                                                    type="text"
+                                                    type="time"
                                                     placeholder="Select Time"
                                                     value={formattedTimeEnd}
-                                                    onFocus={(e) => (e.target.type = 'time')} // เปลี่ยนเป็น type="time" เมื่อ focus
                                                     onChange={handleTimeChangeEnd} // จัดรูปแบบเวลาเมื่อมีการเลือก
                                                     className="border-2 border-gray-300 rounded-lg p-3 font-sans text-center"
                                                     required
@@ -423,7 +407,7 @@ function Add() {
                                         </div>
                                     </div>
                                 </dialog>
-                                <button type='button' className='btn hover:bg-blue-700 bg-blue-500 text-white border-none w-1/5' onClick={handleSubmit}>Post Scholarship
+                                <button type='button'  disabled={isSubmitting} className='btn hover:bg-blue-700 bg-blue-500 text-white border-none w-1/5' onClick={handleSubmit}>Post Scholarship
                                     <img src={icon2} alt="" />
                                 </button>
                             </div>

@@ -5,6 +5,7 @@ import image2 from '../assets/2.png';
 import { useNavigate } from 'react-router-dom';
 import { getAnnounce } from '../composable/getAnnounce';
 import { urlImage } from '../composable/getImage';
+import image_No_Scholarship from '../assets/No_Scholarship.png';
 
 function Homepage() {
     const [announce, setAnnounce] = useState([]);
@@ -36,7 +37,6 @@ function Homepage() {
 
     const checkPendingAnnounce = announce.filter((announce) => {
         const localPublishedDate = new Date(announce.published_date);
-        console.log(localPublishedDate);
         const nowInLocalTime = new Date();
         return localPublishedDate > nowInLocalTime;
     });
@@ -52,6 +52,10 @@ function Homepage() {
         if (filterType === 'Close') return checkCloseAnnounce;
         if (filterType === 'Pending') return checkPendingAnnounce;
         return announce; // Default to show all
+    };
+
+    const handleFilterClick = (type) => {
+        setFilterType(type);
     };
 
     const formatDate = (dateString) => {
@@ -83,8 +87,8 @@ function Homepage() {
                         {/* Buttons for Filter */}
                         <div className="grid grid-cols-4 mt-10 gap-x-8">
                             <div
-                                className="border-2 border-gray-300 rounded-lg cursor-pointer" 
-                                onClick={() => setFilterType('All')}
+                                className="border-2 border-gray-300 rounded-lg cursor-pointer"
+                                onClick={() => handleFilterClick('All')}
                             >
                                 <div className="border-l-4 border-blue-600 my-5">
                                     <h1 className="ml-8 text-2xl font-medium">All Scholarship</h1>
@@ -96,7 +100,7 @@ function Homepage() {
                             </div>
                             <div
                                 className="border-2 border-gray-300 rounded-lg cursor-pointer"
-                                onClick={() => setFilterType('Pending')}
+                                onClick={() => handleFilterClick('Pending')}
                             >
                                 <div className="border-l-4 border-gray-300 my-5">
                                     <h1 className="ml-8 text-xl font-medium">Pending Scholarship</h1>
@@ -108,7 +112,7 @@ function Homepage() {
                             </div>
                             <div
                                 className="border-2 border-gray-300 rounded-lg cursor-pointer"
-                                onClick={() => setFilterType('Open')}
+                                onClick={() => handleFilterClick('Open')}
                             >
                                 <div className="border-l-4 border-yellow-300 my-5">
                                     <h1 className="ml-8 text-xl font-medium">Opened Scholarship</h1>
@@ -120,7 +124,7 @@ function Homepage() {
                             </div>
                             <div
                                 className="border-2 border-gray-300 rounded-lg cursor-pointer"
-                                onClick={() => setFilterType('Close')}
+                                onClick={() => handleFilterClick('Close')}
                             >
                                 <div className="border-l-4 border-pink-600 my-5">
                                     <h1 className="ml-8 text-xl font-medium">Closed Scholarship</h1>
@@ -132,6 +136,22 @@ function Homepage() {
                             </div>
                         </div>
 
+
+                        <div className="mt-10 flex justify-center items-center flex-col">
+                            {filterType === 'All' && announce.length === 0 && (
+                                <>
+                                    <h1 className="text-4xl font-bold text-gray-300">No Scholarship here</h1>
+                                    <img src={image_No_Scholarship} alt="" className="mt-10" />
+                                </>
+                            )}
+                            {filterType !== 'All' && filteredAnnounce().length === 0 && (
+                                <>
+                                    <h1 className="text-4xl font-bold text-gray-300">No Scholarship here</h1>
+                                    <img src={image_No_Scholarship} alt="" className="mt-10" />
+                                </>
+                            )}
+                        </div>
+
                         {/* Scholarship List */}
                         <div className="grid grid-cols-2 mt-10 gap-12">
                             {filteredAnnounce().map((announce, index) => (
@@ -141,7 +161,7 @@ function Homepage() {
                                     onClick={() => navigate(`/detail/${announce.id}`)}
                                 >
                                     <div className="grid grid-cols-2">
-                                        <div className="m-auto">
+                                        <div className="m-auto w-52 h-72 mt-10">
                                             <img
                                                 src={
                                                     announce.image
@@ -166,10 +186,10 @@ function Homepage() {
                                                 >
                                                     <h1
                                                         className={`font-medium text-lg ${checkPendingAnnounce.some((item) => item.id === announce.id)
-                                                                ? 'text-gray-400'
-                                                                : checkOpenAnnounce.some((item) => item.id === announce.id)
-                                                                    ? 'text-lime-400'
-                                                                    : 'text-red-400'
+                                                            ? 'text-gray-400'
+                                                            : checkOpenAnnounce.some((item) => item.id === announce.id)
+                                                                ? 'text-lime-400'
+                                                                : 'text-red-400'
                                                             }`}
                                                     >
                                                         {checkPendingAnnounce.some((item) => item.id === announce.id)

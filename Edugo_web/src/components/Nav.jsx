@@ -12,12 +12,14 @@ function Nav() {
             </Link>
           </div>
         </div>
-        <div className="w-2/3">
+
+        {/* <div className="w-2/3">
           <div className="form-control ml-10">
             <input type="text" placeholder="Scholarship Management" className="input input-bordered w-24 md:w-auto" />
           </div>
-        </div>
-        <div className='w-1/3 flex flex-row'>
+        </div> */}
+
+        {/* <div className='w-1/3 flex flex-row'>
           <div className="dropdown dropdown-end ml-10">
             <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
               <div className="w-10 rounded-full">
@@ -42,7 +44,7 @@ function Nav() {
           <div className='font-bold ml-3 my-auto'>
             <h1 >Provider Name</h1>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   )
