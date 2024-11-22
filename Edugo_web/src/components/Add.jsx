@@ -5,21 +5,119 @@ import Nav from './Nav';
 import image from '../assets/bg-file-image.png';
 import { getCountry } from '../composable/getCountry';
 import { getCategory } from '../composable/getCategory';
+import { getAnnounceById } from '../composable/getAnnounce';
 import icon from '../assets/iconCarrier.svg';
 import icon1 from '../assets/icon-attach.svg';
 import icon2 from '../assets/Vector.svg'
 import image1 from '../assets/cancel-post.png';
-import { useNavigate, Link } from 'react-router-dom';
+import { urlImage } from '../composable/getImage';
+import { useNavigate, Link, useParams } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 function Add() {
     const navigate = useNavigate();
-    const handletoHome = () => {
-        navigate('/')
-    }
-    // ดึงข้อมูลประเทศ
+    const { id } = useParams();
+    const isEditMode = !!id;
     const [country, setCountry] = useState([]);
+    const [category, setCategory] = useState([]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [selectedValue, setSelectedValue] = useState('');
+    const [selectedCountry, setSelectedCountry] = useState('')
+    const [imagePreview, setImagePreview] = useState(null);
+    const [formattedDate, setFormattedDate] = useState('');
+    const [StartDate, setStartDate] = useState('');
+    const [formattedDateEnd, setFormattedDateEnd] = useState('');
+    const [EndDate, setEndDate] = useState('');
+    const [formattedTime, setFormattedTime] = useState('');
+    const [StartTime, setStartTime] = useState('');
+    const [formattedTimeEnd, setFormattedTimeEnd] = useState('');
+    const [EndTime, setEndTime] = useState('');
+    const [checkDate, setCheckDate] = useState('');
+    const [checkTime, setCheckTime] = useState('');
+    const [checkDateEnd, setCheckDateEnd] = useState('');
+    const [checkTimeEnd, setCheckTimeEnd] = useState('');
+    const [checkEdit, setCheckEdit] = useState(false);
+    const [addPost, setAddPost] = useState({
+        "title": '',
+        "description": '',
+        "url": '',
+        "attach_file": null,
+        "image": null,
+        "posts_type": "Announce",
+        "publish_Date": '',
+        "close_date": '',
+        "category_id": 0,
+        "country_id": 0
+    });
+    const [editPost, setEditPost] = useState({});
+
+    const handletoHome = () => {
+        if (isEditMode) {
+            navigate(`/detail/${id}`);
+        } else {
+            navigate('/');
+        }
+    }
+
+    // ดึงข้อมูลประกาศ ที่ต้องการแก้ไข
+    useEffect(() => {
+        if (isEditMode) {
+            getAnnounceById(id)
+                .then(data => {
+                    if (data) {
+                        setEditPost(data[0]);
+                        // แยกวันที่และเวลา
+                        const date = new Date(data[0].publish_date);
+                        const dateEnd = new Date(data[0].close_date);
+
+                        const formatDate = (date) => {
+                            const year = date.getFullYear();
+                            const month = String(date.getMonth() + 1).padStart(2, '0');
+                            const day = String(date.getDate()).padStart(2, '0');
+                            return `${year}-${month}-${day}`;
+                        };
+
+                        const formatTime = (date) => {
+                            const hours = String(date.getHours()).padStart(2, '0');
+                            const minutes = String(date.getMinutes()).padStart(2, '0');
+                            return `${hours}:${minutes}`;
+                        };
+
+                        setFormattedDate(formatDate(date));
+                        setFormattedTime(formatTime(date));
+                        setFormattedDateEnd(formatDate(dateEnd));
+                        setFormattedTimeEnd(formatTime(dateEnd));
+                        setCheckDate(formatDate(date));
+                        setCheckTime(formatTime(date));
+                        setCheckDateEnd(formatDate(dateEnd));
+                        setCheckTimeEnd(formatTime(dateEnd));
+                    } else {
+                        console.log('No data found or an error occurred.');
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }
+    }, [id, isEditMode])
+
+    // เช็คว่ามีการแก้ไขข้อมูลหรือไม่
+    useEffect(() => {
+        if (isEditMode) {
+            if (formattedDate === checkDate && formattedTime === checkTime && formattedDateEnd === checkDateEnd && formattedTimeEnd === checkTimeEnd) {
+                if (addPost.title === '' && addPost.description === '' && addPost.category_id === 0 && addPost.country_id === 0 && addPost.url === '' && addPost.attach_file === null && addPost.image === null) {
+                    setCheckEdit(true);
+                }else{
+                    setCheckEdit(false);
+                }
+            }else {
+                setCheckEdit(false);
+            }
+        }
+    }, [addPost, formattedDate, formattedDateEnd, formattedTime, formattedTimeEnd])
+
+    // ดึงข้อมูลประเทศ
     useEffect(() => {
         getCountry()
             .then(data => {
@@ -35,7 +133,6 @@ function Add() {
     }, []);
 
     // ดึงข้อมูลประเภทของทุน
-    const [category, setCategory] = useState([]);
     useEffect(() => {
         getCategory()
             .then(data => {
@@ -50,52 +147,125 @@ function Add() {
             });
     }, []);
 
-
-    const [addPost, setAddPost] = useState({
-        "title": '',
-        "description": '',
-        "url": '',
-        "attach_file": null,
-        "image": null,
-        "posts_type": "Announce",
-        "publish_Date": '',
-        "close_date": '',
-        "category_id": 0,
-        "country_id": 0
-    });
-
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const handleSubmit = async (e) => {
         e.preventDefault(); // ป้องกันการรีเฟรชของหน้าเว็บ
-        if (addPost.title === '' || addPost.description === '' || addPost.category_id === 0 || addPost.country_id === 0 || formattedDate === '' || formattedTime === '' || formattedDateEnd === '' || formattedTimeEnd === '') {
-            toast.error('Please fill in all required fields');
-            return;
-        } else {
-            setIsSubmitting(true); // ปิดปุ่ม submit
-            const startDateTime = new Date(`${StartDate}T${StartTime}`).toISOString();
-            const endDateTime = new Date(`${EndDate}T${EndTime}`).toISOString();
-            const updatedPost = {
-                ...addPost,
-                publish_Date: startDateTime,
-                close_date: endDateTime
-            };
-            const formData = new FormData();
-            for (const key in updatedPost) {
-                if (key === 'url' && (updatedPost[key] === null || updatedPost[key] === '')) {
-                    continue;
+        if (isEditMode) {
+            setIsSubmitting(true);
+            if (formattedDate == checkDate && formattedTime == checkTime && formattedDateEnd == checkDateEnd && formattedTimeEnd == checkTimeEnd) {
+                // เช็คว่ามีการแก้ไขข้อมูลหรือไม่
+                if (addPost.title === '' && addPost.description === '' && addPost.category_id === 0 && addPost.country_id === 0 && addPost.url === '' && addPost.attach_file === null && addPost.image === null) {
+                    navigate(`/detail/${id}`);
+                } else {
+                    // ถ้ามีการแก้ไขข้อมูล จะส่งไปแค่ข้อมูลที่แก้ไขเท่านั้น
+                    const formData = new FormData();
+                    const skipConditions = {
+                        title: value => value === '',
+                        description: value => value === '',
+                        url: value => value === null || value === '',
+                        attach_file: value => value === null,
+                        image: value => value === null,
+                        category_id: value => value === 0,
+                        country_id: value => value === 0,
+                        publish_Date: value => value === '',
+                        close_date: value => value === '',
+                        posts_type: value => value === 'Announce',
+                    };
+
+                    Object.entries(addPost).forEach(([key, value]) => {
+                        if (skipConditions[key]?.(value)) {
+                            return; // Skip if condition matches
+                        }
+                        formData.append(key, value); // Add to formData if not skipped
+                    });
+
+                    UpdatePost(formData);
                 }
-                if (key === 'attach_file' && updatedPost[key] === null) {
-                    continue;
+            } else {
+                const startDateTime = new Date(`${StartDate === '' ? checkDate : StartDate}T${StartTime === '' ? checkTime : StartTime}`).toISOString();
+                const endDateTime = new Date(`${EndDate === '' ? checkDateEnd : EndDate}T${EndTime === '' ? checkTimeEnd : EndTime}`).toISOString();
+                const updatedPost = {
+                    ...addPost,
+                    publish_Date: startDateTime,
+                    close_date: endDateTime
+                };
+                if (updatedPost.title === '' && updatedPost.description === '' && updatedPost.category_id === 0 && updatedPost.country_id === 0 && updatedPost.url === '' && updatedPost.attach_file === null && updatedPost.image === null) {
+                    const formData = new FormData();
+                    formData.append('publish_Date', startDateTime);
+                    formData.append('close_date', endDateTime);
+                    UpdatePost(formData);
+                } else {
+                    const formData = new FormData();
+                    const skipConditions = {
+                        title: value => value === '',
+                        description: value => value === '',
+                        url: value => value === null || value === '',
+                        attach_file: value => value === null,
+                        image: value => value === null,
+                        category_id: value => value === 0,
+                        country_id: value => value === 0,
+                        publish_Date: value => value === '',
+                        close_date: value => value === '',
+                        posts_type: value => value === 'Announce',
+                    };
+                    Object.entries(updatedPost).forEach(([key, value]) => {
+                        if (skipConditions[key]?.(value)) {
+                            return; // Skip if condition matches
+                        }
+                        formData.append(key, value); // Add to formData if not skipped
+                    });
+                    UpdatePost(formData);
                 }
-                if (key === 'image' && updatedPost[key] === null) {
-                    continue;
-                }
-                formData.append(key, updatedPost[key]);
             }
-            CreatePost(formData);
+        } else {
+            if (addPost.title === '' || addPost.description === '' || addPost.category_id === 0 || addPost.country_id === 0 || formattedDate === '' || formattedTime === '' || formattedDateEnd === '' || formattedTimeEnd === '') {
+                toast.error('Please fill in all required fields');
+                return;
+            } else {
+                setIsSubmitting(true); // ปิดปุ่ม submit
+                const startDateTime = new Date(`${StartDate}T${StartTime}`).toISOString();
+                const endDateTime = new Date(`${EndDate}T${EndTime}`).toISOString();
+                const updatedPost = {
+                    ...addPost,
+                    publish_Date: startDateTime,
+                    close_date: endDateTime
+                };
+                const formData = new FormData();
+                for (const key in updatedPost) {
+                    if (key === 'url' && (updatedPost[key] === null || updatedPost[key] === '')) {
+                        continue;
+                    }
+                    if (key === 'attach_file' && updatedPost[key] === null) {
+                        continue;
+                    }
+                    if (key === 'image' && updatedPost[key] === null) {
+                        continue;
+                    }
+                    formData.append(key, updatedPost[key]);
+                }
+                CreatePost(formData);
+            }
         }
     };
 
+    const UpdatePost = async (formData) => {
+        try {
+            if (formData) {
+                const res = await axios.put(`${url}/update/${id}`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    }
+                });
+                if (res.status === 200) {
+                    navigate(`/detail/${id}`);
+                }
+            }
+        }
+        catch (error) {
+            console.error(error);
+        } finally {
+            setIsSubmitting(false); // เปิดปุ่ม submit
+        }
+    }
 
 
     const CreatePost = async (formData) => {
@@ -119,18 +289,15 @@ function Add() {
     }
 
     // เอาไว้เปลี่ยนสีข้อความในSelect
-    const [selectedValue, setSelectedValue] = useState('');;
     const handleChangeSelected = (event) => {
         setSelectedValue(event.target.value);
     };
-    const [selectedCountry, setSelectedCountry] = useState('')
     const handleChangeSelectedCountry = (event) => {
         setSelectedCountry(event.target.value);
     };
 
 
     // เอาไว้ show รุปที่เลือก
-    const [imagePreview, setImagePreview] = useState(null);
     const handleImageChange = (e) => {
         const file = e.target.files[0]; // เลือกไฟล์รูปแรกที่ผู้ใช้เลือก
         if (file) {
@@ -139,15 +306,6 @@ function Add() {
             setAddPost({ ...addPost, image: file });
         }
     };
-
-    const [formattedDate, setFormattedDate] = useState('');
-    const [StartDate, setStartDate] = useState('');
-    const [formattedDateEnd, setFormattedDateEnd] = useState('');
-    const [EndDate, setEndDate] = useState('');
-    const [formattedTime, setFormattedTime] = useState('');
-    const [StartTime, setStartTime] = useState('');
-    const [formattedTimeEnd, setFormattedTimeEnd] = useState('');
-    const [EndTime, setEndTime] = useState('');
 
     // ฟังก์ชันจัดรูปแบบวันที่
     const handleDateChange = (e) => {
@@ -190,10 +348,20 @@ function Add() {
 
     const handleCancel = (e) => {
         e.preventDefault();
-        if (addPost.title || addPost.description || addPost.url || addPost.attach_file || addPost.image || formattedDate || formattedTime || formattedDateEnd || formattedTimeEnd) {
-            document.getElementById('my_modal_5').showModal();
+        if (isEditMode) {
+            if (addPost.title || addPost.description || addPost.url || addPost.attach_file || addPost.image) {
+                document.getElementById('my_modal_5').showModal();
+            } else if (formattedDate == checkDate && formattedTime == checkTime && formattedDateEnd == checkDateEnd && formattedTimeEnd == checkTimeEnd) {
+                handletoHome();
+            } else {
+                document.getElementById('my_modal_5').showModal();
+            }
         } else {
-            handletoHome();
+            if (addPost.title || addPost.description || addPost.url || addPost.attach_file || addPost.image || formattedDate || formattedTime || formattedDateEnd || formattedTimeEnd) {
+                document.getElementById('my_modal_5').showModal();
+            } else {
+                handletoHome();
+            }
         }
     };
 
@@ -207,10 +375,10 @@ function Add() {
                     <div className='mx-8'>
                         <div className='grid grid-cols-2'>
                             <div className='mt-5 '>
-                                <h1 className='font-bold text-4xl'>Add New Scholarship</h1>
+                                <h1 className='font-bold text-4xl'>{isEditMode ? 'Edit Scholarship' : 'Add New Scholarship'}</h1>
                             </div>
                             <div className='mt-5 flex justify-end '>
-                                <Link to='/' className=' text-slate-400 underline underline-offset-2 hover:text-slate-500' onClick={handleCancel}>
+                                <Link className=' text-slate-400 underline underline-offset-2 hover:text-slate-500' onClick={handleCancel}>
                                     Back
                                 </Link>
                             </div>
@@ -219,69 +387,122 @@ function Add() {
                         <form action="">
                             <div className='grid grid-rows-3 mt-10 gap-10'>
                                 <div className='grid grid-cols-3 gap-4'>
-                                    <div className='bg-no-repeat bg-cover rounded-lg' style={{ backgroundImage: `url(${imagePreview || image})` }}>
-                                        <div className='bg-gray-700 bg-opacity-50 p-8 rounded-lg text-center w-full h-full flex'>
-                                            <div className='my-auto'>
+                                    {/* คอลัมน์สำหรับรูปภาพ */}
+                                    <div className='relative rounded-lg overflow-hidden'>
+                                        {isEditMode ? (
+                                            <img
+                                                src={imagePreview ? imagePreview : (editPost.image ? `${urlImage}/${editPost.image}` : image)}
+                                                alt=""
+                                                className='w-full h-full object-cover rounded-lg'
+                                            />
+                                        ) : (
+                                            <img
+                                                src={imagePreview || image}
+                                                alt=""
+                                                className='w-full h-full object-cover rounded-lg'
+                                            />
+                                        )}
+                                        <div className='absolute inset-0 bg-gray-700 bg-opacity-50 p-8 flex justify-center items-center'>
+                                            <div className='flex justify-center items-center flex-col text-center'>
                                                 <p className='text-white mb-4'>Photo Upload should size ...size ... maximum</p>
-                                                <button type="button" onClick={() => document.getElementById('imageInput').click()} className='btn hover:bg-blue-700 bg-blue-500 text-white border-none'>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => document.getElementById('imageInput').click()}
+                                                    className='btn hover:bg-blue-700 bg-blue-500 text-white border-none'
+                                                >
                                                     Upload Photo <img src={icon} alt="" />
-                                                    <input id="imageInput" type="file" accept='image/*' className='hidden' onChange={handleImageChange} />
+                                                    <input
+                                                        id="imageInput"
+                                                        type="file"
+                                                        accept='image/*'
+                                                        className='hidden'
+                                                        onChange={handleImageChange}
+                                                    />
                                                 </button>
                                             </div>
                                         </div>
                                     </div>
+
+                                    {/* คอลัมน์ฟอร์ม */}
                                     <div className='col-span-2 border-2 border-gray-300 rounded-lg'>
-                                        <div className='grid grid-rows-4 m-7 gap-2'>
+                                        <div className='grid grid-rows-4 m-7 gap-5'>
+                                            {/* ชื่อทุนการศึกษา */}
                                             <div className='grid grid-rows-2'>
                                                 <label className='text-2xl font-medium'>Scholarship Name
                                                     <span className="text-red-500">*</span>
                                                 </label>
-                                                <input type="text" className='-mt-2 h-full border-2 border-gray-300 rounded-lg placeholder:text-slate-300 p-3 font-sans' placeholder='Fill scholarship name (required)' value={addPost.title} onChange={(e) => setAddPost({ ...addPost, title: e.target.value })} />
+                                                <input
+                                                    type="text"
+                                                    className='-mt-2 h-full border-2 border-gray-300 rounded-lg placeholder:text-slate-300 p-3 font-sans'
+                                                    placeholder={isEditMode ? editPost.title : "Fill your scholarship's name"}
+                                                    value={addPost.title}
+                                                    onChange={(e) => setAddPost({ ...addPost, title: e.target.value })}
+                                                />
                                             </div>
+
+                                            {/* เว็บไซต์ */}
                                             <div className='grid grid-rows-2'>
-                                                <label className='text-2xl font-medium'>website (url)</label>
-                                                <input type="url" className='-mt-2 h-full border-2 border-gray-300 rounded-lg placeholder:text-slate-300 p-3 font-sans' placeholder='Fill your website’s company' value={addPost.url}
-                                                    onChange={(e) => setAddPost({ ...addPost, url: e.target.value })} />
+                                                <label className='text-2xl font-medium'>Website (URL)</label>
+                                                <input
+                                                    type="url"
+                                                    className='-mt-2 h-full border-2 border-gray-300 rounded-lg placeholder:text-slate-300 p-3 font-sans'
+                                                    placeholder={isEditMode ? (editPost.url ? editPost.url : "No Website") : "Fill your scholarship's website"}
+                                                    value={addPost.url}
+                                                    onChange={(e) => setAddPost({ ...addPost, url: e.target.value })}
+                                                />
                                             </div>
+
+                                            {/* ประเภทของทุน */}
                                             <div className='grid grid-rows-2'>
                                                 <label className='text-2xl font-medium'>Type of Scholarship
                                                     <span className="text-red-500">*</span>
                                                 </label>
-                                                <select className={`-mt-1 border-2 border-gray-300 rounded-lg p-3 font-sans ${selectedValue ? 'text-black' : 'text-slate-300'}`}
+                                                <select
+                                                    className={`-mt-1 border-2 border-gray-300 rounded-lg p-3 font-sans ${selectedValue ? 'text-black' : 'text-slate-300'}`}
                                                     value={selectedValue}
                                                     onChange={(e) => {
-                                                        handleChangeSelected(e)
-                                                        setAddPost({ ...addPost, category_id: e.target.value })
-                                                    }}>
+                                                        handleChangeSelected(e);
+                                                        setAddPost({ ...addPost, category_id: e.target.value });
+                                                    }}
+                                                >
                                                     <option value="" disabled>
-                                                        Select type of scholarship
+                                                        {isEditMode ? editPost.category : 'Select category of scholarship'}
                                                     </option>
                                                     {category.map((item, index) => (
-                                                        <option key={index} value={item.id} className=' text-black'>{item.category_name}</option>
+                                                        <option key={index} value={item.id} className='text-black'>
+                                                            {item.category_name}
+                                                        </option>
                                                     ))}
                                                 </select>
                                             </div>
+
+                                            {/* ประเทศ */}
                                             <div className='grid grid-rows-2'>
                                                 <label className='text-2xl font-medium'>Country
                                                     <span className="text-red-500">*</span>
                                                 </label>
-                                                <select className={`-mt-1 border-2 border-gray-300 rounded-lg p-3 font-sans ${selectedCountry ? 'text-black' : 'text-slate-300'}`}
+                                                <select
+                                                    className={`-mt-1 border-2 border-gray-300 rounded-lg p-3 font-sans ${selectedCountry ? 'text-black' : 'text-slate-300'}`}
                                                     value={selectedCountry}
                                                     onChange={(e) => {
-                                                        handleChangeSelectedCountry(e)
-                                                        setAddPost({ ...addPost, country_id: e.target.value })
-                                                    }}>
+                                                        handleChangeSelectedCountry(e);
+                                                        setAddPost({ ...addPost, country_id: e.target.value });
+                                                    }}
+                                                >
                                                     <option value="" disabled>
-                                                        Select country of scholarship
+                                                        {isEditMode ? editPost.country : 'Select country of scholarship'}
                                                     </option>
                                                     {country.map((item, index) => (
-                                                        <option key={index} value={item.id} className=' text-black'>{item.country_name}</option>
+                                                        <option key={index} value={item.id} className='text-black'>
+                                                            {item.country_name}
+                                                        </option>
                                                     ))}
                                                 </select>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+
                                 <div className=' grid grid-rows-2 gap-10'>
                                     <div className='border-2 border-gray-300 rounded-lg h-2/3 grid grid-cols-2'>
                                         <div className='grid grid-rows-2 my-4 mx-8'>
@@ -340,7 +561,7 @@ function Add() {
                                     <div className='-mt-14 border-2 border-gray-300 rounded-lg h-2/3 grid grid-rows-2 pb-3'>
                                         <div className='grid grid-cols-7 mx-8'>
                                             <label className='text-2xl font-medium items-center flex'>Attach Files</label>
-                                            <p className='col-span-6 items-center flex text-slate-400 text-sm'>*upload PDF file with maximum size 300 MB</p>
+                                            <p className='col-span-6 items-center flex text-slate-400 text-sm'>*upload PDF file with maximum size 20 MB</p>
                                         </div>
                                         <div className='grid grid-cols-4 mx-8 gap-10'>
                                             <div className='flex justify-center items-center'>
@@ -356,7 +577,7 @@ function Add() {
                                                 }} />
                                             </div>
                                             <div className='col-span-3 flex items-center'>
-                                                <input id='fileNameInput' className='w-full h-4/5 pl-8 placeholder:text-black bg-white border-2 border-gray-400 rounded-lg ' type="text" placeholder='No file chosen' disabled />
+                                                <input id='fileNameInput' className='w-full h-4/5 pl-8 placeholder:text-black bg-white border-2 border-gray-400 rounded-lg ' type="text" placeholder={isEditMode ? (editPost.attach_file ? editPost.attach_file : "No Attach Files") : 'No file chosen'} disabled />
                                             </div>
                                         </div>
                                     </div>
@@ -367,6 +588,7 @@ function Add() {
                                             <span className="text-red-500">*</span>
                                         </label>
                                         <textarea className='resize-none h-72 mt-2 font-sans p-3 border-2 border-gray-400 rounded-lg' value={addPost.description}
+                                            placeholder={isEditMode ? editPost.description : "Fill your scholarship's description"}
                                             onChange={(e) => {
                                                 setAddPost({ ...addPost, description: e.target.value })
                                             }}></textarea>
@@ -407,8 +629,8 @@ function Add() {
                                         </div>
                                     </div>
                                 </dialog>
-                                <button type='button'  disabled={isSubmitting} className='btn hover:bg-blue-700 bg-blue-500 text-white border-none w-1/5' onClick={handleSubmit}>Post Scholarship
-                                    <img src={icon2} alt="" />
+                                <button type='button' disabled={isEditMode ? checkEdit : isSubmitting} className='btn hover:bg-blue-700 bg-blue-500 text-white border-none w-1/5' onClick={handleSubmit}>{isEditMode ? 'Save Change' : 'Post Scholarship'}
+                                    {isEditMode ? null : <img src={icon2} alt="" />}
                                 </button>
                             </div>
                         </form>

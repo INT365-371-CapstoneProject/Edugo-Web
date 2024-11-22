@@ -24,6 +24,10 @@ const router = createBrowserRouter([
   {
     path: '/add',
     element: <Add />
+  },
+  {
+    path: '/edit/:id',
+    element: <Add />
   }
 ])
 

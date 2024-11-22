@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Nav from './Nav';
 import icon from '../assets/Vector.svg';
-import image2 from '../assets/2.png';
+import image2 from '../assets/bg-file-image.png';
 import { useNavigate } from 'react-router-dom';
 import { getAnnounce } from '../composable/getAnnounce';
 import { urlImage } from '../composable/getImage';
@@ -29,14 +29,14 @@ function Homepage() {
 
 
     const checkOpenAnnounce = announce.filter((announce) => {
-        const localPublishedDate = new Date(announce.published_date);
+        const localPublishedDate = new Date(announce.publish_date);
         const localCloseDate = new Date(announce.close_date);
         const nowInLocalTime = new Date();
         return localPublishedDate <= nowInLocalTime && localCloseDate >= nowInLocalTime;
     });
 
     const checkPendingAnnounce = announce.filter((announce) => {
-        const localPublishedDate = new Date(announce.published_date);
+        const localPublishedDate = new Date(announce.publish_date);
         const nowInLocalTime = new Date();
         return localPublishedDate > nowInLocalTime;
     });
@@ -161,14 +161,14 @@ function Homepage() {
                                     onClick={() => navigate(`/detail/${announce.id}`)}
                                 >
                                     <div className="grid grid-cols-2">
-                                        <div className="m-auto w-52 h-72 mt-10">
-                                            <img
+                                        <div className="m-auto w-52 h-72 mt-10 mb-10">
+                                            <img className='w-full h-full object-cover rounded-lg'
                                                 src={
                                                     announce.image
                                                         ? `${urlImage}${announce.image}`
                                                         : image2
                                                 }
-                                                alt={announce.title || 'Default image'}
+                                                alt=""
                                             />
                                         </div>
                                         <div className="divide-y m-5 space-y-4">
@@ -200,7 +200,7 @@ function Homepage() {
                                                     </h1>
                                                 </div>
                                             </div>
-                                            <div className="py-5">
+                                            <div className="py-5 break-words">
                                                 <h1 className="font-semibold text-2xl">
                                                     {announce.title}
                                                 </h1>
@@ -214,7 +214,7 @@ function Homepage() {
                                                     Scholarship period
                                                 </h1>
                                                 <h1 className="mt-2 font-medium text-lg text-blue-500">
-                                                    {formatDate(announce.published_date)} -{' '}
+                                                    {formatDate(announce.publish_date)} -{' '}
                                                     {formatDate(announce.close_date)}
                                                 </h1>
                                             </div>
