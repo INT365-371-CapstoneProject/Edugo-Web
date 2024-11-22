@@ -1,10 +1,10 @@
 import axios from "axios";
 const APT_ROOT = import.meta.env.VITE_API_ROOT;
-const url = `${APT_ROOT}/api/posts`;
+const urlCountry = `${APT_ROOT}/api/country`;
 
-const getPosts = async () => {
+const getCountry = async () => {
     try {
-        const res = await axios.get(url);
+        const res = await axios.get(urlCountry);
         return res.data;
     }
     catch (error) {
@@ -13,4 +13,4 @@ const getPosts = async () => {
     }
 }
 
-export { getPosts };
+export { getCountry, urlCountry };
