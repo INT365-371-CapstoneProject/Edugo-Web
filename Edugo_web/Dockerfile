@@ -1,4 +1,4 @@
-FROM node:aplpine3.18 as build
+FROM node:alpine3.18 as build
 
 
 # Build app
