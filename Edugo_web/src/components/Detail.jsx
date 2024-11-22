@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { useParams, useNavigate, Link, Navigate } from 'react-router-dom'
+import React, { useEffect } from 'react'
+import { useParams, useNavigate, Link } from 'react-router-dom'
 import { getAnnounceById } from '../composable/getAnnounce'
 import icon1 from '../assets/iconDelete.svg';
 import icon from '../assets/Vector.svg'

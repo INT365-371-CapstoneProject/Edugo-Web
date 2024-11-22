@@ -1,6 +1,5 @@
 import React from 'react'
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
-import PostAll from '../components/PostAll'
 import Detail from '../components/Detail'
 import Add from '../components/Add'
 import Homepage from '../components/Homepage'
@@ -12,10 +11,6 @@ const router = createBrowserRouter([
   {
     path: '/homepage',
     element: <Homepage />,
-  },
-  {
-    path: '/posts',
-    element: <PostAll />,
   },
   {
     path: '/detail/:id',

@@ -1,15 +1,14 @@
 import React from 'react'
 import img_edugo from '../assets/edugo.jpg'
-import { Link } from 'react-router-dom'
 function Nav() {
   return (
     <div className="navbar shadow-lg">
       <div className=' m-auto divide-x flex-auto space-x-10'>
         <div className="w-1/3">
           <div className='justify-self-end py-1'>
-            <Link to='/'>
-              <img src={img_edugo} alt="" style={{ height: "50px" }} />
-            </Link>
+
+            <img src={img_edugo} alt="" style={{ height: "50px" }} />
+
           </div>
         </div>
 
