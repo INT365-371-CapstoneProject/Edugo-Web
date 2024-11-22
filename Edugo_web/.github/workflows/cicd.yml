@@ -1,0 +1,36 @@
+name: Build and Deploy React
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+      - name: Login to Docker Hub
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+      - name: Build Docker Image React
+        run: |
+          docker build -t tkneng/react-edugo:latest .
+      - name: Push Docker Image React
+        run: |
+          docker push tkneng/react-edugo:latest
+  deploy:
+    needs: build
+    runs-on: self-hosted
+    steps:
+      - name: Delete Old Container React
+        run: docker rm -f react-container || true
+      - name: Clear All Docker System
+        run: docker system prune -f
+      - name: Create Docker Network
+        run: docker network create edugo-network || true
+      - name: Pull Docker Image React
+        run: docker pull tkneng/react-edugo:latest
+      - name: Run Docker Container React
+        run: docker run -d --network edugo-network -p 3000:3000 --restart unless-stopped --name react-container tkneng/react-edugo:latest
