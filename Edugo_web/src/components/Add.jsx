@@ -608,25 +608,26 @@ function Add() {
                                 <button type='button' className='btn hover:bg-gray-700 bg-gray-500 text-white border-none w-1/5 mr-10' onClick={handleCancel}>Cancel Post
                                     <img src={icon2} alt="" />
                                 </button>
+                               {/* modal */}
                                 <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle justify-center items-center">
-                                    <div className="modal-box px-20">
-                                        <img src={image1} alt="" className="mb-5" />
-                                        <p className="py-5 heading-text text-center">Are you sure you want to Discard this Edit?</p>
-                                        <p className="text-center text-base font-medium text-gray-400 pb-5">“The Progress will not be saved”</p>
+                                    <div className="modal-box bg-white">
+                                        <img src={image1} alt="" className="mb-8 justify-center items-center ml-16 mt-9" />
+                                        <p className="px-16 heading-text text-center">Are you sure you want to Discard this Edit?</p>
+                                        <p className="pt-8 text-center text-base font-medium text-gray-400 pb-5">“The Progress will not be saved”</p>
                                         <div className="modal-action flex flex-col justify-center items-center">
                                             {/* เปลี่ยนจาก form เป็น div */}
-                                            <div className='grid grid-cols-2 gap-10 w-full'>
+                                            <div className='button-gap'>
                                                 {/* ปุ่มปิด modal */}
                                                 <button
                                                     type='button'
-                                                    className="btn bg-gray-400 hover:bg-gray-500"
+                                                    className="cancel-button"
                                                     onClick={() => document.getElementById('my_modal_5').close()}
                                                 >
                                                     Cancel
                                                 </button>
                                                 {/* ปุ่มยืนยัน */}
                                                 <button
-                                                    className="btn bg-pink-500 hover:bg-pink-600"
+                                                    className="yes-button"
                                                     onClick={() => {
                                                         document.getElementById('my_modal_5').close();
                                                         handletoHome();
@@ -638,6 +639,7 @@ function Add() {
                                         </div>
                                     </div>
                                 </dialog>
+                                {/* ปุ่ม Save */}
                                 <button type='button' disabled={isEditMode ? checkEdit : isSubmitting} className='btn hover:bg-blue-700 bg-blue-500 text-white border-none w-1/5' onClick={handleSubmit}>{isEditMode ? 'Save Change' : 'Post Scholarship'}
                                     {isEditMode ? null : <img src={icon2} alt="" />}
                                 </button>

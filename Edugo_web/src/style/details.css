@@ -61,4 +61,40 @@
 }
 .time-border::placeholder {
     color: black;
-  }
+}
+.cancel-button{
+    display: flex;
+    width: 195px;
+    padding: 16px 8px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+
+    color: white;
+    border-radius: 10px;
+    background: var(--foundation-grey-normal-hover, #94A2B8);
+}
+.cancel-button:hover{
+    background: var(--foundation-grey-normal-hover, #64738B);
+}
+.yes-button{
+    display: flex;
+    width: 195px;
+    padding: 16px 8px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+
+    color: white;
+    border-radius: 10px;
+    background: var(--foundation-red-normal-hover, #D5448E);
+}
+.yes-button:hover{
+    background: var(--foundation-red-normal-hover, #8E2D5F);
+}
+.button-gap{
+    display: grid;                /* เปิดใช้งาน Grid layout */
+    grid-template-columns: repeat(2, 1fr); /* สร้าง 2 คอลัมน์ที่มีขนาดเท่ากัน */
+    gap: 24px;                /* ระยะห่างระหว่างคอลัมน์/แถว เทียบเท่ากับ gap-10 (10 x 0.25rem) */
+    width: 100%;                  /* ความกว้างเต็มหน้าจอ */
+}
