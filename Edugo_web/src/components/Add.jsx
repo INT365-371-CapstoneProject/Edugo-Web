@@ -15,6 +15,7 @@ import { useNavigate, Link, useParams } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import '../style/style.css'; // Import CSS file
+import '../style/details.css'; // Import CSS file
 
 function Add() {
     const navigate = useNavigate();
@@ -380,9 +381,10 @@ function Add() {
                     <div className='mx-8'>
                         <div className='grid grid-cols-2'>
                             <div className='mt-5 '>
-                                <h1 className='font-bold text-4xl'>{isEditMode ? 'Edit Scholarship' : 'Add New Scholarship'}</h1>
+                                <h1 className='font-bold text-4xl text-black'>{isEditMode ? 'Edit Scholarship' : 'Add New Scholarship'}</h1>
                             </div>
                             <div className='mt-5 flex justify-end '>
+                            {/* ปุ่มกลับ */}
                                 <Link className=' text-slate-400 underline underline-offset-2 hover:text-slate-500' onClick={handleCancel}>
                                     Back
                                 </Link>
@@ -429,16 +431,16 @@ function Add() {
                                     </div>
 
                                     {/* คอลัมน์ฟอร์ม */}
-                                    <div className='col-span-2 border-2 border-gray-300 rounded-lg'>
+                                    <div className='col-span-2 border-section'>
                                         <div className='grid grid-rows-4 m-7 gap-5'>
                                             {/* ชื่อทุนการศึกษา */}
                                             <div className='grid grid-rows-2'>
-                                                <label className='text-2xl font-medium'>Scholarship Name
+                                                <label className='heading-text'>Scholarship Name
                                                     <span className="text-red-500">*</span>
                                                 </label>
                                                 <input
                                                     type="text"
-                                                    className='-mt-2 h-full border-2 border-gray-300 rounded-lg placeholder:text-slate-300 p-3 font-sans'
+                                                    className='-mt-2 h-full border-section placeholder:text-slate-300 p-3 font-sans'
                                                     placeholder={isEditMode ? editPost.title : "Fill your scholarship's name"}
                                                     value={addPost.title}
                                                     onChange={(e) => setAddPost({ ...addPost, title: e.target.value })}
@@ -447,10 +449,10 @@ function Add() {
 
                                             {/* เว็บไซต์ */}
                                             <div className='grid grid-rows-2'>
-                                                <label className='text-2xl font-medium'>Website (URL)</label>
+                                                <label className='heading-text'>Website (URL)</label>
                                                 <input
                                                     type="url"
-                                                    className='-mt-2 h-full border-2 border-gray-300 rounded-lg placeholder:text-slate-300 p-3 font-sans'
+                                                    className='-mt-2 h-full border-section placeholder:text-slate-300 p-3 font-sans'
                                                     placeholder={isEditMode ? (editPost.url ? editPost.url : "No Website") : "Fill your scholarship's website"}
                                                     value={addPost.url}
                                                     onChange={(e) => setAddPost({ ...addPost, url: e.target.value })}
@@ -459,11 +461,11 @@ function Add() {
 
                                             {/* ประเภทของทุน */}
                                             <div className='grid grid-rows-2'>
-                                                <label className='text-2xl font-medium'>Type of Scholarship
+                                                <label className='heading-text'>Type of Scholarship
                                                     <span className="text-red-500">*</span>
                                                 </label>
                                                 <select
-                                                    className={`-mt-1 border-2 border-gray-300 rounded-lg p-3 font-sans ${selectedValue ? 'text-black' : 'text-slate-300'}`}
+                                                    className={`-mt-1 border-section p-3 font-sans ${selectedValue ? 'text-black' : 'text-slate-300'}`}
                                                     value={selectedValue}
                                                     onChange={(e) => {
                                                         handleChangeSelected(e);
@@ -483,11 +485,11 @@ function Add() {
 
                                             {/* ประเทศ */}
                                             <div className='grid grid-rows-2'>
-                                                <label className='text-2xl font-medium'>Country
+                                                <label className='heading-text'>Country
                                                     <span className="text-red-500">*</span>
                                                 </label>
                                                 <select
-                                                    className={`-mt-1 border-2 border-gray-300 rounded-lg p-3 font-sans ${selectedCountry ? 'text-black' : 'text-slate-300'}`}
+                                                    className={`-mt-1 border-section p-3 font-sans ${selectedCountry ? 'text-black' : 'text-slate-300'}`}
                                                     value={selectedCountry}
                                                     onChange={(e) => {
                                                         handleChangeSelectedCountry(e);
@@ -508,10 +510,10 @@ function Add() {
                                     </div>
                                 </div>
 
-                                <div className=' grid grid-rows-2 gap-10'>
-                                    <div className='border-2 border-gray-300 rounded-lg h-2/3 grid grid-cols-2'>
+                                <div className='date-layout'>
+                                    <div className='border-section h-2/3 grid grid-cols-2'>
                                         <div className='grid grid-rows-2 my-4 mx-8'>
-                                            <label className='text-2xl font-medium'>Start Date
+                                            <label className='heading-text'>Start Date
                                                 <span className="text-red-500">*</span>
                                             </label>
                                             <div className='grid grid-cols-3 -mt-3 gap-14'>
@@ -521,7 +523,7 @@ function Add() {
                                                     placeholder="Select Date"
                                                     value={formattedDate}
                                                     onChange={handleDateChange} // จัดรูปแบบวันที่เมื่อมีการเลือก
-                                                    className="col-span-2 border-2 border-gray-300 rounded-lg p-3 font-sans text-center"
+                                                    className="col-span-2 border-section p-3 font-sans text-center"
                                                     required
                                                 />
 
@@ -531,13 +533,13 @@ function Add() {
                                                     placeholder="Select Time"
                                                     value={formattedTime}
                                                     onChange={handleTimeChange} // จัดรูปแบบเวลาเมื่อมีการเลือก
-                                                    className="border-2 border-gray-300 rounded-lg p-3 font-sans text-center"
+                                                    className="border-section p-3 font-sans text-center"
                                                     required
                                                 />
                                             </div>
                                         </div>
                                         <div className='grid grid-rows-2 my-4 mx-8'>
-                                            <label className='text-2xl font-medium'>End Date
+                                            <label className='heading-text'>End Date
                                                 <span className="text-red-500">*</span>
                                             </label>
                                             <div className='grid grid-cols-3 -mt-3 gap-14'>
@@ -547,7 +549,7 @@ function Add() {
                                                     placeholder="Select Date"
                                                     value={formattedDateEnd}
                                                     onChange={handleDateChangeEnd} // จัดรูปแบบวันที่เมื่อมีการเลือก
-                                                    className="col-span-2 border-2 border-gray-300 rounded-lg p-3 font-sans text-center"
+                                                    className="col-span-2 border-section p-3 font-sans text-center"
                                                     required
                                                 />
 
@@ -557,15 +559,15 @@ function Add() {
                                                     placeholder="Select Time"
                                                     value={formattedTimeEnd}
                                                     onChange={handleTimeChangeEnd} // จัดรูปแบบเวลาเมื่อมีการเลือก
-                                                    className="border-2 border-gray-300 rounded-lg p-3 font-sans text-center"
+                                                    className="border-section p-3 font-sans text-center"
                                                     required
                                                 />
                                             </div>
                                         </div>
                                     </div>
-                                    <div className='-mt-14 border-2 border-gray-300 rounded-lg h-2/3 grid grid-rows-2 pb-3'>
+                                    <div className='-mt-14 border-section h-2/3 grid grid-rows-2 pb-3'>
                                         <div className='grid grid-cols-7 mx-8'>
-                                            <label className='text-2xl font-medium items-center flex'>Attach Files</label>
+                                            <label className='heading-text items-center flex'>Attach Files</label>
                                             <p className='col-span-6 items-center flex text-slate-400 text-sm'>*upload PDF file with maximum size 20 MB</p>
                                         </div>
                                         <div className='grid grid-cols-4 mx-8 gap-10'>
@@ -587,9 +589,9 @@ function Add() {
                                         </div>
                                     </div>
                                 </div>
-                                <div className='-mt-28 border-2 border-gray-300 rounded-lg mb-40'>
+                                <div className='-mt-28 border-section mb-40'>
                                     <div className='mx-10 mt-6 flex flex-col'>
-                                        <label className='text-2xl font-medium '>Description
+                                        <label className='heading-text '>Description
                                             <span className="text-red-500">*</span>
                                         </label>
                                         <textarea className='resize-none h-72 mt-2 font-sans p-3 border-2 border-gray-400 rounded-lg' value={addPost.description}
@@ -607,7 +609,7 @@ function Add() {
                                 <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle justify-center items-center">
                                     <div className="modal-box px-20">
                                         <img src={image1} alt="" className="mb-5" />
-                                        <p className="py-5 text-2xl font-medium text-center">Are you sure you want to Discard this Edit?</p>
+                                        <p className="py-5 heading-text text-center">Are you sure you want to Discard this Edit?</p>
                                         <p className="text-center text-base font-medium text-gray-400 pb-5">“The Progress will not be saved”</p>
                                         <div className="modal-action flex flex-col justify-center items-center">
                                             {/* เปลี่ยนจาก form เป็น div */}
