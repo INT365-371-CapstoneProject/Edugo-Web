@@ -90,10 +90,11 @@ function Homepage() {
                         {/* Buttons for Filter */}
                         <div className="summary-padding">
                             <div
+                            
                                 className="border-lightgrey"
                                 onClick={() => handleFilterClick('All')}
                             >
-                                <div className="border-l-4 border-blue-600 my-5">
+                                <div className="summary-all-border">
                                     <h1 className="summary-text">All Scholarship</h1>
                                     <div className="flex flex-row ml-8 mt-2">
                                         <h1 className="text-3xl font-bold">{announce.length}</h1>
@@ -117,7 +118,7 @@ function Homepage() {
                                 className="border-lightgrey"
                                 onClick={() => handleFilterClick('Open')}
                             >
-                                <div className="border-l-4 border-yellow-300 my-5">
+                                <div className="summary-open-border">
                                     <h1 className="summary-text">Opened Scholarship</h1>
                                     <div className="flex flex-row ml-8 mt-2">
                                         <h1 className="text-3xl font-bold">{checkOpenAnnounce.length}</h1>
@@ -144,13 +145,13 @@ function Homepage() {
                             {filterType === 'All' && announce.length === 0 && (
                                 <>
                                     <h1 className="text-4xl font-bold text-gray-300">No Scholarship here</h1>
-                                    <img src={image_No_Scholarship} alt="" className="mt-10" />
+                                    <img src={image_No_Scholarship} alt="" className="mt-10 w-60" />
                                 </>
                             )}
                             {filterType !== 'All' && filteredAnnounce().length === 0 && (
                                 <>
                                     <h1 className="text-4xl font-bold text-gray-300">No Scholarship here</h1>
-                                    <img src={image_No_Scholarship} alt="" className="mt-10" />
+                                    <img src={image_No_Scholarship} alt="" className="mt-10 w-60" />
                                 </>
                             )}
                         </div>
@@ -216,7 +217,7 @@ function Homepage() {
                                                 <h1 className="font-normal mt-2 text-medium text-black">
                                                     Scholarship period
                                                 </h1>
-                                                <h1 className="mt-2 font-medium text-lg color-[#2A4CCC]">
+                                                <h1 className="mt-2 font-medium text-lg text-blue-700">
                                                     {formatDate(announce.publish_date)} -{' '}
                                                     {formatDate(announce.close_date)}
                                                 </h1>

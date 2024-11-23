@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { getAnnounceById } from '../composable/getAnnounce'
-import icon1 from '../assets/iconDelete.svg';
-import icon from '../assets/Vector.svg'
+import icon1 from '../assets/deleteicon.svg';
+import icon from '../assets/editicon.svg'
 import image2 from '../assets/bg-file-image.png';
 import Nav from './Nav'
 import { urlImage, urlPDF } from '../composable/getImage';

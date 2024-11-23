@@ -1,17 +1,20 @@
 import React from 'react'
-import img_edugo from '../assets/edugo.jpg'
+import img_edugo from '../assets/edugologo.svg'
+import img_profile from '../assets/profiletest.jpeg'
 import '../style/navstyle.css'; // Import CSS file
 
 function Nav() {
   return (
-    <div className="flex">
-      <div className='navbar m-auto divide-x flex-auto space-x-10'>
-        <div className="w-1/3">
-          <div className='logoposition'>
-
+    <div className="navbar-shadow">
+      
+        {/* โลโก้ด้านซ้าย */}
+        <div className="fflex items-center justify-start space-x-5 ">
             <img src={img_edugo} alt="" style={{ height: "40px" }} />
+            </div>
 
-          </div>
+        {/* โปรไฟล์รูปกลมๆ ด้านขวา */}
+          <div className="flex items-center justify-end space-x-5">
+          <img src={img_profile} alt="" className="rounded-full w-11 h-12" />
         </div>
 
         {/* <div className="w-2/3">
@@ -47,7 +50,6 @@ function Nav() {
           </div>
         </div> */}
       </div>
-    </div>
   )
 }
 

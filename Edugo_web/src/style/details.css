@@ -1,7 +1,15 @@
 .border-section{
-    border-radius: 12px;
+    border-radius: 10px;
     border: 1px solid var(--Foundation-Grey-Normal, #CBD5E0);
   }
+.border-section:focus{
+    outline: none; /* Removes default focus outline */
+    border-radius: 10px;
+    border: 1px solid var(--foundation-blue-light-active, #C0CDFF);
+    background: var(--White, #FFF);
+/* Status/Fill Shadow */
+box-shadow: 0px 0px 0px 4px rgba(108, 99, 255, 0.15);
+}
 .heading-text{
     color: #000;
     font-size: 24px;
@@ -26,41 +34,69 @@
     align-items: flex-start;
 
 }
-.date-layout{
+.date-layout {
     display: grid;
     grid-template-rows: repeat(2, 1fr); /* grid-rows-2: 2 rows with equal height */
     gap: 40px;
 }
-.date-text{
+
+.date-text {
     color: var(--foundation-grey-normal-active, #64738B);
     font-size: 20px;
     font-style: normal;
     line-height: 28px; /* 140% */
 }
-.form-border{
+
+.form-border {
     display: grid;
     height: 80%;
     grid-template-columns: repeat(2, 1fr); /* Equivalent to grid-cols-2 */
-
     border-radius: 10px;
     border: 1px solid var(--foundation-grey-normal-hover, #CBD5E0);
     background: var(--White, #FFF);
+    padding: 0;
+    cursor: pointer; /* Allow clicking anywhere */
+    grid-column: span 2; /* Equivalent to col-span-2 */
+    text-align: center;
+    position: relative; /* Ensure child elements are inside */
 }
+
 .form-border::placeholder {
     color: black;
-  }
-.time-border{
+}
+
+.time-border {
     padding: 0.75rem; /* Equivalent to p-3 */
     height: 80%;
     font-family: sans-serif; /* Equivalent to font-sans */
     text-align: center; /* Equivalent to text-center */
-
     border-radius: 10px;
     border: 1px solid var(--foundation-grey-normal-hover, #CBD5E0);
     background: var(--White, #FFF);
+    padding: 0;
+    cursor: pointer;
+    width: 100%; /* Ensure input spans full width */
+    box-sizing: border-box;
 }
+
 .time-border::placeholder {
     color: black;
+}
+
+input[type="date"], input[type="time"] {
+    width: 100%; /* Ensure inputs take full width of the parent */
+    padding: 0.5rem; /* Optional, to make inputs more spacious */
+    box-sizing: border-box; /* Makes padding and borders part of the element's size */
+}
+
+input[type="date"]:focus,
+input[type="time"]:focus {
+    outline: none; /* Removes default focus outline */
+    border-radius: 10px;
+    border: 1px solid var(--foundation-blue-light-active, #C0CDFF);
+    background: var(--White, #FFF);
+/* Status/Fill Shadow */
+box-shadow: 0px 0px 0px 4px rgba(108, 99, 255, 0.15);
 }
 .cancel-button{
     display: flex;

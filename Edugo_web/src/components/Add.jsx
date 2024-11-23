@@ -523,7 +523,7 @@ function Add() {
                                                     placeholder="Select Date"
                                                     value={formattedDate}
                                                     onChange={handleDateChange} // จัดรูปแบบวันที่เมื่อมีการเลือก
-                                                    className="form-border col-span-2 font-sans text-center"
+                                                    className="form-border"
                                                     required
                                                 />
 
@@ -606,7 +606,6 @@ function Add() {
                             </div>
                             <div className='-mt-32 flex justify-end'>
                                 <button type='button' className='btn hover:bg-gray-700 bg-gray-500 text-white border-none w-1/5 mr-10' onClick={handleCancel}>Cancel Post
-                                    <img src={icon2} alt="" />
                                 </button>
                                {/* modal */}
                                 <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle justify-center items-center">
