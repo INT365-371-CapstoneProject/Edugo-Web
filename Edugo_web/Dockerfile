@@ -1,18 +1,15 @@
-FROM node:19 as build
-
-
-# Build app
-WORKDIR /app
-COPY package.json .
+# Stage 1: Build React app
+FROM node:19 AS stage1
+COPY . /nodeproj/
+WORKDIR /nodeproj/
 RUN npm install
-COPY . .
 RUN npm run build
 
-# Serve with nginx
+# Stage 2: Serve with nginx
 FROM nginx:alpine
-WORKDIR /usr/share/nginx/html
-RUN rm -rf ./*
-COPY --from=build /app/dist .
+
+# Copy build output from Stage 1 to nginx server
+COPY --from=stage1 /nodeproj/dist/ /usr/share/nginx/html/
 
 # Copy custom nginx config
 COPY ./default.conf /etc/nginx/conf.d/default.conf
