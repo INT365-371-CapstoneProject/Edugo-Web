@@ -66,7 +66,7 @@ function Homepage() {
     return (
         <>
             <Nav />
-            <div className="w-2/3 m-auto h-auto mt-10">
+            <div className="flex w-5/6 m-auto h-auto pb-14 pt-14">
                 <div className="border-2 border-gray-300 rounded-lg pb-5">
                     <div className="mx-8">
                         <div className="grid grid-cols-2">
