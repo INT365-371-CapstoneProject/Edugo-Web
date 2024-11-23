@@ -5,6 +5,6 @@ import AppRouter from './router/AppRouter'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <AppRouter />
-  </StrictMode>,
+    <AppRouter /> {/* ใช้ AppRouter ที่ตั้งค่าการ routing */}
+  </StrictMode>
 )
