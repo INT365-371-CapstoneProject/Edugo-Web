@@ -1,13 +1,15 @@
 import React from 'react'
 import img_edugo from '../assets/edugo.jpg'
+import '../style/navstyle.css'; // Import CSS file
+
 function Nav() {
   return (
-    <div className="navbar shadow-lg">
-      <div className=' m-auto divide-x flex-auto space-x-10'>
+    <div className="flex">
+      <div className='navbar m-auto divide-x flex-auto space-x-10'>
         <div className="w-1/3">
-          <div className='justify-self-end py-1'>
+          <div className='logoposition'>
 
-            <img src={img_edugo} alt="" style={{ height: "50px" }} />
+            <img src={img_edugo} alt="" style={{ height: "40px" }} />
 
           </div>
         </div>

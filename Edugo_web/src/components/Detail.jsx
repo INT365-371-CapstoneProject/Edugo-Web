@@ -8,7 +8,8 @@ import Nav from './Nav'
 import { urlImage, urlPDF } from '../composable/getImage';
 import axios from 'axios';
 import { url } from '../composable/getAnnounce';
-
+import '../style/style.css'; // Import CSS file
+import '../style/details.css'; // Import CSS file
 
 
 function Detail() {
@@ -62,8 +63,8 @@ function Detail() {
     return (
         <>
             <Nav />
-            <div className="w-2/3 m-auto h-auto mt-10 box-border">
-                <div className="border-2 border-gray-300 rounded-lg">
+            <div className="Background">
+                <div className="Maincontainer">
                     {/* ส่วนหัวของเนื้อห�� */}
                     <div className='mx-8'>
                         <div className='grid grid-cols-2'>
@@ -87,46 +88,47 @@ function Detail() {
                                 <div className='bg-no-repeat bg-cover rounded-lg'>
                                     <img src={announce[0]?.image ? `${urlImage}${announce[0]?.image}` : image2} alt="" className='w-full h-full object-cover rounded-lg' />
                                 </div>
-                                <div className='col-span-2 border-2 border-gray-300 rounded-lg'>
-                                    <div className='grid grid-rows-4 m-7 gap-9'>
+                        {/* พวกเนื้อหา */}
+                                <div className='border-section col-span-2 '>
+                                    <div className='detail-information-layout'>
                                         <div className='grid grid-rows-2 gap-2'>
-                                            <h1 className='text-2xl font-medium'>Scholarship Name
+                                            <h1 className='heading-text'>Scholarship Name
                                                 <span className="text-red-500">*</span>
                                             </h1>
                                             {announce && announce.length > 0 ? (
-                                                <h1 className='text-2xl font-medium text-gray-400'>{announce[0].title}</h1>
+                                                <h1 className='detail-information-text'>{announce[0].title}</h1>
                                             ) : (
                                                 <p>Loading...</p>
                                             )}
                                         </div>
                                         <div className='grid grid-rows-2 gap-2'>
-                                            <label className='text-2xl font-medium'>website (url)</label>
+                                            <label className='heading-text'>website (url)</label>
                                             {announce && announce.length > 0 ? (
                                                 announce[0].url != "null" && announce[0].url != null ? (
-                                                    <h1 className='text-2xl font-medium text-gray-400'>{announce[0].url}</h1>
+                                                    <h1 className='detail-information-text'>{announce[0].url}</h1>
                                                 ) : (
-                                                    <h1 className='text-2xl font-medium text-gray-400'>No website</h1>
+                                                    <h1 className='detail-information-text'>No website</h1>
                                                 )
                                             ) : (
                                                 <p>Loading...</p>
                                             )}
                                         </div>
                                         <div className='grid grid-rows-2 gap-2'>
-                                            <label className='text-2xl font-medium'>Type of Scholarship
+                                            <label className='heading-text'>Type of Scholarship
                                                 <span className="text-red-500">*</span>
                                             </label>
                                             {announce && announce.length > 0 ? (
-                                                <h1 className='text-2xl font-medium text-gray-400'>{announce[0].category}</h1>
+                                                <h1 className='detail-information-text'>{announce[0].category}</h1>
                                             ) : (
                                                 <p>Loading...</p>
                                             )}
                                         </div>
                                         <div className='grid grid-rows-2 gap-2'>
-                                            <label className='text-2xl font-medium'>Country
+                                            <label className='heading-text'>Country
                                                 <span className="text-red-500">*</span>
                                             </label>
                                             {announce && announce.length > 0 && announce[0].country ? (
-                                                <h1 className='text-2xl font-medium text-gray-400'>{announce[0].country}</h1>
+                                                <h1 className='detail-information-text'>{announce[0].country}</h1>
                                             ) : (
                                                 <p>Loading...</p>
                                             )}
@@ -134,51 +136,54 @@ function Detail() {
                                     </div>
                                 </div>
                             </div>
-                            <div className=' grid grid-rows-2 gap-10'>
-                                <div className='border-2 border-gray-300 rounded-lg h-2/3 grid grid-cols-2'>
-                                    <div className='grid grid-rows-2 my-4 mx-8'>
-                                        <label className='text-2xl font-medium'>Start Date
+                            {/* พวกวันที่และเวลา */}
+                            <div className=' date-layout'>
+                                <div className='border-section h-2/3 grid grid-cols-2'>
+                                    <div className='grid grid-rows-2 my-4 mx-8 pt-4'>
+                                        <label className='heading-text'>Start Date
                                             <span className="text-red-500">*</span>
                                         </label>
                                         <div className='grid grid-cols-2'>
-                                            <h1 className='text-xl font-medium text-gray-400'>{publishedDateStr ? (publishedDateStr) : (<p>Loading...</p>)}</h1>
-                                            <h1 className='text-xl font-medium text-gray-400'>{publishedTimeStr ? (publishedTimeStr) : (<p>Loading...</p>)}</h1>
+                                            <h1 className='date-text'>{publishedDateStr ? (publishedDateStr) : (<p>Loading...</p>)}</h1>
+                                            <h1 className='date-text'>{publishedTimeStr ? (publishedTimeStr) : (<p>Loading...</p>)}</h1>
                                         </div>
                                     </div>
-                                    <div className='grid grid-rows-2 my-4 mx-8'>
-                                        <label className='text-2xl font-medium'>End Date
+                                    <div className='grid grid-rows-2 my-4 mx-8 pt-4'>
+                                        <label className='heading-text'>End Date
                                             <span className="text-red-500">*</span>
                                         </label>
                                         <div className='grid grid-cols-2'>
-                                            <h1 className='text-xl font-medium text-gray-400'>{closeDateStr ? (closeDateStr) : (<p>Loading...</p>)}</h1>
-                                            <h1 className='text-xl font-medium text-gray-400'>{closeTimeStr ? (closeTimeStr) : (<p>Loading...</p>)}</h1>
+                                            <h1 className='date-text'>{closeDateStr ? (closeDateStr) : (<p>Loading...</p>)}</h1>
+                                            <h1 className='date-text'>{closeTimeStr ? (closeTimeStr) : (<p>Loading...</p>)}</h1>
                                         </div>
                                     </div>
                                 </div>
-                                <div className='-mt-14 border-2 border-gray-300 rounded-lg h-2/3 grid grid-rows-2 pb-3'>
+                                {/* พวกแนบไฟล์ */}
+                                <div className='-mt-14 border-section rounded-lg h-2/3 grid grid-rows-2 pb-3'>
                                     <div className='grid grid-cols-7 mx-8'>
-                                        <label className='text-2xl font-medium items-center flex'>Attach Files</label>
+                                        <label className='heading-text items-center flex'>Attach Files</label>
                                         <p className='col-span-6 items-center flex text-slate-400 text-sm'>*upload PDF file with maximum size 20 MB</p>
                                     </div>
                                     {announce && announce.length > 0 ? (
                                         announce[0].attach_file != "null" && announce[0].attach_file != null ? (
                                             <h1 
-                                                className='mx-8 border-2 border-gray-300 rounded-lg h-12 flex items-center pl-7 cursor-pointer text-blue-500 hover:underline' 
+                                                className='mx-8 border-section rounded-lg h-12 flex items-center pl-7 cursor-pointer text-blue-500 hover:underline' 
                                                 onClick={() => watchFile(announce[0].attach_file)}
                                             >
                                                 {announce[0].attach_file}
                                             </h1>
                                         ) : (
-                                            <h1 className='mx-8 border-2 border-gray-300 rounded-lg h-12 flex items-center pl-7'>No Attach Files</h1>
+                                            <h1 className='mx-8 border-section rounded-lg h-12 flex items-center pl-7'>No Attach Files</h1>
                                         )
                                     ) : (
-                                        <p className='mx-8 border-2 border-gray-300 rounded-lg h-12 flex items-center pl-7' >Loading...</p>
+                                        <p className='mx-8 border-section rounded-lg h-12 flex items-center pl-7' >Loading...</p>
                                     )}
                                 </div>
                             </div>
-                            <div className='-mt-28 border-2 border-gray-300 rounded-lg mb-40'>
+                            {/* พวกรายละเอียด */}
+                            <div className='-mt-28 border-section rounded-lg mb-40'>
                                 <div className='mx-10 mt-6 flex flex-col'>
-                                    <label className='text-2xl font-medium '>Description
+                                    <label className='heading-text'>Description
                                         <span className="text-red-500">*</span>
                                     </label>
                                     <h1 className='overflow-y-auto resize-none h-72 mt-2 font-sans p-3'>{announce && announce.length > 0 && announce[0].description ? (announce[0].description) : (<p>Loading...</p>)}</h1>

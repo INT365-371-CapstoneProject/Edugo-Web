@@ -1,0 +1,80 @@
+.border-lightgrey{
+    display: flex;
+    border-radius: 10px;
+    border: 1.5px solid var(--Border-Card, #E0E0E0);
+    background: var(--White, #FFF);
+    cursor: pointer;
+}
+.button{
+    border: none; 
+    border-radius: 10px;
+    background: var(--Foundation-Blue-Normal, #355FFF);
+    display: flex;
+    width: 280px;
+    height: 48px;
+    color: white;
+    cursor: pointer; /* cursor-pointer */
+}
+.button:hover {
+    background-color: #2A4CCC;
+}
+.summary-text{
+    padding-left: 24px;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 28px; /* 140% */
+}
+.summary-padding{
+    display: grid; /* grid */
+    grid-template-columns: repeat(4, 1fr); /* grid-cols-4 */
+    margin-top: 2.5rem; /* mt-10: 2.5rem (40px) */
+    column-gap: 36px;
+    color: black; /* text-black */
+}
+.ScholarLayout{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    align-items: flex-start;
+    gap: 32px 24px;
+    flex-wrap: wrap;
+}
+.scholarship-card{
+    margin: auto; /* m-auto: centers the element horizontally */
+    width: 522px;
+    height: 336px;
+    padding: 0px 24px;
+}
+.open-status{
+    border-radius: 7px;
+    background: #E3F8D4;
+
+}
+.headingclamp{
+  display: -webkit-box; /* ใช้สำหรับ Webkit browsers */
+  -webkit-box-orient: vertical; /* ระบุให้เป็นการจัดแนวตั้ง */
+  overflow: hidden; /* ซ่อนข้อความที่เกิน */
+  text-overflow: ellipsis; /* แสดง ... เมื่อข้อความถูกตัด */
+  -webkit-line-clamp: 2; /* จำกัดจำนวนบรรทัดไว้ที่ 3 */
+  line-clamp: 2; /* รองรับสำหรับ CSS ล่าสุด */
+  height: 59px;
+}
+.descriptionclamp{
+  display: -webkit-box; /* ใช้สำหรับ Webkit browsers */
+  -webkit-box-orient: vertical; /* ระบุให้เป็นการจัดแนวตั้ง */
+  overflow: hidden; /* ซ่อนข้อความที่เกิน */
+  text-overflow: ellipsis; /* แสดง ... เมื่อข้อความถูกตัด */
+  -webkit-line-clamp: 3; /* จำกัดจำนวนบรรทัดไว้ที่ 3 */
+  line-clamp: 3; /* รองรับสำหรับ CSS ล่าสุด */
+  height: 58px;
+}
+.information-layout{
+    padding-top: 8px;
+    padding-bottom: 8px;
+    word-break: break-word; /* break-words: breaks words to fit the container */
+}
+.number-layout{
+  font-style: normal;
+  font-weight: 400;
+  color: #94A2B8;
+}

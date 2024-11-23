@@ -14,6 +14,7 @@ import { urlImage } from '../composable/getImage';
 import { useNavigate, Link, useParams } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import '../style/style.css'; // Import CSS file
 
 function Add() {
     const navigate = useNavigate();
@@ -373,8 +374,8 @@ function Add() {
         <>
             <Nav />
             <ToastContainer />
-            <div className="w-2/3 m-auto h-auto mt-10 box-border">
-                <div className="border-2 border-gray-300 rounded-lg">
+            <div className="Background">
+                <div className="Maincontainer">
                     {/* ส่วนหัวของเนื้อห�� */}
                     <div className='mx-8'>
                         <div className='grid grid-cols-2'>

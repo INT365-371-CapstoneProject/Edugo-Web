@@ -6,6 +6,9 @@ import { useNavigate } from 'react-router-dom';
 import { getAnnounce } from '../composable/getAnnounce';
 import { urlImage } from '../composable/getImage';
 import image_No_Scholarship from '../assets/No_Scholarship.png';
+import '../style/style.css'; // Import CSS file
+import '../style/home.css'; // Import CSS file
+
 
 function Homepage() {
     const [announce, setAnnounce] = useState([]);
@@ -66,17 +69,17 @@ function Homepage() {
     return (
         <>
             <Nav />
-            <div className="flex w-5/6 m-auto h-auto pb-14 pt-14">
-                <div className="border-2 border-gray-300 rounded-lg pb-5">
+            <div className="Background">
+                <div className="Maincontainer">
                     <div className="mx-8">
                         <div className="grid grid-cols-2">
                             <div className="mt-5">
-                                <h1 className="font-bold text-4xl">Scholarship Management</h1>
+                                <h1 className="font-bold text-4xl text-black">Scholarship Management</h1>
                             </div>
                             <div className="mt-5 flex justify-end">
                                 <button
                                     onClick={() => navigate('/add')}
-                                    className="btn hover:bg-blue-700 bg-blue-500 text-white border-none w-1/3"
+                                    className="btn button"
                                 >
                                     Post Scholarship
                                     <img src={icon} alt="" />
@@ -85,13 +88,13 @@ function Homepage() {
                         </div>
 
                         {/* Buttons for Filter */}
-                        <div className="grid grid-cols-4 mt-10 gap-x-8">
+                        <div className="summary-padding">
                             <div
-                                className="border-2 border-gray-300 rounded-lg cursor-pointer"
+                                className="border-lightgrey"
                                 onClick={() => handleFilterClick('All')}
                             >
                                 <div className="border-l-4 border-blue-600 my-5">
-                                    <h1 className="ml-8 text-2xl font-medium">All Scholarship</h1>
+                                    <h1 className="summary-text">All Scholarship</h1>
                                     <div className="flex flex-row ml-8 mt-2">
                                         <h1 className="text-3xl font-bold">{announce.length}</h1>
                                         <h1 className="ml-5 my-auto font-bold text-lg">Scholarship</h1>
@@ -99,11 +102,11 @@ function Homepage() {
                                 </div>
                             </div>
                             <div
-                                className="border-2 border-gray-300 rounded-lg cursor-pointer"
+                                className="border-lightgrey"
                                 onClick={() => handleFilterClick('Pending')}
                             >
                                 <div className="border-l-4 border-gray-300 my-5">
-                                    <h1 className="ml-8 text-xl font-medium">Pending Scholarship</h1>
+                                    <h1 className="summary-text">Pending Scholarship</h1>
                                     <div className="flex flex-row ml-8 mt-2">
                                         <h1 className="text-3xl font-bold">{checkPendingAnnounce.length}</h1>
                                         <h1 className="ml-5 my-auto font-bold text-lg">Scholarship</h1>
@@ -111,11 +114,11 @@ function Homepage() {
                                 </div>
                             </div>
                             <div
-                                className="border-2 border-gray-300 rounded-lg cursor-pointer"
+                                className="border-lightgrey"
                                 onClick={() => handleFilterClick('Open')}
                             >
                                 <div className="border-l-4 border-yellow-300 my-5">
-                                    <h1 className="ml-8 text-xl font-medium">Opened Scholarship</h1>
+                                    <h1 className="summary-text">Opened Scholarship</h1>
                                     <div className="flex flex-row ml-8 mt-2">
                                         <h1 className="text-3xl font-bold">{checkOpenAnnounce.length}</h1>
                                         <h1 className="ml-5 my-auto font-bold text-lg">Scholarship</h1>
@@ -123,11 +126,11 @@ function Homepage() {
                                 </div>
                             </div>
                             <div
-                                className="border-2 border-gray-300 rounded-lg cursor-pointer"
+                                className="border-lightgrey"
                                 onClick={() => handleFilterClick('Close')}
                             >
                                 <div className="border-l-4 border-pink-600 my-5">
-                                    <h1 className="ml-8 text-xl font-medium">Closed Scholarship</h1>
+                                    <h1 className="summary-text">Closed Scholarship</h1>
                                     <div className="flex flex-row ml-8 mt-2">
                                         <h1 className="text-3xl font-bold">{checkCloseAnnounce.length}</h1>
                                         <h1 className="ml-5 my-auto font-bold text-lg">Scholarship</h1>
@@ -136,7 +139,7 @@ function Homepage() {
                             </div>
                         </div>
 
-
+                        {/* No Scholarship Filter */}
                         <div className="mt-10 flex justify-center items-center flex-col">
                             {filterType === 'All' && announce.length === 0 && (
                                 <>
@@ -153,15 +156,15 @@ function Homepage() {
                         </div>
 
                         {/* Scholarship List */}
-                        <div className="grid grid-cols-2 mt-10 gap-12">
+                        <div className="ScholarLayout">
                             {filteredAnnounce().map((announce, index) => (
                                 <div
                                     key={index}
-                                    className="border-2 border-gray-300 rounded-lg cursor-pointer"
+                                    className="border-lightgrey scholarship-card"
                                     onClick={() => navigate(`/detail/${announce.id}`)}
                                 >
                                     <div className="grid grid-cols-2">
-                                        <div className="m-auto w-52 h-72 mt-10 mb-10">
+                                        <div className=" w-52 h-72 mt-5 mb-5">
                                             <img className='w-full h-full object-cover rounded-lg'
                                                 src={
                                                     announce.image
@@ -173,14 +176,14 @@ function Homepage() {
                                         </div>
                                         <div className="divide-y m-5 space-y-4">
                                             <div className="grid grid-cols-2">
-                                                <h1 className="font-medium text-lg text-gray-400">
+                                                <h1 className="number-layout">
                                                     #0000{index + 1}
                                                 </h1>
                                                 <div
-                                                    className={`border-2 rounded-md flex justify-center ${checkPendingAnnounce.some((item) => item.id === announce.id)
+                                                    className={`rounded-md flex justify-center ${checkPendingAnnounce.some((item) => item.id === announce.id)
                                                         ? 'border-gray-400 bg-gray-100'
                                                         : checkOpenAnnounce.some((item) => item.id === announce.id)
-                                                            ? 'border-lime-400 bg-lime-100'
+                                                            ? 'open-status'
                                                             : 'border-red-400 bg-red-100'
                                                         }`}
                                                 >
@@ -200,20 +203,20 @@ function Homepage() {
                                                     </h1>
                                                 </div>
                                             </div>
-                                            <div className="py-5 break-words">
-                                                <h1 className="font-semibold text-2xl">
+                                            <div className="information-layout">
+                                                <h1 className="headingclamp font-normal text-2xl text-black">
                                                     {announce.title}
                                                 </h1>
-                                                <h1 className="mt-4 font-medium text-lg">
+                                                <h1 className="font-normal mt-4 text-medium text-black">
                                                     Description
                                                 </h1>
-                                                <p className="text-sm mt-2 text-gray-400">
+                                                <p className="descriptionclamp text-sm mt-2 text-gray-400">
                                                     {announce.description}
                                                 </p>
-                                                <h1 className="mt-2 font-medium text-lg">
+                                                <h1 className="font-normal mt-2 text-medium text-black">
                                                     Scholarship period
                                                 </h1>
-                                                <h1 className="mt-2 font-medium text-lg text-blue-500">
+                                                <h1 className="mt-2 font-medium text-lg color-[#2A4CCC]">
                                                     {formatDate(announce.publish_date)} -{' '}
                                                     {formatDate(announce.close_date)}
                                                 </h1>
