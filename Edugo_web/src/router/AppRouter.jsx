@@ -6,7 +6,7 @@ import Homepage from '../components/Homepage'
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Navigate to="/homepage" />
+    element: <Navigate to="/homepage" replace/>
   },
   {
     path: '/homepage',
