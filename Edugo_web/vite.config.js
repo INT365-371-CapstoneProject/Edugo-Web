@@ -10,5 +10,4 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)), // กำหนด alias ให้สามารถใช้ @ แทน src ได้
     },
   },
-  base: '/un2/',  // กำหนด base path ที่ต้องการ
 });
