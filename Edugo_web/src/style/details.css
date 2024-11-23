@@ -37,3 +37,28 @@
     font-style: normal;
     line-height: 28px; /* 140% */
 }
+.form-border{
+    display: grid;
+    height: 80%;
+    grid-template-columns: repeat(2, 1fr); /* Equivalent to grid-cols-2 */
+
+    border-radius: 10px;
+    border: 1px solid var(--foundation-grey-normal-hover, #CBD5E0);
+    background: var(--White, #FFF);
+}
+.form-border::placeholder {
+    color: black;
+  }
+.time-border{
+    padding: 0.75rem; /* Equivalent to p-3 */
+    height: 80%;
+    font-family: sans-serif; /* Equivalent to font-sans */
+    text-align: center; /* Equivalent to text-center */
+
+    border-radius: 10px;
+    border: 1px solid var(--foundation-grey-normal-hover, #CBD5E0);
+    background: var(--White, #FFF);
+}
+.time-border::placeholder {
+    color: black;
+  }

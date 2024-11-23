@@ -71,7 +71,7 @@ function Homepage() {
             <Nav />
             <div className="Background">
                 <div className="Maincontainer">
-                    <div className="mx-8">
+                    <div className="mx-8 mb-7">
                         <div className="grid grid-cols-2">
                             <div className="mt-5">
                                 <h1 className="font-bold text-4xl text-black">Scholarship Management</h1>

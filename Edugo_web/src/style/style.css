@@ -6,6 +6,10 @@
     margin-top: 56px;
     gap: 10px;
     padding: 16px;
+
+    height: auto; /* ใช้ auto หรือ fix height ถ้าจำเป็น */
+    overflow: hidden; /* ซ่อน overflow ที่ไม่ต้องการ */
+    max-width: 1100px; /* กำหนด max width เพื่อป้องกันการขยายแบบไม่ตั้งใจ */
     
     border-radius: 15px;
     border: 1.5px solid var(--Foundation-Grey-Normal, #CBD5E0);

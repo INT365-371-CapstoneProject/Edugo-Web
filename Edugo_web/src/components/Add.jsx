@@ -380,7 +380,7 @@ function Add() {
                     {/* ส่วนหัวของเนื้อห�� */}
                     <div className='mx-8'>
                         <div className='grid grid-cols-2'>
-                            <div className='mt-5 '>
+                            <div className='mt-7'>
                                 <h1 className='font-bold text-4xl text-black'>{isEditMode ? 'Edit Scholarship' : 'Add New Scholarship'}</h1>
                             </div>
                             <div className='mt-5 flex justify-end '>
@@ -440,7 +440,7 @@ function Add() {
                                                 </label>
                                                 <input
                                                     type="text"
-                                                    className='-mt-2 h-full border-section placeholder:text-slate-300 p-3 font-sans'
+                                                    className='-mt-2 h-full border-section placeholder:text-slate-300 p-3 font-sans bg-white'
                                                     placeholder={isEditMode ? editPost.title : "Fill your scholarship's name"}
                                                     value={addPost.title}
                                                     onChange={(e) => setAddPost({ ...addPost, title: e.target.value })}
@@ -452,7 +452,7 @@ function Add() {
                                                 <label className='heading-text'>Website (URL)</label>
                                                 <input
                                                     type="url"
-                                                    className='-mt-2 h-full border-section placeholder:text-slate-300 p-3 font-sans'
+                                                    className='-mt-2 h-full border-section placeholder:text-slate-300 p-3 font-sans bg-white'
                                                     placeholder={isEditMode ? (editPost.url ? editPost.url : "No Website") : "Fill your scholarship's website"}
                                                     value={addPost.url}
                                                     onChange={(e) => setAddPost({ ...addPost, url: e.target.value })}
@@ -465,7 +465,7 @@ function Add() {
                                                     <span className="text-red-500">*</span>
                                                 </label>
                                                 <select
-                                                    className={`-mt-1 border-section p-3 font-sans ${selectedValue ? 'text-black' : 'text-slate-300'}`}
+                                                    className={`-mt-1 border-section p-3 font-sans ${selectedValue ? 'text-black' : 'text-slate-300 bg-white'}`}
                                                     value={selectedValue}
                                                     onChange={(e) => {
                                                         handleChangeSelected(e);
@@ -489,7 +489,7 @@ function Add() {
                                                     <span className="text-red-500">*</span>
                                                 </label>
                                                 <select
-                                                    className={`-mt-1 border-section p-3 font-sans ${selectedCountry ? 'text-black' : 'text-slate-300'}`}
+                                                    className={`-mt-1 border-section p-3 font-sans ${selectedCountry ? 'text-black' : 'text-slate-300 bg-white'}`}
                                                     value={selectedCountry}
                                                     onChange={(e) => {
                                                         handleChangeSelectedCountry(e);
@@ -523,7 +523,7 @@ function Add() {
                                                     placeholder="Select Date"
                                                     value={formattedDate}
                                                     onChange={handleDateChange} // จัดรูปแบบวันที่เมื่อมีการเลือก
-                                                    className="col-span-2 border-section p-3 font-sans text-center"
+                                                    className="form-border col-span-2 font-sans text-center"
                                                     required
                                                 />
 
@@ -533,7 +533,7 @@ function Add() {
                                                     placeholder="Select Time"
                                                     value={formattedTime}
                                                     onChange={handleTimeChange} // จัดรูปแบบเวลาเมื่อมีการเลือก
-                                                    className="border-section p-3 font-sans text-center"
+                                                    className="time-border"
                                                     required
                                                 />
                                             </div>
@@ -549,7 +549,7 @@ function Add() {
                                                     placeholder="Select Date"
                                                     value={formattedDateEnd}
                                                     onChange={handleDateChangeEnd} // จัดรูปแบบวันที่เมื่อมีการเลือก
-                                                    className="col-span-2 border-section p-3 font-sans text-center"
+                                                    className="form-border col-span-2 font-sans text-center"
                                                     required
                                                 />
 
@@ -559,12 +559,13 @@ function Add() {
                                                     placeholder="Select Time"
                                                     value={formattedTimeEnd}
                                                     onChange={handleTimeChangeEnd} // จัดรูปแบบเวลาเมื่อมีการเลือก
-                                                    className="border-section p-3 font-sans text-center"
+                                                    className="time-border"
                                                     required
                                                 />
                                             </div>
                                         </div>
                                     </div>
+                                        {/* แนบไฟล์ */}
                                     <div className='-mt-14 border-section h-2/3 grid grid-rows-2 pb-3'>
                                         <div className='grid grid-cols-7 mx-8'>
                                             <label className='heading-text items-center flex'>Attach Files</label>
@@ -584,17 +585,18 @@ function Add() {
                                                 }} />
                                             </div>
                                             <div className='col-span-3 flex items-center'>
-                                                <input id='fileNameInput' className='w-full h-4/5 pl-8 placeholder:text-black bg-white border-2 border-gray-400 rounded-lg ' type="text" placeholder={isEditMode ? (editPost.attach_file ? editPost.attach_file : "No Attach Files") : 'No file chosen'} disabled />
+                                                <input id='fileNameInput' className='w-full h-4/5 pl-8 placeholder:text-black bg-white border-section ' type="text" placeholder={isEditMode ? (editPost.attach_file ? editPost.attach_file : "No Attach Files") : 'No file chosen'} disabled />
                                             </div>
                                         </div>
                                     </div>
+                                    {/* description */}
                                 </div>
                                 <div className='-mt-28 border-section mb-40'>
                                     <div className='mx-10 mt-6 flex flex-col'>
                                         <label className='heading-text '>Description
                                             <span className="text-red-500">*</span>
                                         </label>
-                                        <textarea className='resize-none h-72 mt-2 font-sans p-3 border-2 border-gray-400 rounded-lg' value={addPost.description}
+                                        <textarea className='resize-none h-72 mt-2 font-sans p-3 border-section bg-white' value={addPost.description}
                                             placeholder={isEditMode ? editPost.description : "Fill your scholarship's description"}
                                             onChange={(e) => {
                                                 setAddPost({ ...addPost, description: e.target.value })
