@@ -253,7 +253,9 @@ function Add() {
                 const res = await axios.put(`${url}/update/${id}`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
-                    }
+                    },
+                    maxContentLength: 50 * 1024 * 1024, // ปรับขนาดสูงสุดที่รับได้ที่ 50MB
+                    maxBodyLength: 50 * 1024 * 1024, // ปรับขนาดสูงสุดของ body ที่ส่งไปที่ 50MB
                 });
                 if (res.status === 200) {
                     navigate(`/detail/${id}`);
@@ -274,7 +276,9 @@ function Add() {
                 const res = await axios.post(`${url}/add`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
-                    }
+                    },
+                    maxContentLength: 50 * 1024 * 1024, // ปรับขนาดสูงสุดที่รับได้ที่ 50MB
+                    maxBodyLength: 50 * 1024 * 1024, // ปรับขนาดสูงสุดของ body ที่ส่งไปที่ 50MB
                 });
                 if (res.status === 201) {
                     navigate('/');
