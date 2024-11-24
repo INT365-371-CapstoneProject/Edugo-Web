@@ -61,9 +61,18 @@ function Homepage() {
         setFilterType(type);
     };
 
-    const formatDate = (dateString) => {
-        const options = { month: 'short', year: 'numeric' };
-        return new Date(dateString).toLocaleDateString('en-US', options);
+    const formatDateRange = (startDateString, endDateString) => {
+        const startDate = new Date(startDateString);
+        const endDate = new Date(endDateString);
+
+        const optionsSameYear = { day: 'numeric', month: 'short' };
+        const optionsDifferentYear = { day: 'numeric', month: 'short', year: 'numeric' };
+
+        if (startDate.getFullYear() === endDate.getFullYear()) {
+            return `${startDate.toLocaleDateString('en-GB', optionsSameYear)} - ${endDate.toLocaleDateString('en-GB', optionsSameYear)} ${endDate.getFullYear()}`;
+        } else {
+            return `${startDate.toLocaleDateString('en-GB', optionsDifferentYear)} - ${endDate.toLocaleDateString('en-GB', optionsDifferentYear)}`;
+        }
     };
 
     return (
@@ -218,8 +227,7 @@ function Homepage() {
                                                     Scholarship period
                                                 </h1>
                                                 <h1 className="mt-2 font-medium text-lg text-blue-700">
-                                                    {formatDate(announce.publish_date)} -{' '}
-                                                    {formatDate(announce.close_date)}
+                                                    {formatDateRange(announce.publish_date, announce.close_date)}
                                                 </h1>
                                             </div>
                                         </div>

@@ -10,6 +10,7 @@ import icon from '../assets/iconCarrier.svg';
 import icon1 from '../assets/icon-attach.svg';
 import icon2 from '../assets/Vector.svg'
 import image1 from '../assets/cancel-post.png';
+import image3 from '../assets/undraw_happy_announcement_re_tsm0 1.png';
 import { urlImage } from '../composable/getImage';
 import { useNavigate, Link, useParams } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
@@ -110,10 +111,10 @@ function Add() {
             if (formattedDate === checkDate && formattedTime === checkTime && formattedDateEnd === checkDateEnd && formattedTimeEnd === checkTimeEnd) {
                 if (addPost.title === '' && addPost.description === '' && addPost.category_id === 0 && addPost.country_id === 0 && addPost.url === '' && addPost.attach_file === null && addPost.image === null) {
                     setCheckEdit(true);
-                }else{
+                } else {
                     setCheckEdit(false);
                 }
-            }else {
+            } else {
                 setCheckEdit(false);
             }
         }
@@ -149,11 +150,106 @@ function Add() {
             });
     }, []);
 
+    const validateForm = () => {
+        const urlPattern = new RegExp('^(https?:\\/\\/)?' + // protocol
+            '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.?)+[a-z]{2,}|' + // domain name
+            '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+            '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+            '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+            '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
+
+        const startDateTime = new Date(`${StartDate || checkDate}T${StartTime || checkTime}`);
+        const endDateTime = new Date(`${EndDate || checkDateEnd}T${EndTime || checkTimeEnd}`);
+        const now = new Date();
+
+        if (!StartDate || !StartTime) {
+            toast.error('Please provide both Start Date and Start Time');
+            return false;
+        }
+        if (!EndDate || !EndTime) {
+            toast.error('Please provide both End Date and End Time');
+            return false;
+        }
+
+        if (isEditMode) {
+            if (addPost.title && (addPost.title.length < 5 || addPost.title.length > 100)) {
+                toast.error('Title must be between 5 and 100 characters');
+                return false;
+            }
+            if (addPost.description && (addPost.description.length < 10 || addPost.description.length > 500)) {
+                toast.error('Description must be between 10 and 500 characters');
+                return false;
+            }
+            if (addPost.url && (addPost.url.length < 10 || addPost.url.length > 255 || !urlPattern.test(addPost.url))) {
+                toast.error('URL must be between 10 and 255 characters and must be a valid URL');
+                return false;
+            }
+            if (addPost.attach_file && addPost.attach_file.size > 5 * 1024 * 1024) {
+                toast.error('Attached file must be less than 5MB');
+                return false;
+            }
+            if (addPost.image && addPost.image.size > 5 * 1024 * 1024) {
+                toast.error('Image file must be less than 5MB');
+                return false;
+            }
+            if (StartDate && startDateTime < now) {
+                toast.error('Start Date must be in the future');
+                return false;
+            }
+            if (EndDate && endDateTime <= startDateTime) {
+                toast.error('End Date must be after Start Date');
+                return false;
+            }
+        } else {
+            if (addPost.title.length < 5 || addPost.title.length > 100) {
+                toast.error('Title must be between 5 and 100 characters');
+                return false;
+            }
+            if (addPost.description.length < 10 || addPost.description.length > 500) {
+                toast.error('Description must be between 10 and 500 characters');
+                return false;
+            }
+            if (addPost.url && (addPost.url.length < 10 || addPost.url.length > 255 || !urlPattern.test(addPost.url))) {
+                toast.error('URL must be between 10 and 255 characters and must be a valid URL');
+                return false;
+            }
+            if (addPost.attach_file && addPost.attach_file.size > 5 * 1024 * 1024) {
+                toast.error('Attached file must be less than 5MB');
+                return false;
+            }
+            if (addPost.image && addPost.image.size > 5 * 1024 * 1024) {
+                toast.error('Image file must be less than 5MB');
+                return false;
+            }
+            if (!addPost.category_id) {
+                toast.error('Please select a type of scholarship');
+                return false;
+            }
+            if (!addPost.country_id) {
+                toast.error('Please select a country');
+                return false;
+            }
+            if (!StartDate || startDateTime < now) {
+                toast.error('Start Date must be in the future');
+                return false;
+            }
+            if (!EndDate || endDateTime <= startDateTime) {
+                toast.error('End Date must be after Start Date');
+                return false;
+            }
+        }
+        return true;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault(); // ป้องกันการรีเฟรชของหน้าเว็บ
+        if (!validateForm()) return;
+
+        document.getElementById('waiting_modal').showModal();
+
         if (isEditMode) {
             setIsSubmitting(true);
-            if (formattedDate == checkDate && formattedTime == checkTime && formattedDateEnd == checkDateEnd && formattedTimeEnd == checkTimeEnd) {
+            if (formattedDate === checkDate && formattedTime === checkTime && formattedDateEnd === checkDateEnd && formattedTimeEnd === checkTimeEnd) {
                 // เช็คว่ามีการแก้ไขข้อมูลหรือไม่
                 if (addPost.title === '' && addPost.description === '' && addPost.category_id === 0 && addPost.country_id === 0 && addPost.url === '' && addPost.attach_file === null && addPost.image === null) {
                     navigate(`/detail/${id}`);
@@ -183,8 +279,8 @@ function Add() {
                     UpdatePost(formData);
                 }
             } else {
-                const startDateTime = new Date(`${StartDate === '' ? checkDate : StartDate}T${StartTime === '' ? checkTime : StartTime}`).toISOString();
-                const endDateTime = new Date(`${EndDate === '' ? checkDateEnd : EndDate}T${EndTime === '' ? checkTimeEnd : EndTime}`).toISOString();
+                const startDateTime = new Date(`${StartDate || checkDate}T${StartTime || checkTime}`).toISOString();
+                const endDateTime = new Date(`${EndDate || checkDateEnd}T${EndTime || checkTimeEnd}`).toISOString();
                 const updatedPost = {
                     ...addPost,
                     publish_Date: startDateTime,
@@ -283,12 +379,17 @@ function Add() {
                     maxBodyLength: 50 * 1024 * 1024, // ปรับขนาดสูงสุดของ body ที่ส่งไปที่ 50MB
                 });
                 if (res.status === 201) {
-                    navigate('/');
+                    setTimeout(() => {
+                        document.getElementById('waiting_modal').close();
+                        document.getElementById('success_modal').showModal();
+                    }, 2000);
                 }
             }
         }
         catch (error) {
             console.error(error);
+            document.getElementById('waiting_modal').close();
+            document.getElementById('error_modal').showModal();
         } finally {
             setIsSubmitting(false); // เปิดปุ่ม submit อีกครั้ง
         }
@@ -377,14 +478,14 @@ function Add() {
             <ToastContainer />
             <div className="Background">
                 <div className="Maincontainer">
-                    {/* ส่วนหัวของเนื้อห�� */}
+                    {/* ส่วนหัวของเนื้อหา */}
                     <div className='mx-8'>
                         <div className='grid grid-cols-2'>
                             <div className='mt-7'>
                                 <h1 className='font-bold text-4xl text-black'>{isEditMode ? 'Edit Scholarship' : 'Add New Scholarship'}</h1>
                             </div>
                             <div className='mt-5 flex justify-end '>
-                            {/* ปุ่มกลับ */}
+                                {/* ปุ่มกลับ */}
                                 <Link className=' text-slate-400 underline underline-offset-2 hover:text-slate-500' onClick={handleCancel}>
                                     Back
                                 </Link>
@@ -565,7 +666,7 @@ function Add() {
                                             </div>
                                         </div>
                                     </div>
-                                        {/* แนบไฟล์ */}
+                                    {/* แนบไฟล์ */}
                                     <div className='-mt-14 border-section h-2/3 grid grid-rows-2 pb-3'>
                                         <div className='grid grid-cols-7 mx-8'>
                                             <label className='heading-text items-center flex'>Attach Files</label>
@@ -607,7 +708,7 @@ function Add() {
                             <div className='-mt-32 flex justify-end'>
                                 <button type='button' className='btn hover:bg-gray-700 bg-gray-500 text-white border-none w-1/5 mr-10' onClick={handleCancel}>Cancel Post
                                 </button>
-                               {/* modal */}
+                                {/* modal */}
                                 <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle justify-center items-center">
                                     <div className="modal-box bg-white">
                                         <img src={image1} alt="" className="mb-8 justify-center items-center ml-16 mt-9" />
@@ -635,6 +736,45 @@ function Add() {
                                                     Yes, Discard this
                                                 </button>
                                             </div>
+                                        </div>
+                                    </div>
+                                </dialog>
+                                <dialog id="waiting_modal" className="modal modal-bottom sm:modal-middle justify-center items-center">
+                                    <div className="modal-box bg-white flex flex-col justify-center items-center">
+                                        <div className="mt-4 w-28 h-28 border-8 border-t-8 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
+                                        <p className="heading-text text-center">Waiting for Posting...</p>
+                                    </div>
+                                </dialog>
+                                <dialog id="success_modal" className="modal modal-bottom sm:modal-middle justify-center items-center">
+                                    <div className="modal-box bg-white">
+                                        <img src={image3} alt="" className="mb-8 justify-center items-center" />
+                                        <p className="heading-text text-center">Post Successful!</p>
+                                        <div className="modal-action flex flex-col justify-center items-center">
+                                            <button
+                                                className="yes-button"
+                                                onClick={() => {
+                                                    document.getElementById('success_modal').close();
+                                                    navigate('/');
+                                                }}
+                                            >
+                                                Back to Home
+                                            </button>
+                                        </div>
+                                    </div>
+                                </dialog>
+                                <dialog id="error_modal" className="modal modal-bottom sm:modal-middle justify-center items-center">
+                                    <div className="modal-box bg-white">
+                                        <p className="heading-text text-center">Error Occurred!</p>
+                                        <p className="pt-8 text-center text-base font-medium text-gray-400 pb-5">An error occurred while posting your scholarship. Please try again.</p>
+                                        <div className="modal-action flex flex-col justify-center items-center">
+                                            <button
+                                                className="yes-button"
+                                                onClick={() => {
+                                                    document.getElementById('error_modal').close();
+                                                }}
+                                            >
+                                                Close
+                                            </button>
                                         </div>
                                     </div>
                                 </dialog>
