@@ -5,7 +5,7 @@
     flex-direction: column;
     margin-top: 56px;
     gap: 10px;
-    padding: 16px;
+    padding: 24px;
 
     height: auto; /* ใช้ auto หรือ fix height ถ้าจำเป็น */
     overflow: hidden; /* ซ่อน overflow ที่ไม่ต้องการ */

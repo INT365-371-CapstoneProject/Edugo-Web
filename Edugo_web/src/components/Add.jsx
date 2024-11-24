@@ -549,7 +549,7 @@ function Add() {
                                                     placeholder="Select Date"
                                                     value={formattedDateEnd}
                                                     onChange={handleDateChangeEnd} // จัดรูปแบบวันที่เมื่อมีการเลือก
-                                                    className="form-border col-span-2 font-sans text-center"
+                                                    className="form-border col-span-2 font-sans text-center color"
                                                     required
                                                 />
 

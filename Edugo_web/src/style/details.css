@@ -32,7 +32,6 @@ box-shadow: 0px 0px 0px 4px rgba(108, 99, 255, 0.15);
     flex-direction: column;
     justify-content: center;
     align-items: flex-start;
-
 }
 .date-layout {
     display: grid;
@@ -133,4 +132,7 @@ box-shadow: 0px 0px 0px 4px rgba(108, 99, 255, 0.15);
     grid-template-columns: repeat(2, 1fr); /* สร้าง 2 คอลัมน์ที่มีขนาดเท่ากัน */
     gap: 24px;                /* ระยะห่างระหว่างคอลัมน์/แถว เทียบเท่ากับ gap-10 (10 x 0.25rem) */
     width: 100%;                  /* ความกว้างเต็มหน้าจอ */
+}
+.heading-datails-clamp{
+
 }
