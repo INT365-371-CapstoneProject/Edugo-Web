@@ -1,21 +1,20 @@
-.border-lightgrey{
-    display: flex;
-    border-radius: 10px;
-    border: 1.5px solid var(--Border-Card, #E0E0E0);
-    background: var(--White, #FFF);
-    cursor: pointer;
-}
 .border-lightgrey {
     display: flex;
     border-radius: 10px;
     border: 1.5px solid var(--Border-Card, #E0E0E0);
     background: var(--White, #FFF);
     cursor: pointer;
-    transition: box-shadow 0.3s ease, transform 0.3s ease; 
+    transition: box-shadow 0.3s ease, transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .border-lightgrey:hover {
     transform: translateY(-3px);
+}
+
+.border-lightgrey:active {
+    background-color: var(--Active-Background, #f1f1f1); /* เปลี่ยนพื้นหลังเมื่อกด */
+    border-color: var(--Active-Border, #bab9b9); /* เปลี่ยนสีกรอบเมื่อกด */
+    
 }
 .button{
     border: none; 

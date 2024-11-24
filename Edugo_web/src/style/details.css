@@ -231,4 +231,21 @@ select:focus, option:focus, .border-section:focus{
 
     position: relative;
 }
+.attach-file-text {
+    margin-left: 2rem; /* mx-8: 2rem */
+    margin-right: 2rem; /* mx-8: 2rem */
+    border: 1px solid #e5e7eb; /* border-section (ค่า default สี border ของ Tailwind) */
+    border-radius: 0.5rem; /* rounded-lg: 0.5rem */
+    height: 3rem; /* h-12: 3rem */
+    display: flex;
+    align-items: center; /* items-center */
+    padding-left: 1.75rem; /* pl-7: 1.75rem */
+    cursor: pointer; /* cursor-pointer */
+    color: #8f97a2; /* text-blue-500: #3b82f6 */
+    transition: text-decoration 0.3s ease;
+}
 
+.attach-file-text:hover {
+    text-decoration: underline; /* hover:underline */
+    color: #355FFF;
+}

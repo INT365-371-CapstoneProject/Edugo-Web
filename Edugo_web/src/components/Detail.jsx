@@ -168,7 +168,7 @@ function Detail() {
                                     {announce && announce.length > 0 ? (
                                         announce[0].attach_file != "null" && announce[0].attach_file != null ? (
                                             <h1 
-                                                className='mx-8 border-section rounded-lg h-12 flex items-center pl-7 cursor-pointer text-blue-500 hover:underline' 
+                                                className='attach-file-text' 
                                                 onClick={() => watchFile(announce[0].attach_file)}
                                             >
                                                 {announce[0].attach_file}
