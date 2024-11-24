@@ -7,6 +7,7 @@ import image2 from '../assets/bg-file-image.png';
 import Nav from './Nav'
 import { urlImage, urlPDF } from '../composable/getImage';
 import axios from 'axios';
+import image3 from '../assets/Trashillustration.png';
 import { url } from '../composable/getAnnounce';
 import '../style/style.css'; // Import CSS file
 import '../style/details.css'; // Import CSS file
@@ -191,11 +192,37 @@ function Detail() {
                             </div>
                         </div>
                         <div className='-mt-32 flex justify-end mb-5'>
-                            <button type='button' onClick={()=> deleteData()} className='btn hover:bg-rose-800 bg-redcolor text-white border-none w-1/5'>Delete Scholarship
+                            <button type='button' onClick={() => document.getElementById('my_modal_5').showModal()} className='btn hover:bg-rose-800 bg-redcolor text-white border-none w-1/5'>Delete Scholarship
                                 <img src={icon1} alt="" />
                             </button>
                         </div>
-
+                        <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle justify-center items-center">
+                            <div className="modal-box bg-white">
+                                <img src={image3} alt="" className='mb-5 justify-center items-center ml-16 mt-9'/>
+                                <p className="heading-text text-center">Are you sure you want to delete this scholarship ?</p>
+                                {announce && announce.length > 0 ? (<p className="pt-8 text-center text-base font-medium text-gray-400 pb-5">“{announce[0].title}”</p>):( <p>Loading...</p>)}
+                                <div className="modal-action flex flex-col justify-center items-center">
+                                    <div className='button-gap'>
+                                        <button
+                                            type='button'
+                                            className="cancel-button"
+                                            onClick={() => document.getElementById('my_modal_5').close()}
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            className="yes-button"
+                                            onClick={() => {
+                                                document.getElementById('my_modal_5').close();
+                                                deleteData();
+                                            }}
+                                        >
+                                            Delete
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </dialog>
                     </div>
                 </div>
             </div>
