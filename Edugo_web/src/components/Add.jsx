@@ -741,13 +741,13 @@ function Add() {
                                 </dialog>
                                 <dialog id="waiting_modal" className="modal modal-bottom sm:modal-middle justify-center items-center">
                                     <div className="modal-box bg-white flex flex-col justify-center items-center">
-                                        <div className="mt-4 w-16 h-16 border-8 border-t-8 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
+                                        <div className="mt-4 w-28 h-28 border-8 border-t-8 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
                                         <p className="heading-text text-center">Waiting for Posting...</p>
                                     </div>
                                 </dialog>
                                 <dialog id="success_modal" className="modal modal-bottom sm:modal-middle justify-center items-center">
                                     <div className="modal-box bg-white">
-                                        <img src={image3} alt="" className="mb-8 justify-center items-center ml-16 mt-9" />
+                                        <img src={image3} alt="" className="mb-8 justify-center items-center" />
                                         <p className="heading-text text-center">Post Successful!</p>
                                         <div className="modal-action flex flex-col justify-center items-center">
                                             <button
