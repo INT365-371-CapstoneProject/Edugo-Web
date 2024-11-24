@@ -13,29 +13,9 @@
     cursor: pointer;
     transition: box-shadow 0.3s ease, transform 0.3s ease; /* เพิ่ม transition สำหรับเอฟเฟกต์ */
 }
-/* Hover with light blue glow */
-.border-lightgrey.hover-blue:hover {
-    box-shadow: 0 0 15px rgba(120, 219, 252, 0.2), 0 0 20px rgba(0, 0, 0, 0.06); /* Light Blue Glow */
-    transform: translateY(-2px);
-    background-color: #ffffff; /* Optional: Light blue background */
-}
-/* Hover with grey glow */
-.border-lightgrey.hover-grey:hover {
-    box-shadow: 0 0 15px rgba(224, 224, 224, 0.2), 0 0 20px rgba(0, 0, 0, 0.06); /* Light grey Glow */
-    transform: translateY(-2px);
-    background-color: #ffffff; /* Optional: Light grey background */
-}
-/* Hover with green glow */
-.border-lightgrey.hover-green:hover {
-    box-shadow: 0 0 15px rgba(144, 238, 144, 0.2), 0 0 20px rgba(0, 0, 0, 0.06); /* Green Glow */
-    transform: translateY(-2px);
-    background-color: #ffffff; /* Optional: Light green background */
-}
-/* Hover with red glow */
-.border-lightgrey.hover-red:hover {
-    box-shadow: 0 0 15px rgba(255, 99, 71, 0.2), 0 0 20px rgba(0, 0, 0, 0.06); /* Red Glow */
-    transform: translateY(-2px);
-    background-color: #ffffff; /* Optional: Light red background */
+
+.border-lightgrey:hover {
+    transform: translateY(-3px); /* ขยับเล็กน้อยให้การ์ดยกขึ้น */
 }
 .button{
     border: none; 
@@ -79,7 +59,7 @@
 
 .ScholarLayout > *:hover {
     transform: translateY(-5px); /* ขยับองค์ประกอบขึ้นเล็กน้อยเมื่อ hover */
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06); /* เพิ่มเงาใต้เมื่อ hover */
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06); /* เพิ่มเงาใต้เมื่อ hover */
 }
 .scholarship-card{
     margin: auto; /* m-auto: centers the element horizontally */

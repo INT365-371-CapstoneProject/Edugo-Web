@@ -1,47 +1,52 @@
 .border-section{
-    border-radius: 10px;
+    border-radius: 9px;
+    color: #64738B;
     border: 1px solid var(--Foundation-Grey-Normal, #CBD5E0);
   }
 .border-section:focus{
-    outline: none; /* Removes default focus outline */
+    outline: none;
     border-radius: 10px;
     border: 1px solid var(--foundation-blue-light-active, #C0CDFF);
     background: var(--White, #FFF);
 /* Status/Fill Shadow */
 box-shadow: 0px 0px 0px 4px rgba(108, 99, 255, 0.15);
 }
+.border-section::placeholder {
+    color: #64738B; 
+}
 .heading-text{
     color: #000;
     font-size: 24px;
     font-style: normal;
-    font-weight: 500;    line-height: 32px; /* 133.333% */
+    font-weight: 500;    line-height: 32px; 
 }
 .detail-information-text {
     color: var(--foundation-grey-normal-active, #64738B);
-    font-size: 24px;
+    font-size: 22px;
     font-style: normal;
-    line-height: 32px; /* 133.333% */
-    width: 480px; /* กำหนดความกว้างที่ต้องการ */
-    white-space: nowrap; /* บังคับให้อยู่ในบรรทัดเดียว */
-    overflow: hidden; /* ซ่อนข้อความที่เกิน */
-    text-overflow: ellipsis; /* แสดง ... สำหรับข้อความที่ถูกซ่อน */
+    font-weight: 500;
+    line-height: 32px; 
+    width: 480px; 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
 }
 .description-textarea {
-    overflow-y: auto; /* เปิดการเลื่อนเฉพาะแนวตั้ง */
-    resize: none; /* ปิดการปรับขนาด */
-    height: 18rem; /* เท่ากับ h-72 ใน Tailwind (1rem = 4px ดังนั้น 18rem = 72 x 4px) */
-    margin-top: 0.5rem; /* เท่ากับ mt-2 (2 = 0.5rem) */
-    font-family: sans-serif; /* เท่ากับ font-sans */
-    padding-top: 0.75rem; /* เท่ากับ p-3 (3 = 0.75rem) */
-    padding-bottom: 0.75rem; /* เท่ากับ p-3 (3 = 0.75rem) */
+    overflow-y: auto; 
+    resize: none; 
+    height: 18rem; 
+    margin-top: 0.5rem; 
+    font-family: sans-serif; 
+    padding-top: 0.75rem; 
+    padding-bottom: 0.75rem; 
     color: #64738B;
-    word-wrap: break-word; /* แยกคำในกรณีที่ข้อความยาวเกิน */
-    word-break: break-word; /* บังคับแยกคำ */
+    word-wrap: break-word; 
+    word-break: break-word; 
 }
 .detail-information-layout{
     display: grid;
-    grid-template-rows: repeat(4, 1fr); /* grid-rows-4: 4 rows with equal height */
-    margin: 32px;
+    grid-template-rows: repeat(4, 1fr); 
+    margin: 28px;
     gap: 40px;
     display: flex;
 
@@ -51,7 +56,7 @@ box-shadow: 0px 0px 0px 4px rgba(108, 99, 255, 0.15);
 }
 .date-layout {
     display: grid;
-    grid-template-rows: repeat(2, 1fr); /* grid-rows-2: 2 rows with equal height */
+    grid-template-rows: repeat(2, 1fr); 
     gap: 40px;
 }
 
@@ -72,57 +77,55 @@ box-shadow: 0px 0px 0px 4px rgba(108, 99, 255, 0.15);
     border: 1px solid var(--foundation-grey-normal-hover, #CBD5E0);
     background: var(--White, #FFF);
     padding: 0;
-    cursor: pointer;
     grid-column: span 2;
 }
+.form-border:focus{
+    outline: none;
+    border-radius: 10px;
+    border: 1px solid var(--foundation-blue-light-active, #C0CDFF);
+    background: var(--White, #FFF);
 
-
+/* Status/Fill Shadow */
+box-shadow: 0px 0px 0px 4px rgba(108, 99, 255, 0.15);
+}
+.border-section::placeholder {
+    color: #64738B; 
+}
+/* --------------เปลี่ยนตำแหน่งปฏิทิน---------------*/
 input[type="date"]::-webkit-calendar-picker-indicator {
     position: absolute;
-    right: 20px; /* Position the calendar icon to the right */
+    right: 20px; 
     border: none;
-    width: 20px; /* Adjust the size of the calendar icon */
+    width: 20px;
     height: 20px;
-    cursor: pointer; /* Keep it clickable */
+    cursor: pointer; 
 }
-
-
-.form-border::placeholder {
-    color: black;
-}
-
 .time-border {
-    padding: 0.75rem; /* Equivalent to p-3 */
+    padding: 0.75rem; 
     height: 80%;
-    font-family: sans-serif; /* Equivalent to font-sans */
-    text-align: center; /* Equivalent to text-center */
+    font-family: sans-serif; 
+    text-align: center; 
     border-radius: 10px;
     border: 1px solid var(--foundation-grey-normal-hover, #CBD5E0);
     background: var(--White, #FFF);
     padding: 0;
     cursor: pointer;
-    width: 100%; /* Ensure input spans full width */
+    width: 100%;
     box-sizing: border-box;
 }
-
-.time-border::placeholder {
-    color: black;
-}
-
+/* --------------เปลี่ยนตำแหน่งนาฬิกา ---------------*/
 input[type="date"], input[type="time"] {
-    width: 100%; /* Ensure inputs take full width of the parent */
-    padding: 0.5rem; /* Optional, to make inputs more spacious */
-    box-sizing: border-box; /* Makes padding and borders part of the element's size */
+    width: 100%; 
+    padding: 0.8rem;
+    box-sizing: border-box; 
 }
-
-input[type="date"]:focus,
-input[type="time"]:focus {
-    outline: none; /* Removes default focus outline */
-    border-radius: 10px;
-    border: 1px solid var(--foundation-blue-light-active, #C0CDFF);
-    background: var(--White, #FFF);
-/* Status/Fill Shadow */
-box-shadow: 0px 0px 0px 4px rgba(108, 99, 255, 0.15);
+/* --------------เปลี่ยนสีไอคอนให้เป็นสีบรรทัด filter ---------------*/
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+    outline: none;
+    filter: invert(28%) sepia(100%) saturate(750%) hue-rotate(180deg) brightness(94%) contrast(100%);
+    width: 20px; 
+    height: 20px; 
 }
 .cancel-button{
     display: flex;
@@ -155,8 +158,38 @@ box-shadow: 0px 0px 0px 4px rgba(108, 99, 255, 0.15);
     background: var(--foundation-red-normal-hover, #8E2D5F);
 }
 .button-gap{
-    display: grid;                /* เปิดใช้งาน Grid layout */
-    grid-template-columns: repeat(2, 1fr); /* สร้าง 2 คอลัมน์ที่มีขนาดเท่ากัน */
-    gap: 24px;                /* ระยะห่างระหว่างคอลัมน์/แถว เทียบเท่ากับ gap-10 (10 x 0.25rem) */
-    width: 100%;                  /* ความกว้างเต็มหน้าจอ */
+    display: grid;                
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 24px;                
+    width: 100%;
 }
+select, option {
+    appearance: none;
+    background-color: white;
+    color: #64738B; 
+    border: 1px solid #CBD5E0; 
+    padding: 0.75rem; 
+    font-family: sans-serif; 
+    transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+}
+
+select:focus {
+    outline: none; 
+    border-color: #3182ce; 
+    background-color: #f9fafb; 
+    color: #64738B; 
+}
+
+option {
+    background-color: white;
+    color: #64738B; 
+}
+.border-time-layout {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* สร้างกริด 3 คอลัมน์ */
+    margin-top: -0.25rem; /* -mt-3 เท่ากับ -0.75rem */
+    gap: 3.5rem; /* gap-14 เท่ากับ 3.5rem */
+    height: 80%; /* h-3/4 เท่ากับ 75% */
+}
+
+

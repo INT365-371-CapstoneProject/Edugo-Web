@@ -612,12 +612,12 @@ function Add() {
                                 </div>
 
                                 <div className='date-layout'>
-                                    <div className='border-section h-2/3 grid grid-cols-2'>
+                                    <div className='border-section h-2/3 grid grid-cols-2 pt-3'>
                                         <div className='grid grid-rows-2 my-4 mx-8'>
                                             <label className='heading-text'>Start Date
                                                 <span className="text-red-500">*</span>
                                             </label>
-                                            <div className='grid grid-cols-3 -mt-3 gap-14'>
+                                            <div className='border-time-layout'>
                                                 {/* ช่องสำหรับวันที่ */}
                                                 <input
                                                     type="date"
@@ -643,14 +643,14 @@ function Add() {
                                             <label className='heading-text'>End Date
                                                 <span className="text-red-500">*</span>
                                             </label>
-                                            <div className='grid grid-cols-3 -mt-3 gap-14'>
+                                            <div className='border-time-layout'>
                                                 {/* ช่องสำหรับวันที่ */}
                                                 <input
                                                     type="date"
                                                     placeholder="Select Date"
                                                     value={formattedDateEnd}
                                                     onChange={handleDateChangeEnd} // จัดรูปแบบวันที่เมื่อมีการเลือก
-                                                    className="form-border col-span-2 font-sans text-center color"
+                                                    className="form-border col-span-2 font-sans text-center"
                                                     required
                                                 />
 
@@ -667,7 +667,7 @@ function Add() {
                                         </div>
                                     </div>
                                     {/* แนบไฟล์ */}
-                                    <div className='-mt-14 border-section h-2/3 grid grid-rows-2 pb-3'>
+                                    <div className='-mt-14 border-section h-2/3 grid grid-rows-2 pb-4'>
                                         <div className='grid grid-cols-7 mx-8'>
                                             <label className='heading-text items-center flex'>Attach Files</label>
                                             <p className='col-span-6 items-center flex text-slate-400 text-sm'>*upload PDF file with maximum size 20 MB</p>
@@ -693,8 +693,8 @@ function Add() {
                                     {/* description */}
                                 </div>
                                 <div className='-mt-28 border-section mb-40'>
-                                    <div className='mx-10 mt-6 flex flex-col'>
-                                        <label className='heading-text '>Description
+                                    <div className='mx-8 mt-6 flex flex-col'>
+                                        <label className='heading-text'>Description
                                             <span className="text-red-500">*</span>
                                         </label>
                                         <textarea className='resize-none h-72 mt-2 font-sans p-3 border-section bg-white' value={addPost.description}

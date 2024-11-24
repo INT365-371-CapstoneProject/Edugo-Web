@@ -100,7 +100,7 @@ function Homepage() {
                         <div className="summary-padding">
                             <div
                             
-                                className="border-lightgrey hover-blue"
+                                className="border-lightgrey"
                                 onClick={() => handleFilterClick('All')}
                             >
                                 <div className="summary-all-border">
@@ -112,7 +112,7 @@ function Homepage() {
                                 </div>
                             </div>
                             <div
-                                className="border-lightgrey hover-grey"
+                                className="border-lightgrey"
                                 onClick={() => handleFilterClick('Pending')}
                             >
                                 <div className="border-l-4 border-gray-300 my-5">
@@ -124,7 +124,7 @@ function Homepage() {
                                 </div>
                             </div>
                             <div
-                                className="border-lightgrey hover-green"
+                                className="border-lightgrey"
                                 onClick={() => handleFilterClick('Open')}
                             >
                                 <div className="summary-open-border">
@@ -136,7 +136,7 @@ function Homepage() {
                                 </div>
                             </div>
                             <div
-                                className="border-lightgrey hover-red"
+                                className="border-lightgrey"
                                 onClick={() => handleFilterClick('Close')}
                             >
                                 <div className="border-l-4 border-pink-600 my-5">
