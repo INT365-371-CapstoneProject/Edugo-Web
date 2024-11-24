@@ -149,11 +149,95 @@ function Add() {
             });
     }, []);
 
+    const validateForm = () => {
+        const urlPattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+            '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.?)+[a-z]{2,}|'+ // domain name
+            '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+            '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+            '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+            '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+    
+        const startDateTime = new Date(`${StartDate || checkDate}T${StartTime || checkTime}`);
+        const endDateTime = new Date(`${EndDate || checkDateEnd}T${EndTime || checkTimeEnd}`);
+        const now = new Date();
+    
+        if (isEditMode) {
+            if (addPost.title && (addPost.title.length < 5 || addPost.title.length > 100)) {
+                toast.error('Title must be between 5 and 100 characters');
+                return false;
+            }
+            if (addPost.description && (addPost.description.length < 10 || addPost.description.length > 500)) {
+                toast.error('Description must be between 10 and 500 characters');
+                return false;
+            }
+            if (addPost.url && (addPost.url.length < 10 || addPost.url.length > 255 || !urlPattern.test(addPost.url))) {
+                toast.error('URL must be between 10 and 255 characters and must be a valid URL');
+                return false;
+            }
+            if (addPost.attach_file && addPost.attach_file.size > 5 * 1024 * 1024) {
+                toast.error('Attached file must be less than 5MB');
+                return false;
+            }
+            if (addPost.image && addPost.image.size > 5 * 1024 * 1024) {
+                toast.error('Image file must be less than 5MB');
+                return false;
+            }
+            if (StartDate && startDateTime < now) {
+                toast.error('Start Date must be in the future');
+                return false;
+            }
+            if (EndDate && endDateTime <= startDateTime) {
+                toast.error('End Date must be after Start Date');
+                return false;
+            }
+        } else {
+            if (addPost.title.length < 5 || addPost.title.length > 100) {
+                toast.error('Title must be between 5 and 100 characters');
+                return false;
+            }
+            if (addPost.description.length < 10 || addPost.description.length > 500) {
+                toast.error('Description must be between 10 and 500 characters');
+                return false;
+            }
+            if (addPost.url && (addPost.url.length < 10 || addPost.url.length > 255 || !urlPattern.test(addPost.url))) {
+                toast.error('URL must be between 10 and 255 characters and must be a valid URL');
+                return false;
+            }
+            if (addPost.attach_file && addPost.attach_file.size > 5 * 1024 * 1024) {
+                toast.error('Attached file must be less than 5MB');
+                return false;
+            }
+            if (addPost.image && addPost.image.size > 5 * 1024 * 1024) {
+                toast.error('Image file must be less than 5MB');
+                return false;
+            }
+            if (!addPost.category_id) {
+                toast.error('Please select a type of scholarship');
+                return false;
+            }
+            if (!addPost.country_id) {
+                toast.error('Please select a country');
+                return false;
+            }
+            if (!StartDate || startDateTime < now) {
+                toast.error('Start Date must be in the future');
+                return false;
+            }
+            if (!EndDate || endDateTime <= startDateTime) {
+                toast.error('End Date must be after Start Date');
+                return false;
+            }
+        }
+        return true;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault(); // ป้องกันการรีเฟรชของหน้าเว็บ
+        if (!validateForm()) return;
+
         if (isEditMode) {
             setIsSubmitting(true);
-            if (formattedDate == checkDate && formattedTime == checkTime && formattedDateEnd == checkDateEnd && formattedTimeEnd == checkTimeEnd) {
+            if (formattedDate === checkDate && formattedTime === checkTime && formattedDateEnd === checkDateEnd && formattedTimeEnd === checkTimeEnd) {
                 // เช็คว่ามีการแก้ไขข้อมูลหรือไม่
                 if (addPost.title === '' && addPost.description === '' && addPost.category_id === 0 && addPost.country_id === 0 && addPost.url === '' && addPost.attach_file === null && addPost.image === null) {
                     navigate(`/detail/${id}`);
@@ -183,8 +267,8 @@ function Add() {
                     UpdatePost(formData);
                 }
             } else {
-                const startDateTime = new Date(`${StartDate === '' ? checkDate : StartDate}T${StartTime === '' ? checkTime : StartTime}`).toISOString();
-                const endDateTime = new Date(`${EndDate === '' ? checkDateEnd : EndDate}T${EndTime === '' ? checkTimeEnd : EndTime}`).toISOString();
+                const startDateTime = new Date(`${StartDate || checkDate}T${StartTime || checkTime}`).toISOString();
+                const endDateTime = new Date(`${EndDate || checkDateEnd}T${EndTime || checkTimeEnd}`).toISOString();
                 const updatedPost = {
                     ...addPost,
                     publish_Date: startDateTime,
