@@ -64,7 +64,7 @@ box-shadow: 0px 0px 0px 4px rgba(108, 99, 255, 0.15);
     color: var(--foundation-grey-normal-active, #8f97a2);
     font-size: 20px;
     font-style: normal;
-    line-height: 28px; /* 140% */
+    line-height: 28px; 
 }
 
 .form-border {
@@ -197,21 +197,38 @@ option {
 }
 
 option:checked {
-    color: black; /* เปลี่ยนสีของ option เมื่อเลือกแล้ว */
+    color: black; 
 }
 
 /* สำหรับสถานะ focus ของ select */
 select:focus, option:focus, .border-section:focus{
-    color: black; /* ให้สีเป็นดำเมื่อเลือกแล้ว */
+    color: black; 
 }
 
 
 .border-time-layout {
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* สร้างกริด 3 คอลัมน์ */
-    margin-top: -0.25rem; /* -mt-3 เท่ากับ -0.75rem */
-    gap: 3.5rem; /* gap-14 เท่ากับ 3.5rem */
-    height: 80%; /* h-3/4 เท่ากับ 75% */
+    grid-template-columns: repeat(3, 1fr);
+    margin-top: -0.25rem; 
+    gap: 3.5rem; 
 }
+.delete-title-modal {
+    font-style: italic;
+    padding-top: 2rem;
+    padding-left: 40px;
+    text-align: center; 
+    font-size: 16px; 
+    font-weight: 400;
+    color: #9CA3AF; 
+    padding-bottom: 1.25rem; 
 
+    display: block; 
+    width: 100%; 
+    max-width: 380px; 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+
+    position: relative;
+}
 

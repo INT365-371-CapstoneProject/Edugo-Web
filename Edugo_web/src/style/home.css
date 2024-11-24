@@ -11,11 +11,11 @@
     border: 1.5px solid var(--Border-Card, #E0E0E0);
     background: var(--White, #FFF);
     cursor: pointer;
-    transition: box-shadow 0.3s ease, transform 0.3s ease; /* เพิ่ม transition สำหรับเอฟเฟกต์ */
+    transition: box-shadow 0.3s ease, transform 0.3s ease; 
 }
 
 .border-lightgrey:hover {
-    transform: translateY(-3px); /* ขยับเล็กน้อยให้การ์ดยกขึ้น */
+    transform: translateY(-3px);
 }
 .button{
     border: none; 
@@ -25,7 +25,7 @@
     width: 280px;
     height: 48px;
     color: white;
-    cursor: pointer; /* cursor-pointer */
+    cursor: pointer; 
 }
 .button:hover {
     background-color: #2A4CCC;
@@ -35,14 +35,14 @@
     font-size: 18px;
     font-style: normal;
     font-weight: 400;
-    line-height: 28px; /* 140% */
+    line-height: 28px; 
 }
 .summary-padding{
-    display: grid; /* grid */
-    grid-template-columns: repeat(4, 1fr); /* grid-cols-4 */
-    margin-top: 2.5rem; /* mt-10: 2.5rem (40px) */
+    display: grid; 
+    grid-template-columns: repeat(4, 1fr); 
+    margin-top: 2.5rem; 
     column-gap: 36px;
-    color: black; /* text-black */
+    color: black; 
 }
 .ScholarLayout {
     display: grid;
@@ -51,18 +51,18 @@
     gap: 32px;
     flex-wrap: wrap;
     color: white;
-    transition: transform 0.3s ease, background-color 0.3s ease; /* เพิ่ม transition สำหรับเอฟเฟค */
+    transition: transform 0.3s ease, background-color 0.3s ease; 
 }
 .ScholarLayout > * {
-    transition: transform 0.3s ease; /* เพิ่ม transition สำหรับลูกๆ ของ grid */
+    transition: transform 0.3s ease; 
 }
 
 .ScholarLayout > *:hover {
-    transform: translateY(-5px); /* ขยับองค์ประกอบขึ้นเล็กน้อยเมื่อ hover */
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06); /* เพิ่มเงาใต้เมื่อ hover */
+    transform: translateY(-5px); 
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06); 
 }
 .scholarship-card{
-    margin: auto; /* m-auto: centers the element horizontally */
+    margin: auto; 
     width: 480px;
     height: 336px;
     padding: 0px 24px;
@@ -73,27 +73,27 @@
 
 }
 .headingclamp{
-  display: -webkit-box; /* ใช้สำหรับ Webkit browsers */
-  -webkit-box-orient: vertical; /* ระบุให้เป็นการจัดแนวตั้ง */
-  overflow: hidden; /* ซ่อนข้อความที่เกิน */
-  text-overflow: ellipsis; /* แสดง ... เมื่อข้อความถูกตัด */
-  -webkit-line-clamp: 2; /* จำกัดจำนวนบรรทัดไว้ที่ 3 */
-  line-clamp: 2; /* รองรับสำหรับ CSS ล่าสุด */
+  display: -webkit-box; 
+  -webkit-box-orient: vertical; 
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+  -webkit-line-clamp: 2; 
+  line-clamp: 2; 
   height: 61px;
 }
 .descriptionclamp{
-  display: -webkit-box; /* ใช้สำหรับ Webkit browsers */
-  -webkit-box-orient: vertical; /* ระบุให้เป็นการจัดแนวตั้ง */
-  overflow: hidden; /* ซ่อนข้อความที่เกิน */
-  text-overflow: ellipsis; /* แสดง ... เมื่อข้อความถูกตัด */
-  -webkit-line-clamp: 3; /* จำกัดจำนวนบรรทัดไว้ที่ 3 */
-  line-clamp: 3; /* รองรับสำหรับ CSS ล่าสุด */
+  display: -webkit-box; 
+  -webkit-box-orient: vertical; 
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+  -webkit-line-clamp: 3; 
+  line-clamp: 3; 
   height: 58px;
 }
 .information-layout{
     padding-top: 6%;
     padding-bottom: 6px;
-    word-break: break-word; /* break-words: breaks words to fit the container */
+    word-break: break-word; 
     width:198px;
 }
 .number-layout{
@@ -102,19 +102,19 @@
   color: #94A2B8;
 }
 .date-period-layout{
-        margin-top: 0.5rem; /* เท่ากับ mt-2 (2 = 0.5rem) */
-        font-weight: 500; /* เท่ากับ font-medium */
-        font-size: 15px; /* เท่ากับ text-lg (1.125rem = 18px) */
-        color: #1D4ED8; /* เท่ากับ text-blue-700 */
+        margin-top: 0.5rem; 
+        font-weight: 500;
+        font-size: 15px; 
+        color: #1D4ED8; 
 }
 .summary-all-border {
-    border-left: 4px solid #2563eb; /* Equivalent to border-blue-600 */
-    margin-top: 1.25rem; /* Equivalent to my-5, since 5 in Tailwind equals 1.25rem (20px) */
+    border-left: 4px solid #2563eb; 
+    margin-top: 1.25rem; 
     margin-bottom: 1.25rem;
 }
 .summary-open-border {
-    border-left: 4px solid #C4E250; /* Equivalent to border-blue-600 */
-    margin-top: 1.25rem; /* Equivalent to my-5, since 5 in Tailwind equals 1.25rem (20px) */
+    border-left: 4px solid #C4E250; 
+    margin-top: 1.25rem; 
     margin-bottom: 1.25rem;
 }
 .grid-container {
@@ -125,6 +125,6 @@
 
 @media (max-width: 768px) {
     .grid-container {
-        grid-template-columns: 1fr; /* Changes to one column on smaller screens */
-    }
+        grid-template-columns: 1fr;
+}
 }
