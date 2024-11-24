@@ -5,6 +5,38 @@
     background: var(--White, #FFF);
     cursor: pointer;
 }
+.border-lightgrey {
+    display: flex;
+    border-radius: 10px;
+    border: 1.5px solid var(--Border-Card, #E0E0E0);
+    background: var(--White, #FFF);
+    cursor: pointer;
+    transition: box-shadow 0.3s ease, transform 0.3s ease; /* เพิ่ม transition สำหรับเอฟเฟกต์ */
+}
+/* Hover with light blue glow */
+.border-lightgrey.hover-blue:hover {
+    box-shadow: 0 0 15px rgba(120, 219, 252, 0.2), 0 0 20px rgba(0, 0, 0, 0.06); /* Light Blue Glow */
+    transform: translateY(-2px);
+    background-color: #ffffff; /* Optional: Light blue background */
+}
+/* Hover with grey glow */
+.border-lightgrey.hover-grey:hover {
+    box-shadow: 0 0 15px rgba(224, 224, 224, 0.2), 0 0 20px rgba(0, 0, 0, 0.06); /* Light grey Glow */
+    transform: translateY(-2px);
+    background-color: #ffffff; /* Optional: Light grey background */
+}
+/* Hover with green glow */
+.border-lightgrey.hover-green:hover {
+    box-shadow: 0 0 15px rgba(144, 238, 144, 0.2), 0 0 20px rgba(0, 0, 0, 0.06); /* Green Glow */
+    transform: translateY(-2px);
+    background-color: #ffffff; /* Optional: Light green background */
+}
+/* Hover with red glow */
+.border-lightgrey.hover-red:hover {
+    box-shadow: 0 0 15px rgba(255, 99, 71, 0.2), 0 0 20px rgba(0, 0, 0, 0.06); /* Red Glow */
+    transform: translateY(-2px);
+    background-color: #ffffff; /* Optional: Light red background */
+}
 .button{
     border: none; 
     border-radius: 10px;
@@ -32,12 +64,22 @@
     column-gap: 36px;
     color: black; /* text-black */
 }
-.ScholarLayout{
+.ScholarLayout {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     align-items: flex-start;
     gap: 32px;
     flex-wrap: wrap;
+    color: white;
+    transition: transform 0.3s ease, background-color 0.3s ease; /* เพิ่ม transition สำหรับเอฟเฟค */
+}
+.ScholarLayout > * {
+    transition: transform 0.3s ease; /* เพิ่ม transition สำหรับลูกๆ ของ grid */
+}
+
+.ScholarLayout > *:hover {
+    transform: translateY(-5px); /* ขยับองค์ประกอบขึ้นเล็กน้อยเมื่อ hover */
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06); /* เพิ่มเงาใต้เมื่อ hover */
 }
 .scholarship-card{
     margin: auto; /* m-auto: centers the element horizontally */
@@ -57,7 +99,7 @@
   text-overflow: ellipsis; /* แสดง ... เมื่อข้อความถูกตัด */
   -webkit-line-clamp: 2; /* จำกัดจำนวนบรรทัดไว้ที่ 3 */
   line-clamp: 2; /* รองรับสำหรับ CSS ล่าสุด */
-  height: 59px;
+  height: 61px;
 }
 .descriptionclamp{
   display: -webkit-box; /* ใช้สำหรับ Webkit browsers */
@@ -69,15 +111,21 @@
   height: 58px;
 }
 .information-layout{
-    padding-top: 8px;
-    padding-bottom: 8px;
+    padding-top: 6%;
+    padding-bottom: 6px;
     word-break: break-word; /* break-words: breaks words to fit the container */
-    width: 180px;
+    width:198px;
 }
 .number-layout{
   font-style: normal;
   font-weight: 400;
   color: #94A2B8;
+}
+.date-period-layout{
+        margin-top: 0.5rem; /* เท่ากับ mt-2 (2 = 0.5rem) */
+        font-weight: 500; /* เท่ากับ font-medium */
+        font-size: 15px; /* เท่ากับ text-lg (1.125rem = 18px) */
+        color: #1D4ED8; /* เท่ากับ text-blue-700 */
 }
 .summary-all-border {
     border-left: 4px solid #2563eb; /* Equivalent to border-blue-600 */
@@ -88,4 +136,15 @@
     border-left: 4px solid #C4E250; /* Equivalent to border-blue-600 */
     margin-top: 1.25rem; /* Equivalent to my-5, since 5 in Tailwind equals 1.25rem (20px) */
     margin-bottom: 1.25rem;
+}
+.grid-container {
+    display: grid;
+    width: 200px;
+    grid-template-columns: repeat(2, 1fr);
+}
+
+@media (max-width: 768px) {
+    .grid-container {
+        grid-template-columns: 1fr; /* Changes to one column on smaller screens */
+    }
 }

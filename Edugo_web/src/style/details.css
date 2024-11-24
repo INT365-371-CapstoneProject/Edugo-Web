@@ -16,11 +16,27 @@ box-shadow: 0px 0px 0px 4px rgba(108, 99, 255, 0.15);
     font-style: normal;
     font-weight: 500;    line-height: 32px; /* 133.333% */
 }
-.detail-information-text{
+.detail-information-text {
     color: var(--foundation-grey-normal-active, #64738B);
     font-size: 24px;
     font-style: normal;
     line-height: 32px; /* 133.333% */
+    width: 480px; /* กำหนดความกว้างที่ต้องการ */
+    white-space: nowrap; /* บังคับให้อยู่ในบรรทัดเดียว */
+    overflow: hidden; /* ซ่อนข้อความที่เกิน */
+    text-overflow: ellipsis; /* แสดง ... สำหรับข้อความที่ถูกซ่อน */
+}
+.description-textarea {
+    overflow-y: auto; /* เปิดการเลื่อนเฉพาะแนวตั้ง */
+    resize: none; /* ปิดการปรับขนาด */
+    height: 18rem; /* เท่ากับ h-72 ใน Tailwind (1rem = 4px ดังนั้น 18rem = 72 x 4px) */
+    margin-top: 0.5rem; /* เท่ากับ mt-2 (2 = 0.5rem) */
+    font-family: sans-serif; /* เท่ากับ font-sans */
+    padding-top: 0.75rem; /* เท่ากับ p-3 (3 = 0.75rem) */
+    padding-bottom: 0.75rem; /* เท่ากับ p-3 (3 = 0.75rem) */
+    color: #64738B;
+    word-wrap: break-word; /* แยกคำในกรณีที่ข้อความยาวเกิน */
+    word-break: break-word; /* บังคับแยกคำ */
 }
 .detail-information-layout{
     display: grid;
@@ -143,7 +159,4 @@ box-shadow: 0px 0px 0px 4px rgba(108, 99, 255, 0.15);
     grid-template-columns: repeat(2, 1fr); /* สร้าง 2 คอลัมน์ที่มีขนาดเท่ากัน */
     gap: 24px;                /* ระยะห่างระหว่างคอลัมน์/แถว เทียบเท่ากับ gap-10 (10 x 0.25rem) */
     width: 100%;                  /* ความกว้างเต็มหน้าจอ */
-}
-.heading-datails-clamp{
-
 }

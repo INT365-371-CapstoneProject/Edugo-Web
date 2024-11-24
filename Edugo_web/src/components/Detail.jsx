@@ -187,7 +187,7 @@ function Detail() {
                                     <label className='heading-text'>Description
                                         <span className="text-red-500">*</span>
                                     </label>
-                                    <h1 className='overflow-y-auto resize-none h-72 mt-2 font-sans p-3'>{announce && announce.length > 0 && announce[0].description ? (announce[0].description) : (<p>Loading...</p>)}</h1>
+                                    <h1 className='description-textarea'>{announce && announce.length > 0 && announce[0].description ? (announce[0].description) : (<p>Loading...</p>)}</h1>
                                 </div>
                             </div>
                         </div>

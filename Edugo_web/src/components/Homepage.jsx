@@ -100,7 +100,7 @@ function Homepage() {
                         <div className="summary-padding">
                             <div
                             
-                                className="border-lightgrey"
+                                className="border-lightgrey hover-blue"
                                 onClick={() => handleFilterClick('All')}
                             >
                                 <div className="summary-all-border">
@@ -112,7 +112,7 @@ function Homepage() {
                                 </div>
                             </div>
                             <div
-                                className="border-lightgrey"
+                                className="border-lightgrey hover-grey"
                                 onClick={() => handleFilterClick('Pending')}
                             >
                                 <div className="border-l-4 border-gray-300 my-5">
@@ -124,7 +124,7 @@ function Homepage() {
                                 </div>
                             </div>
                             <div
-                                className="border-lightgrey"
+                                className="border-lightgrey hover-green"
                                 onClick={() => handleFilterClick('Open')}
                             >
                                 <div className="summary-open-border">
@@ -136,7 +136,7 @@ function Homepage() {
                                 </div>
                             </div>
                             <div
-                                className="border-lightgrey"
+                                className="border-lightgrey hover-red"
                                 onClick={() => handleFilterClick('Close')}
                             >
                                 <div className="border-l-4 border-pink-600 my-5">
@@ -185,7 +185,7 @@ function Homepage() {
                                             />
                                         </div>
                                         <div className="divide-y m-5 space-y-4">
-                                            <div className="grid grid-cols-2">
+                                            <div className="grid-container ">
                                                 <h1 className="number-layout">
                                                     #0000{index + 1}
                                                 </h1>
@@ -226,7 +226,7 @@ function Homepage() {
                                                 <h1 className="font-normal mt-2 text-medium text-black">
                                                     Scholarship period
                                                 </h1>
-                                                <h1 className="mt-2 font-medium text-lg text-blue-700">
+                                                <h1 className="date-period-layout">
                                                     {formatDateRange(announce.publish_date, announce.close_date)}
                                                 </h1>
                                             </div>
