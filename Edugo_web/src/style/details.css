@@ -1,6 +1,6 @@
 .border-section{
     border-radius: 9px;
-    color: #acb5c0;
+    color: #8f97a2;
     border: 1px solid var(--Foundation-Grey-Normal, #CBD5E0);
   }
 .border-section:focus{
@@ -12,7 +12,7 @@
 box-shadow: 0px 0px 0px 4px rgba(108, 99, 255, 0.15);
 }
 .border-section::placeholder {
-    color: #acb5c0; 
+    color: #8f97a2; 
 }
 .heading-text{
     color: #000;
@@ -21,7 +21,7 @@ box-shadow: 0px 0px 0px 4px rgba(108, 99, 255, 0.15);
     font-weight: 500;    line-height: 32px; 
 }
 .detail-information-text {
-    color: var(--foundation-grey-normal-active, #acb5c0);
+    color: var(--foundation-grey-normal-active, #8f97a2);
     font-size: 22px;
     font-style: normal;
     font-weight: 500;
@@ -39,7 +39,7 @@ box-shadow: 0px 0px 0px 4px rgba(108, 99, 255, 0.15);
     font-family: sans-serif; 
     padding-top: 0.75rem; 
     padding-bottom: 0.75rem; 
-    color: #acb5c0;
+    color: #8f97a2;
     word-wrap: break-word; 
     word-break: break-word; 
 }
@@ -61,7 +61,7 @@ box-shadow: 0px 0px 0px 4px rgba(108, 99, 255, 0.15);
 }
 
 .date-text {
-    color: var(--foundation-grey-normal-active, #acb5c0);
+    color: var(--foundation-grey-normal-active, #8f97a2);
     font-size: 20px;
     font-style: normal;
     line-height: 28px; /* 140% */
@@ -89,7 +89,7 @@ box-shadow: 0px 0px 0px 4px rgba(108, 99, 255, 0.15);
 box-shadow: 0px 0px 0px 4px rgba(108, 99, 255, 0.15);
 }
 .border-section::placeholder {
-    color: #acb5c0; 
+    color: #8f97a2; 
 }
 /* --------------เปลี่ยนตำแหน่งปฏิทิน---------------*/
 input[type="date"]::-webkit-calendar-picker-indicator {
@@ -112,6 +112,17 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     cursor: pointer;
     width: 100%;
     box-sizing: border-box;
+}
+.time-border:focus{
+    outline: none;
+    border-radius: 10px;
+    border: 1px solid var(--foundation-blue-light-active, #C0CDFF);
+    background: var(--White, #FFF);
+/* Status/Fill Shadow */
+box-shadow: 0px 0px 0px 4px rgba(108, 99, 255, 0.15);
+}
+.time-border::placeholder {
+    color: #8f97a2; 
 }
 /* --------------เปลี่ยนตำแหน่งนาฬิกา ---------------*/
 input[type="date"], input[type="time"] {
@@ -166,7 +177,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 select, option {
     appearance: none;
     background-color: white;
-    color: #acb5c0; 
+    color: #8f97a2; 
     border: 1px solid #CBD5E0; 
     padding: 0.75rem; 
     font-family: sans-serif; 
@@ -177,12 +188,12 @@ select:focus {
     outline: none; 
     border-color: #3182ce; 
     background-color: #f9fafb; 
-    color: #acb5c0; 
+    color: #8f97a2; 
 }
 
 option {
     background-color: white;
-    color: #acb5c0; 
+    color: #8f97a2; 
 }
 
 option:checked {
