@@ -1,6 +1,6 @@
 .border-section{
     border-radius: 9px;
-    color: #64738B;
+    color: #acb5c0;
     border: 1px solid var(--Foundation-Grey-Normal, #CBD5E0);
   }
 .border-section:focus{
@@ -12,7 +12,7 @@
 box-shadow: 0px 0px 0px 4px rgba(108, 99, 255, 0.15);
 }
 .border-section::placeholder {
-    color: #64738B; 
+    color: #acb5c0; 
 }
 .heading-text{
     color: #000;
@@ -21,7 +21,7 @@ box-shadow: 0px 0px 0px 4px rgba(108, 99, 255, 0.15);
     font-weight: 500;    line-height: 32px; 
 }
 .detail-information-text {
-    color: var(--foundation-grey-normal-active, #64738B);
+    color: var(--foundation-grey-normal-active, #acb5c0);
     font-size: 22px;
     font-style: normal;
     font-weight: 500;
@@ -39,7 +39,7 @@ box-shadow: 0px 0px 0px 4px rgba(108, 99, 255, 0.15);
     font-family: sans-serif; 
     padding-top: 0.75rem; 
     padding-bottom: 0.75rem; 
-    color: #64738B;
+    color: #acb5c0;
     word-wrap: break-word; 
     word-break: break-word; 
 }
@@ -61,7 +61,7 @@ box-shadow: 0px 0px 0px 4px rgba(108, 99, 255, 0.15);
 }
 
 .date-text {
-    color: var(--foundation-grey-normal-active, #64738B);
+    color: var(--foundation-grey-normal-active, #acb5c0);
     font-size: 20px;
     font-style: normal;
     line-height: 28px; /* 140% */
@@ -89,7 +89,7 @@ box-shadow: 0px 0px 0px 4px rgba(108, 99, 255, 0.15);
 box-shadow: 0px 0px 0px 4px rgba(108, 99, 255, 0.15);
 }
 .border-section::placeholder {
-    color: #64738B; 
+    color: #acb5c0; 
 }
 /* --------------เปลี่ยนตำแหน่งปฏิทิน---------------*/
 input[type="date"]::-webkit-calendar-picker-indicator {
@@ -166,7 +166,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 select, option {
     appearance: none;
     background-color: white;
-    color: #64738B; 
+    color: #acb5c0; 
     border: 1px solid #CBD5E0; 
     padding: 0.75rem; 
     font-family: sans-serif; 
@@ -177,13 +177,24 @@ select:focus {
     outline: none; 
     border-color: #3182ce; 
     background-color: #f9fafb; 
-    color: #64738B; 
+    color: #acb5c0; 
 }
 
 option {
     background-color: white;
-    color: #64738B; 
+    color: #acb5c0; 
 }
+
+option:checked {
+    color: black; /* เปลี่ยนสีของ option เมื่อเลือกแล้ว */
+}
+
+/* สำหรับสถานะ focus ของ select */
+select:focus, option:focus, .border-section:focus{
+    color: black; /* ให้สีเป็นดำเมื่อเลือกแล้ว */
+}
+
+
 .border-time-layout {
     display: grid;
     grid-template-columns: repeat(3, 1fr); /* สร้างกริด 3 คอลัมน์ */

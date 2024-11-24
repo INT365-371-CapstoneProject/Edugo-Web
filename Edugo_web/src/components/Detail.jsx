@@ -198,7 +198,7 @@ function Detail() {
                         </div>
                         <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle justify-center items-center">
                             <div className="modal-box bg-white">
-                                <img src={image3} alt="" className='mb-5 justify-center items-center ml-16 mt-9'/>
+                                <img src={image3} alt="" className='mb-8 justify-center items-center ml-24 mt-9'/>
                                 <p className="heading-text text-center">Are you sure you want to delete this scholarship ?</p>
                                 {announce && announce.length > 0 ? (<p className="pt-8 text-center text-base font-medium text-gray-400 pb-5">“{announce[0].title}”</p>):( <p>Loading...</p>)}
                                 <div className="modal-action flex flex-col justify-center items-center">
