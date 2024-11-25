@@ -243,10 +243,6 @@ function Add() {
                 setShowErrCountry(true);
                 return false;
             }
-            if (!StartDate || startDateTime < now) {
-                toast.error('Start Date must be in the future');
-                return false;
-            }
             if (!EndDate || endDateTime <= startDateTime) {
                 toast.error('End Date must be after Start Date');
                 return false;
@@ -563,7 +559,7 @@ function Add() {
                                         )}
                                         <div className='absolute inset-0 bg-gray-700 bg-opacity-50 p-8 flex justify-center items-center'>
                                             <div className='flex justify-center items-center flex-col text-center'>
-                                                <p className='text-white mb-4'>Photo Upload should size ...size ... maximum</p>
+                                                <p className='text-white mb-4'>Photo Upload should 1587 x 2245 maximum</p>
                                                 <button
                                                     type="button"
                                                     onClick={() => document.getElementById('imageInput').click()}
