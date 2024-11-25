@@ -41,6 +41,10 @@ function Add() {
     const [checkDateEnd, setCheckDateEnd] = useState('');
     const [checkTimeEnd, setCheckTimeEnd] = useState('');
     const [checkEdit, setCheckEdit] = useState(false);
+    const [showErrTitle, setShowErrTitle] = useState(false);
+    const [showErrDescription, setShowErrDescription] = useState(false);
+    const [showErrCategory, setShowErrCategory] = useState(false);
+    const [showErrCountry, setShowErrCountry] = useState(false);
     const [addPost, setAddPost] = useState({
         "title": '',
         "description": '',
@@ -183,7 +187,7 @@ function Add() {
                 return false;
             }
             if (addPost.description && (addPost.description.length < 10 || addPost.description.length > 500)) {
-                toast.error('Description must be between 10 and 500 characters');
+                toast.error('Description must be between 10 and 3000 characters');;
                 return false;
             }
             if (addPost.url && (addPost.url.length < 10 || addPost.url.length > 255 || !urlPattern.test(addPost.url))) {
@@ -205,10 +209,14 @@ function Add() {
         } else {
             if (addPost.title.length < 5 || addPost.title.length > 100) {
                 toast.error('Title must be between 5 and 100 characters');
+                document.getElementById('title').style.border = '1px solid red';
+                setShowErrTitle(true);
                 return false;
             }
             if (addPost.description.length < 10 || addPost.description.length > 500) {
-                toast.error('Description must be between 10 and 500 characters');
+                toast.error('Description must be between 10 and 3000 characters');
+                document.getElementById('description').style.border = '1px solid red';
+                setShowErrDescription(true);
                 return false;
             }
             if (addPost.url && (addPost.url.length < 10 || addPost.url.length > 255 || !urlPattern.test(addPost.url))) {
@@ -225,10 +233,14 @@ function Add() {
             }
             if (!addPost.category_id) {
                 toast.error('Please select a type of scholarship');
+                document.getElementById('category').style.border = '1px solid red';
+                setShowErrCategory(true);
                 return false;
             }
             if (!addPost.country_id) {
                 toast.error('Please select a country');
+                document.getElementById('country').style.border = '1px solid red';
+                setShowErrCountry(true);
                 return false;
             }
             if (!StartDate || startDateTime < now) {
@@ -317,10 +329,6 @@ function Add() {
                 }
             }
         } else {
-            if (addPost.title === '' || addPost.description === '' || addPost.category_id === 0 || addPost.country_id === 0 || formattedDate === '' || formattedTime === '' || formattedDateEnd === '' || formattedTimeEnd === '') {
-                toast.error('Please fill in all required fields');
-                return;
-            } else {
                 setIsSubmitting(true); // ปิดปุ่ม submit
                 const startDateTime = new Date(`${StartDate}T${StartTime}`).toISOString();
                 const endDateTime = new Date(`${EndDate}T${EndTime}`).toISOString();
@@ -343,7 +351,6 @@ function Add() {
                     formData.append(key, updatedPost[key]);
                 }
                 CreatePost(formData);
-            }
         }
     };
 
@@ -497,6 +504,25 @@ function Add() {
         }
     };
 
+    useEffect(() => {
+        if (addPost.title.length >= 5 && addPost.title.length <= 100) {
+            document.getElementById('title').style.border = '1px solid #E5E7EB';
+            setShowErrTitle(false);
+        }
+        if (addPost.description.length >= 10 && addPost.description.length <= 3000) {
+            document.getElementById('description').style.border = '1px solid #E5E7EB';
+            setShowErrDescription(false);
+        }
+        if (addPost.category_id !== 0) {
+            document.getElementById('category').style.border = '1px solid #E5E7EB';
+            setShowErrCategory(false);
+        }
+        if (addPost.country_id !== 0) {
+            document.getElementById('country').style.border = '1px solid #E5E7EB';
+            setShowErrCountry(false);
+        }
+    }, [addPost])
+
     return (
         <>
             <Nav />
@@ -566,11 +592,13 @@ function Add() {
                                                 </label>
                                                 <input
                                                     type="text"
+                                                    id='title'
                                                     className='-mt-2 h-full border-section placeholder:text-slate-300 p-3 font-sans bg-white'
                                                     placeholder={isEditMode ? editPost.title : "Fill your scholarship's name"}
                                                     value={addPost.title}
                                                     onChange={(e) => setAddPost({ ...addPost, title: e.target.value })}
                                                 />
+                                                {showErrTitle && <p className='text-red-500 text-sm flex justify-end -mt-1'>minimum 5 characters maximum 100 characters</p>}
                                             </div>
 
                                             {/* เว็บไซต์ */}
@@ -591,6 +619,7 @@ function Add() {
                                                     <span className="text-red-500">*</span>
                                                 </label>
                                                 <select
+                                                    id='category'
                                                     className={`-mt-1 border-section p-3 font-sans ${selectedValue ? 'text-black' : 'text-slate-300 bg-white'}`}
                                                     value={selectedValue}
                                                     onChange={(e) => {
@@ -607,6 +636,7 @@ function Add() {
                                                         </option>
                                                     ))}
                                                 </select>
+                                                {showErrCategory && <p className='text-red-500 text-sm flex justify-end -mt-1'>Please select a type of scholarship</p>}
                                             </div>
 
                                             {/* ประเทศ */}
@@ -615,6 +645,7 @@ function Add() {
                                                     <span className="text-red-500">*</span>
                                                 </label>
                                                 <select
+                                                    id='country'
                                                     className={`-mt-1 border-section p-3 font-sans ${selectedCountry ? 'text-black' : 'text-slate-300 bg-white'}`}
                                                     value={selectedCountry}
                                                     onChange={(e) => {
@@ -631,6 +662,7 @@ function Add() {
                                                         </option>
                                                     ))}
                                                 </select>
+                                                {showErrCountry && <p className='text-red-500 text-sm flex justify-end -mt-1'>Please select a country</p>}
                                             </div>
                                         </div>
                                     </div>
@@ -718,11 +750,12 @@ function Add() {
                                         <label className='heading-text'>Description
                                             <span className="text-red-500">*</span>
                                         </label>
-                                        <textarea className='resize-none h-72 mt-2 font-sans p-3 border-section bg-white' value={addPost.description}
+                                        <textarea id='description' className='resize-none h-72 mt-2 font-sans p-3 border-section bg-white' value={addPost.description}
                                             placeholder={isEditMode ? editPost.description : "Fill your scholarship's description"}
                                             onChange={(e) => {
                                                 setAddPost({ ...addPost, description: e.target.value })
                                             }}></textarea>
+                                        {showErrDescription && <p className='text-red-500 text-sm flex justify-end -mt-1'>minimun 10 characters maximun 3,000 characters</p>}
                                     </div>
                                 </div>
                             </div>

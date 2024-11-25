@@ -163,7 +163,7 @@ function Detail() {
                                 <div className='-mt-14 border-section rounded-lg h-2/3 grid grid-rows-2 pb-3'>
                                     <div className='grid grid-cols-7 mx-8'>
                                         <label className='heading-text items-center flex'>Attach Files</label>
-                                        <p className='col-span-6 items-center flex text-slate-400 text-sm'>*upload PDF file with maximum size 20 MB</p>
+                                        <p className='col-span-6 items-center flex text-slate-400 text-sm'>*upload PDF file with maximum size 5 MB</p>
                                     </div>
                                     {announce && announce.length > 0 ? (
                                         announce[0].attach_file != "null" && announce[0].attach_file != null ? (
