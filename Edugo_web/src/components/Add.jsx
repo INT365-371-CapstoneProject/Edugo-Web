@@ -95,6 +95,12 @@ function Add() {
                         setCheckTime(formatTime(date));
                         setCheckDateEnd(formatDate(dateEnd));
                         setCheckTimeEnd(formatTime(dateEnd));
+
+                        // Set initial values for StartDate, EndDate, StartTime, and EndTime
+                        setStartDate(formatDate(date));
+                        setEndDate(formatDate(dateEnd));
+                        setStartTime(formatTime(date));
+                        setEndTime(formatTime(dateEnd));
                     } else {
                         console.log('No data found or an error occurred.');
                     }
@@ -190,10 +196,6 @@ function Add() {
             }
             if (addPost.image && addPost.image.size > 5 * 1024 * 1024) {
                 toast.error('Image file must be less than 5MB');
-                return false;
-            }
-            if (StartDate && startDateTime < now) {
-                toast.error('Start Date must be in the future');
                 return false;
             }
             if (EndDate && endDateTime <= startDateTime) {
@@ -356,12 +358,17 @@ function Add() {
                     maxBodyLength: 50 * 1024 * 1024, // ปรับขนาดสูงสุดของ body ที่ส่งไปที่ 50MB
                 });
                 if (res.status === 200) {
-                    navigate(`/detail/${id}`);
+                    setTimeout(() => {
+                        document.getElementById('waiting_modal').close();
+                        navigate(`/detail/${id}`);
+                    }, 2000);
                 }
             }
         }
         catch (error) {
             console.error(error);
+            document.getElementById('waiting_modal').close();
+            document.getElementById('error_modal').showModal();
         } finally {
             setIsSubmitting(false); // เปิดปุ่ม submit
         }
@@ -407,10 +414,28 @@ function Add() {
     // เอาไว้ show รุปที่เลือก
     const handleImageChange = (e) => {
         const file = e.target.files[0]; // เลือกไฟล์รูปแรกที่ผู้ใช้เลือก
-        if (file) {
+        const validImageTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+        if (file && !validImageTypes.includes(file.type)) {
+            toast.error('Only JPG, JPEG, and PNG files are allowed');
+            setImagePreview(null);
+            setAddPost({ ...addPost, image: null });
+        } else {
             const previewUrl = URL.createObjectURL(file); // สร้าง URL ของไฟล์เพื่อแสดงผล
             setImagePreview(previewUrl); // อัพเดท state ด้วย URL ที่สร้างขึ้น
             setAddPost({ ...addPost, image: file });
+        }
+    };
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file && file.type !== 'application/pdf') {
+            toast.error('Only PDF files are allowed');
+            document.getElementById('fileNameInput').placeholder = 'No file chosen';
+            setAddPost({ ...addPost, attach_file: null });
+        } else {
+            const fileName = file?.name;
+            document.getElementById('fileNameInput').placeholder = fileName || 'No file chosen';
+            setAddPost({ ...addPost, attach_file: file });
         }
     };
 
@@ -670,7 +695,7 @@ function Add() {
                                     <div className='-mt-14 border-section h-2/3 grid grid-rows-2 pb-4'>
                                         <div className='grid grid-cols-7 mx-8'>
                                             <label className='heading-text items-center flex'>Attach Files</label>
-                                            <p className='col-span-6 items-center flex text-slate-400 text-sm'>*upload PDF file with maximum size 20 MB</p>
+                                            <p className='col-span-6 items-center flex text-slate-400 text-sm'>*upload PDF file with maximum size 5 MB</p>
                                         </div>
                                         <div className='grid grid-cols-4 mx-8 gap-10'>
                                             <div className='flex justify-center items-center'>
@@ -679,11 +704,7 @@ function Add() {
                                                 }}>
                                                     Attach File <img src={icon1} alt="" />
                                                 </button>
-                                                <input id='fileInput' type="file" hidden onChange={(e) => {
-                                                    const fileName = e.target.files[0]?.name;
-                                                    document.getElementById('fileNameInput').placeholder = fileName || 'No file chosen';
-                                                    setAddPost({ ...addPost, attach_file: e.target.files[0] });
-                                                }} />
+                                                <input id='fileInput' type="file" hidden onChange={handleFileChange} />
                                             </div>
                                             <div className='col-span-3 flex items-center'>
                                                 <input id='fileNameInput' className='w-full h-4/5 pl-8 placeholder:text-black bg-white border-section ' type="text" placeholder={isEditMode ? (editPost.attach_file ? editPost.attach_file : "No Attach Files") : 'No file chosen'} disabled />
@@ -706,7 +727,8 @@ function Add() {
                                 </div>
                             </div>
                             <div className='-mt-32 flex justify-end'>
-                                <button type='button' className='btn hover:bg-gray-700 bg-gray-500 text-white border-none w-1/5 mr-10' onClick={handleCancel}>Cancel Post
+                                <button type='button' className='btn hover:bg-gray-700 bg-gray-500 text-white border-none w-1/5 mr-10' onClick={handleCancel}>
+                                    {isEditMode ? 'Cancel' : 'Cancel Post'}
                                 </button>
                                 {/* modal */}
                                 <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle justify-center items-center">
@@ -742,7 +764,7 @@ function Add() {
                                 <dialog id="waiting_modal" className="modal modal-bottom sm:modal-middle justify-center items-center">
                                     <div className="modal-box bg-white flex flex-col justify-center items-center px-2">
                                         <div className="mt-4 w-28 h-28 border-8 border-t-8 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
-                                        <p className="heading-text text-center pt-6">Waiting for Posting...</p>
+                                        <p className="heading-text text-center pt-6">{isEditMode ? 'Waiting for Saving...' : 'Waiting for Posting...'}</p>
                                     </div>
                                 </dialog>
                                 <dialog id="success_modal" className="modal modal-bottom sm:modal-middle justify-center items-center">
