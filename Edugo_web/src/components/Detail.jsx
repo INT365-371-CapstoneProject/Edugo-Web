@@ -106,7 +106,11 @@ function Detail() {
                                             <label className='heading-text'>website (url)</label>
                                             {announce && announce.length > 0 ? (
                                                 announce[0].url != "null" && announce[0].url != null ? (
-                                                    <h1 className='detail-information-text'>{announce[0].url}</h1>
+                                                    <h1 className='detail-information-text hover:text-blue-300'>
+                                                        <a href={announce[0].url} target="_blank" rel="noopener noreferrer">
+                                                            {announce[0].url}
+                                                        </a>
+                                                    </h1>
                                                 ) : (
                                                     <h1 className='detail-information-text'>No website</h1>
                                                 )
