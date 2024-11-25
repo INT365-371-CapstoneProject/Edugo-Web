@@ -9,12 +9,13 @@ import image_No_Scholarship from '../assets/No_Scholarship.png';
 import '../style/style.css'; // Import CSS file
 import '../style/home.css'; // Import CSS file
 
-
 function Homepage() {
     const [announce, setAnnounce] = useState([]);
-    const [filterType, setFilterType] = useState('All'); // เพิ่ม state สำหรับประเภทที่เลือก
-
+    const [filterType, setFilterType] = useState('All');
+    const [isLoading, setIsLoading] = useState(true);
+    
     useEffect(() => {
+        setIsLoading(true);
         getAnnounce()
             .then((data) => {
                 if (data) {
@@ -25,6 +26,9 @@ function Homepage() {
             })
             .catch((error) => {
                 console.error(error);
+            })
+            .finally(() => {
+                setIsLoading(false); // โหลดข้อมูลเสร็จสิ้น
             });
     }, []);
 
@@ -77,7 +81,11 @@ function Homepage() {
 
     return (
         <>
-            <Nav />
+        <Nav />
+        {isLoading ? (
+            <div className="Background">
+            </div>
+        ) : (
             <div className="Background">
                 <div className="Maincontainer">
                     <div className="mx-8 mb-7">
@@ -238,6 +246,7 @@ function Homepage() {
                     </div>
                 </div>
             </div>
+        )}
         </>
     );
 }
