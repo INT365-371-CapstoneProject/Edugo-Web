@@ -790,6 +790,7 @@ function Add() {
                                         <p className="pt-8 text-center text-base font-medium text-gray-400 pb-5">An error occurred while posting your scholarship. Please try again.</p>
                                         <div className="modal-action flex flex-col justify-center items-center">
                                             <button
+                                                type='button'
                                                 className="yes-button"
                                                 onClick={() => {
                                                     document.getElementById('error_modal').close();
