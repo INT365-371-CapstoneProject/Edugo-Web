@@ -11,11 +11,11 @@ import '../style/home.css'; // Import CSS file
 
 function Homepage() {
     const [announce, setAnnounce] = useState([]);
-    const [filterType, setFilterType] = useState('All'); // เพิ่ม state สำหรับประเภทที่เลือก
+    const [filterType, setFilterType] = useState('All');
     const [isLoading, setIsLoading] = useState(true);
     
     useEffect(() => {
-        setIsLoading(true); // เริ่มโหลดข้อมูล
+        setIsLoading(true);
         getAnnounce()
             .then((data) => {
                 if (data) {
@@ -81,12 +81,9 @@ function Homepage() {
 
     return (
         <>
-        {/* แสดง Nav ตลอดเวลา */}
         <Nav />
         {isLoading ? (
             <div className="Background">
-                {/* แสดงหน้าโหลด */}
-                {/* คุณสามารถเพิ่ม Loading Spinner ได้ */}
             </div>
         ) : (
             <div className="Background">
