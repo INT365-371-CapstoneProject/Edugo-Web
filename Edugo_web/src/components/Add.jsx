@@ -73,10 +73,10 @@ function Add() {
             getAnnounceById(id)
                 .then(data => {
                     if (data) {
-                        setEditPost(data[0]);
+                        setEditPost(data);
                         // แยกวันที่และเวลา
-                        const date = new Date(data[0].publish_date);
-                        const dateEnd = new Date(data[0].close_date);
+                        const date = new Date(data.publish_date);
+                        const dateEnd = new Date(data.close_date);
 
                         const formatDate = (date) => {
                             const year = date.getFullYear();

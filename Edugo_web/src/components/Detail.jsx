@@ -33,8 +33,8 @@ function Detail() {
     }, [])
 
     // เอา published_date มาแปลงเป็นวันที่และเวลาเพื่อเอามา show
-    const publishedDate = new Date(announce[0]?.publish_date)
-    const closeDate = new Date(announce[0]?.close_date)
+    const publishedDate = new Date(announce?.publish_date)
+    const closeDate = new Date(announce?.close_date)
     const optionsDate = { day: 'numeric', month: 'long', year: 'numeric' };
     const optionsTime = { hour: 'numeric', minute: 'numeric', hour12: true };
     const publishedDateStr = publishedDate.toLocaleDateString('en-GB', optionsDate)
@@ -72,7 +72,7 @@ function Detail() {
                             <div className='mt-5 grid grid-cols-5'>
                                 <Link to='/' className='font-bold text-4xl underline underline-offset-2 hover:text-slate-800'>Home</Link>
                                 {announce && announce.length > 0 ? (
-                                    <h1 className='col-span-4 text-4xl font-DM text-blue-600 ml-2 truncate max-w-xs'> &gt; {announce[0].title}</h1>
+                                    <h1 className='col-span-4 text-4xl font-DM text-blue-600 ml-2 truncate max-w-xs'> &gt; {announce.title}</h1>
                                 ) : (
                                     <p>Loading...</p>
                                 )}
@@ -87,7 +87,7 @@ function Detail() {
                         <div className='grid grid-rows-3 mt-10 gap-10'>
                             <div className='grid grid-cols-3 gap-4'>
                                 <div className='bg-no-repeat bg-cover rounded-lg'>
-                                    <img src={announce[0]?.image ? `${urlImage}${announce[0]?.image}` : image2} alt="" className='w-full h-full object-cover rounded-lg' />
+                                    <img src={announce?.image ? `${urlImage}${announce?.image}` : image2} alt="" className='w-full h-full object-cover rounded-lg' />
                                 </div>
                         {/* พวกเนื้อหา */}
                                 <div className='border-section col-span-2 '>
@@ -97,7 +97,7 @@ function Detail() {
                                                 <span className="text-red-500">*</span>
                                             </h1>
                                             {announce && announce.length > 0 ? (
-                                                <h1 className='detail-information-text'>{announce[0].title}</h1>
+                                                <h1 className='detail-information-text'>{announce.title}</h1>
                                             ) : (
                                                 <p>Loading...</p>
                                             )}
@@ -105,10 +105,10 @@ function Detail() {
                                         <div className='grid grid-rows-2 gap-2'>
                                             <label className='heading-text'>website (url)</label>
                                             {announce && announce.length > 0 ? (
-                                                announce[0].url != "null" && announce[0].url != null ? (
+                                                announce.url != "null" && announce.url != null ? (
                                                     <h1 className='detail-information-text hover:text-blue-300'>
-                                                        <a href={announce[0].url} target="_blank" rel="noopener noreferrer">
-                                                            {announce[0].url}
+                                                        <a href={announce.url} target="_blank" rel="noopener noreferrer">
+                                                            {announce.url}
                                                         </a>
                                                     </h1>
                                                 ) : (
@@ -123,7 +123,7 @@ function Detail() {
                                                 <span className="text-red-500">*</span>
                                             </label>
                                             {announce && announce.length > 0 ? (
-                                                <h1 className='detail-information-text'>{announce[0].category}</h1>
+                                                <h1 className='detail-information-text'>{announce.category}</h1>
                                             ) : (
                                                 <p>Loading...</p>
                                             )}
@@ -132,8 +132,8 @@ function Detail() {
                                             <label className='heading-text'>Country
                                                 <span className="text-red-500">*</span>
                                             </label>
-                                            {announce && announce.length > 0 && announce[0].country ? (
-                                                <h1 className='detail-information-text'>{announce[0].country}</h1>
+                                            {announce && announce.length > 0 && announce.country ? (
+                                                <h1 className='detail-information-text'>{announce.country}</h1>
                                             ) : (
                                                 <p>Loading...</p>
                                             )}
@@ -170,12 +170,12 @@ function Detail() {
                                         <p className='col-span-6 items-center flex text-slate-400 text-sm'>*upload PDF file with maximum size 5 MB</p>
                                     </div>
                                     {announce && announce.length > 0 ? (
-                                        announce[0].attach_file != "null" && announce[0].attach_file != null ? (
+                                        announce[0].attach_file != "null" && announce.attach_file != null ? (
                                             <h1 
                                                 className='attach-file-text' 
-                                                onClick={() => watchFile(announce[0].attach_file)}
+                                                onClick={() => watchFile(announce.attach_file)}
                                             >
-                                                {announce[0].attach_file}
+                                                {announce.attach_file}
                                             </h1>
                                         ) : (
                                             <h1 className='mx-8 border-section rounded-lg h-12 flex items-center pl-7'>No Attach Files</h1>
@@ -191,7 +191,7 @@ function Detail() {
                                     <label className='heading-text'>Description
                                         <span className="text-red-500">*</span>
                                     </label>
-                                    <h1 className='description-textarea'>{announce && announce.length > 0 && announce[0].description ? (announce[0].description) : (<p>Loading...</p>)}</h1>
+                                    <h1 className='description-textarea'>{announce && announce.length > 0 && announce.description ? (announce[0].description) : (<p>Loading...</p>)}</h1>
                                 </div>
                             </div>
                         </div>
@@ -204,7 +204,7 @@ function Detail() {
                             <div className="modal-box bg-white">
                                 <img src={image3} alt="" className='mb-8 justify-center items-center ml-24 mt-9'/>
                                 <p className="heading-text text-center">Are you sure you want to delete this scholarship ?</p>
-                                {announce && announce.length > 0 ? (<p className="delete-title-modal">{announce[0].title}</p>):( <p>Loading...</p>)}
+                                {announce && announce.length > 0 ? (<p className="delete-title-modal">{announce.title}</p>):( <p>Loading...</p>)}
                                 <div className="modal-action flex flex-col justify-center items-center">
                                     <div className='button-gap'>
                                         <button
