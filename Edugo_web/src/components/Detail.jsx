@@ -41,7 +41,7 @@ function Detail() {
     const publishedTimeStr = publishedDate.toLocaleTimeString('en-GB', optionsTime)
     const closeDateStr = closeDate.toLocaleDateString('en-GB', optionsDate)
     const closeTimeStr = closeDate.toLocaleTimeString('en-GB', optionsTime)
-
+    console.log(announce)
 
     // ดูไฟล์ที่อัพโหลด
     const watchFile = (name) => {
@@ -71,7 +71,7 @@ function Detail() {
                         <div className='grid grid-cols-2'>
                             <div className='mt-5 grid grid-cols-5'>
                                 <Link to='/' className='font-bold text-4xl underline underline-offset-2 hover:text-slate-800'>Home</Link>
-                                {announce && announce.length > 0 ? (
+                                {announce ? (
                                     <h1 className='col-span-4 text-4xl font-DM text-blue-600 ml-2 truncate max-w-xs'> &gt; {announce.title}</h1>
                                 ) : (
                                     <p>Loading...</p>
@@ -96,7 +96,7 @@ function Detail() {
                                             <h1 className='heading-text'>Scholarship Name
                                                 <span className="text-red-500">*</span>
                                             </h1>
-                                            {announce && announce.length > 0 ? (
+                                            {announce ? (
                                                 <h1 className='detail-information-text'>{announce.title}</h1>
                                             ) : (
                                                 <p>Loading...</p>
@@ -104,7 +104,7 @@ function Detail() {
                                         </div>
                                         <div className='grid grid-rows-2 gap-2'>
                                             <label className='heading-text'>website (url)</label>
-                                            {announce && announce.length > 0 ? (
+                                            {announce ? (
                                                 announce.url != "null" && announce.url != null ? (
                                                     <h1 className='detail-information-text hover:text-blue-300'>
                                                         <a href={announce.url} target="_blank" rel="noopener noreferrer">
@@ -122,7 +122,7 @@ function Detail() {
                                             <label className='heading-text'>Type of Scholarship
                                                 <span className="text-red-500">*</span>
                                             </label>
-                                            {announce && announce.length > 0 ? (
+                                            {announce ? (
                                                 <h1 className='detail-information-text'>{announce.category}</h1>
                                             ) : (
                                                 <p>Loading...</p>
@@ -132,7 +132,7 @@ function Detail() {
                                             <label className='heading-text'>Country
                                                 <span className="text-red-500">*</span>
                                             </label>
-                                            {announce && announce.length > 0 && announce.country ? (
+                                            {announce ? (
                                                 <h1 className='detail-information-text'>{announce.country}</h1>
                                             ) : (
                                                 <p>Loading...</p>
@@ -169,8 +169,8 @@ function Detail() {
                                         <label className='heading-text items-center flex'>Attach Files</label>
                                         <p className='col-span-6 items-center flex text-slate-400 text-sm'>*upload PDF file with maximum size 5 MB</p>
                                     </div>
-                                    {announce && announce.length > 0 ? (
-                                        announce[0].attach_file != "null" && announce.attach_file != null ? (
+                                    {announce ? (
+                                        announce.attach_file != "null" && announce.attach_file != null ? (
                                             <h1 
                                                 className='attach-file-text' 
                                                 onClick={() => watchFile(announce.attach_file)}
@@ -191,7 +191,7 @@ function Detail() {
                                     <label className='heading-text'>Description
                                         <span className="text-red-500">*</span>
                                     </label>
-                                    <h1 className='description-textarea'>{announce && announce.length > 0 && announce.description ? (announce[0].description) : (<p>Loading...</p>)}</h1>
+                                    <h1 className='description-textarea'>{announce ? (announce.description) : (<p>Loading...</p>)}</h1>
                                 </div>
                             </div>
                         </div>
@@ -204,7 +204,7 @@ function Detail() {
                             <div className="modal-box bg-white">
                                 <img src={image3} alt="" className='mb-8 justify-center items-center ml-24 mt-9'/>
                                 <p className="heading-text text-center">Are you sure you want to delete this scholarship ?</p>
-                                {announce && announce.length > 0 ? (<p className="delete-title-modal">{announce.title}</p>):( <p>Loading...</p>)}
+                                {announce ? (<p className="delete-title-modal">{announce.title}</p>):( <p>Loading...</p>)}
                                 <div className="modal-action flex flex-col justify-center items-center">
                                     <div className='button-gap'>
                                         <button
