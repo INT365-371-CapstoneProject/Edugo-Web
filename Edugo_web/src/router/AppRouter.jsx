@@ -3,7 +3,7 @@ import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
 import Detail from '../components/Detail';
 import Add from '../components/Add';
 import Homepage from '../components/Homepage';
-
+import NotFound from '../components/NotFound';
 // กำหนด base URL สำหรับการ routing
 const router = createBrowserRouter(
   [
@@ -27,6 +27,10 @@ const router = createBrowserRouter(
       path: '/edit/:id',
       element: <Add />,
     },
+    {
+      path: '*',
+      element: <NotFound />, // ใช้ NotFound component
+    }
   ],
   {
     basename: import.meta.env.BASE_URL,  // ใช้ base URL จาก Vite

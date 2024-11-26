@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'; // Import Link from react-router-dom
 import img_edugo from '../assets/edugologo.svg'
 import img_profile from '../assets/profiletest.jpeg'
 import '../style/navstyle.css'; // Import CSS file
@@ -9,7 +10,9 @@ function Nav() {
       
        {/* โลโก้ด้านซ้าย */}
        <div className="flex items-center justify-start space-x-5">
-            <img src={img_edugo} alt="" style={{ height: "38px" }} />
+            <Link to="/">
+              <img src={img_edugo} alt="" style={{ height: "38px" }} />
+            </Link>
         </div>
 
         {/* โปรไฟล์รูปกลมๆ ด้านขวา พร้อมชื่อ */}
