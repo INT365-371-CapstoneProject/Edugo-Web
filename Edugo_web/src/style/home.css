@@ -128,3 +128,15 @@
         grid-template-columns: 1fr;
 }
 }
+.noscholarship{
+    width: 45%;
+    margin-top: 24px;
+}
+.noscholarship-text{
+    color: var(--Foundation-Grey-Normal, #CBD5E0);
+text-align: center;
+font-size: 32px;
+font-style: normal;
+font-weight: 600;
+line-height: 48px; /* 150% */
+}

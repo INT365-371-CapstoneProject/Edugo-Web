@@ -161,14 +161,14 @@ function Homepage() {
                         <div className="mt-10 flex justify-center items-center flex-col">
                             {filterType === 'All' && announce.length === 0 && (
                                 <>
-                                    <h1 className="text-4xl font-bold text-gray-300">No Scholarship here</h1>
-                                    <img src={image_No_Scholarship} alt="" className="mt-10 w-60" />
+                                    <h1 className="noscholarship-text">This space is waiting for data</h1>
+                                    <img src={image_No_Scholarship} alt="" className="noscholarship" />
                                 </>
                             )}
                             {filterType !== 'All' && filteredAnnounce().length === 0 && (
                                 <>
-                                    <h1 className="text-4xl font-bold text-gray-300">No Scholarship here</h1>
-                                    <img src={image_No_Scholarship} alt="" className="mt-10 w-60" />
+                                    <h1 className="noscholarship-text">This space is waiting for data</h1>
+                                    <img src={image_No_Scholarship} alt="" className="noscholarship" />
                                 </>
                             )}
                         </div>
