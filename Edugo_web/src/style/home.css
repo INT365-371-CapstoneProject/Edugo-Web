@@ -35,6 +35,7 @@
     font-style: normal;
     font-weight: 400;
     line-height: 28px; 
+    
 }
 .summary-padding{
     display: grid; 
@@ -107,15 +108,23 @@
         font-size: 15px; 
         color: #1D4ED8; 
 }
-.summary-all-border {
-    border-left: 4px solid #2563eb; 
+.summary-border-radius{
+    border-top-right-radius: 4px; /* ทำมุมมนที่มุมขวาบน */
+    border-bottom-right-radius: 4px; /* ทำมุมมนที่มุมขวาบน */
     margin-top: 1.25rem; 
     margin-bottom: 1.25rem;
 }
+.summary-all-border {
+    border-left: 5px solid #2563eb;
+}
 .summary-open-border {
     border-left: 4px solid #C4E250; 
-    margin-top: 1.25rem; 
-    margin-bottom: 1.25rem;
+}
+.summary-pending-border{
+    border-left: 4.2px solid #D9D9D9; 
+}
+.summary-close-border{
+    border-left: 5px solid #D5448E; 
 }
 .grid-container {
     display: grid;
