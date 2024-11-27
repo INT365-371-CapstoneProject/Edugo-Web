@@ -98,7 +98,7 @@ function Homepage() {
                                     onClick={() => navigate('/add')}
                                     className="btn button"
                                 >
-                                    Post Scholarship
+                                    Add New Scholarship
                                     <img src={icon} alt="" />
                                 </button>
                             </div>

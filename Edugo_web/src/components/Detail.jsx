@@ -187,7 +187,7 @@ function Detail() {
                             </div>
                             {/* พวกรายละเอียด */}
                             <div className='-mt-28 border-section rounded-lg mb-40'>
-                                <div className='mx-10 mt-6 flex flex-col'>
+                                <div className='mx-8 mt-7 flex flex-col'>
                                     <label className='heading-text'>Description
                                         <span className="text-red-500">*</span>
                                     </label>

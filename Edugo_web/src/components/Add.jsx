@@ -746,7 +746,7 @@ function Add() {
                                         <label className='heading-text'>Description
                                             <span className="text-red-500">*</span>
                                         </label>
-                                        <textarea id='description' className='resize-none h-72 mt-2 font-sans p-3 border-section bg-white' value={addPost.description}
+                                        <textarea id='description' className='resize-none h-72 mt-4 font-sans p-4 border-section bg-white' value={addPost.description}
                                             placeholder={isEditMode ? editPost.description : "Fill your scholarship's description"}
                                             onChange={(e) => {
                                                 setAddPost({ ...addPost, description: e.target.value })
