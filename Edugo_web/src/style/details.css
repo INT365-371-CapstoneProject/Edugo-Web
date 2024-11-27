@@ -177,7 +177,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
     justify-content: center;
     align-items: center;
     gap: 10px;
-    margin-bottom: 14px;
+    margin-bottom: 8px;
 
     color: white;
     border-radius: 10px;
@@ -233,13 +233,13 @@ select:focus, option:focus, .border-section:focus{
 }
 .delete-title-modal {
     font-style: italic;
-    padding-top: 2rem;
+    padding-top: 1.5rem;
     padding-left: 40px;
     text-align: center; 
     font-size: 16px; 
     font-weight: 400;
     color: #9CA3AF; 
-    padding-bottom: 1.25rem; 
+    padding-bottom: 1.0rem; 
 
     display: block; 
     width: 100%; 

@@ -202,8 +202,9 @@ function Detail() {
                         </div>
                         <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle justify-center items-center">
                             <div className="modal-box bg-white">
-                                <img src={image3} alt="" className='mb-8 justify-center items-center ml-8 mt-7 w-5/6'/>
-                                <p className="heading-text text-center">Are you sure you want to delete this scholarship ?</p>
+                                <img src={image3} alt="" className='mb-4 justify-center items-center ml-8 mt-7 w-5/6'/>
+                                <p className="heading-text text-center">Are you sure you want to 
+                                <span class="block">delete this scholarship ?</span></p>
                                 {announce ? (<p className="delete-title-modal">{announce.title}</p>):( <p>Loading...</p>)}
                                 <div className="modal-action flex flex-col justify-center items-center">
                                     <div className='button-gap'>
@@ -215,7 +216,7 @@ function Detail() {
                                             Cancel
                                         </button>
                                         <button
-                                            className="yes-button"
+                                            className="discardbutton"
                                             onClick={() => {
                                                 document.getElementById('my_modal_5').close();
                                                 deleteData();
