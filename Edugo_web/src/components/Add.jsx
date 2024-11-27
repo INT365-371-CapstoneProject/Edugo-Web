@@ -762,7 +762,7 @@ function Add() {
                                 {/* modal */}
                                 <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle justify-center items-center">
                                     <div className="modal-box bg-white">
-                                        <img src={image1} alt="" className="mb-8 justify-center items-center ml-16 mt-9" />
+                                        <img src={image1} alt="" className="mb-8 justify-center items-center ml-10 mt-9 w-5/6" />
                                         <p className="px-16 heading-text text-center">Are you sure you want to Discard this Edit?</p>
                                         <p className="pt-8 text-center text-base font-medium text-gray-400 pb-5">“The Progress will not be saved”</p>
                                         <div className="modal-action flex flex-col justify-center items-center">
@@ -778,7 +778,7 @@ function Add() {
                                                 </button>
                                                 {/* ปุ่มยืนยัน */}
                                                 <button
-                                                    className="yes-button"
+                                                    className="discardbutton"
                                                     onClick={() => {
                                                         document.getElementById('my_modal_5').close();
                                                         handletoHome();
@@ -798,7 +798,7 @@ function Add() {
                                 </dialog>
                                 <dialog id="success_modal" className="modal modal-bottom sm:modal-middle justify-center items-center">
                                     <div className="modal-box bg-white">
-                                        <img src={image3} alt="" className="mb-8 ml-8 justify-center items-center w-5/6" />
+                                        <img src={image3} alt="" className="mt-8 mb-4 justify-center items-center w-6/7" />
                                         <p className="heading-text text-center">Post Successful!</p>
                                         <div className="modal-action flex flex-col justify-center items-center">
                                             <button

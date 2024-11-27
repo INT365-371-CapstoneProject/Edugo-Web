@@ -145,6 +145,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
     justify-content: center;
     align-items: center;
     gap: 10px;
+    margin-bottom: 8px;
 
     color: white;
     border-radius: 10px;
@@ -153,21 +154,39 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 .cancel-button:hover{
     background: var(--foundation-grey-normal-hover, #64738B);
 }
-.yes-button{
+.discardbutton{
     display: flex;
     width: 195px;
     padding: 16px 8px;
     justify-content: center;
     align-items: center;
     gap: 10px;
+    margin-bottom: 8px;;
 
     color: white;
     border-radius: 10px;
     background: var(--foundation-red-normal-hover, #D5448E);
 }
-.yes-button:hover{
+.discardbutton:hover{
     background: var(--foundation-red-normal-hover, #8E2D5F);
 }
+.yes-button{
+    display: flex;
+    width: 400px;
+    padding: 16px 8px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+
+    color: white;
+    border-radius: 10px;
+    background: var(--foundation-red-normal-hover, #D5448E);
+}
+.yes-button :hover{
+    background: var(--foundation-red-normal-hover, #8E2D5F);
+}
+
 .button-gap{
     display: grid;                
     grid-template-columns: repeat(2, 1fr); 

@@ -202,7 +202,7 @@ function Detail() {
                         </div>
                         <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle justify-center items-center">
                             <div className="modal-box bg-white">
-                                <img src={image3} alt="" className='mb-8 justify-center items-center ml-24 mt-9'/>
+                                <img src={image3} alt="" className='mb-8 justify-center items-center ml-8 mt-7 w-5/6'/>
                                 <p className="heading-text text-center">Are you sure you want to delete this scholarship ?</p>
                                 {announce ? (<p className="delete-title-modal">{announce.title}</p>):( <p>Loading...</p>)}
                                 <div className="modal-action flex flex-col justify-center items-center">
