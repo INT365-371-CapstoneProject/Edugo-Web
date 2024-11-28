@@ -230,13 +230,13 @@ function Homepage() {
                                                     <h1 className="headingclamp font-normal text-2xl text-black">
                                                         {announce.title}
                                                     </h1>
-                                                    <h1 className="font-normal mt-4 text-medium text-black">
+                                                    <h1 className="font-medium mt-4 text-medium text-black">
                                                         Description
                                                     </h1>
-                                                    <p className="descriptionclamp text-sm mt-2 text-gray-400">
+                                                    <p className="font-regular descriptionclamp text-sm mt-2 text-gray-400">
                                                         {announce.description}
                                                     </p>
-                                                    <h1 className="font-normal mt-2 text-medium text-black">
+                                                    <h1 className="font-medium mt-2 text-medium text-black">
                                                         Scholarship period
                                                     </h1>
                                                     <h1 className="date-period-layout">
