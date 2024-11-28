@@ -10,4 +10,9 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)), // กำหนด alias ให้สามารถใช้ @ แทน src ได้
     },
   },
+  test: {
+    globals: true,
+    environment: "jsdom",
+    setupFiles: "./test-setup.js",
+  },
 });
