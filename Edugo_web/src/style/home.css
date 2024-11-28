@@ -126,6 +126,12 @@
 .summary-close-border{
     border-left: 5px solid #D5448E; 
 }
+.scholarshiptextsum{
+    margin-left: 1.25rem;
+    font-weight: bold;
+    font-size: 1.125rem;
+    margin-top: 0.45rem;
+}
 .grid-container {
     display: grid;
     width: 200px;

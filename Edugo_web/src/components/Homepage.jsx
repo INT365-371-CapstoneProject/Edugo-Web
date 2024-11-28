@@ -116,7 +116,7 @@ function Homepage() {
                                         <h1 className="summary-text">All Scholarship</h1>
                                         <div className="flex flex-row items-center mt-2 ml-8">
                                             <h1 className="text-3xl font-bold">{announce.length}</h1>
-                                            <h1 className="ml-5 font-bold text-lg">Scholarship</h1>
+                                            <h1 className="scholarshiptextsum">Scholarship</h1>
                                     </div>
                                     </div>
                                 </div>
@@ -129,7 +129,7 @@ function Homepage() {
                                         <h1 className="summary-text">Pending Scholarship</h1>
                                         <div className="flex flex-row items-center mt-2 ml-8">
                                             <h1 className="text-3xl font-bold">{checkPendingAnnounce.length}</h1>
-                                            <h1 className="ml-5 font-bold text-lg">Scholarship</h1>
+                                            <h1 className="scholarshiptextsum">Scholarship</h1>
                                         </div>
                                     </div>
                                 </div>
@@ -142,7 +142,7 @@ function Homepage() {
                                         <h1 className="summary-text">Opened Scholarship</h1> 
                                         <div className="flex flex-row items-center mt-2 ml-8"> 
                                             <h1 className="text-3xl font-bold">{checkOpenAnnounce.length}</h1>
-                                            <h1 className="ml-5 my-auto font-bold text-lg">Scholarship</h1>
+                                            <h1 className="scholarshiptextsum">Scholarship</h1>
                                         </div>
                                     </div>
                                 </div>
@@ -156,7 +156,7 @@ function Homepage() {
                                         <h1 className="summary-text">Closed Scholarship</h1>
                                         <div className="flex flex-row items-center mt-2 ml-8">
                                             <h1 className="text-3xl font-bold">{checkCloseAnnounce.length}</h1>
-                                            <h1 className="ml-5 my-auto font-bold text-lg">Scholarship</h1>
+                                            <h1 className="scholarshiptextsum">Scholarship</h1>
                                         </div>
                                     </div>
                                 </div>
