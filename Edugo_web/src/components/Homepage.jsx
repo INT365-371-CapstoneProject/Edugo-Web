@@ -114,7 +114,7 @@ function Homepage() {
                                 <div className="summary-all-border">
                                     <h1 className="summary-text">All Scholarship</h1>
                                     <div className="flex flex-row ml-8 mt-2">
-                                        <h1 className="text-3xl font-bold">{announce.length}</h1>
+                                        <h1 id='all-announce' data-testid='all-announce' className="text-3xl font-bold">{announce.length}</h1>
                                         <h1 className="ml-5 my-auto font-bold text-lg">Scholarship</h1>
                                     </div>
                                 </div>
@@ -206,7 +206,9 @@ function Homepage() {
                                                         }`}
                                                 >
                                                     <h1
-                                                        className={`font-medium text-lg ${checkPendingAnnounce.some((item) => item.id === announce.id)
+                                                          id='status'
+                                                          data-testid='status' // เพิ่ม data-testid ที่นี่
+                                                          className={`font-medium text-lg ${checkPendingAnnounce.some((item) => item.id === announce.id)
                                                             ? 'text-gray-400'
                                                             : checkOpenAnnounce.some((item) => item.id === announce.id)
                                                                 ? 'text-lime-400'
