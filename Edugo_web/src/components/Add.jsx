@@ -105,6 +105,13 @@ function Add() {
                         setEndDate(formatDate(dateEnd));
                         setStartTime(formatTime(date));
                         setEndTime(formatTime(dateEnd));
+
+                        // Set initial values for addPost
+                        setAddPost({
+                            title: data.title,
+                            description: data.description,
+                            url: data.url
+                        });
                     } else {
                         console.log('No data found or an error occurred.');
                     }
@@ -186,7 +193,7 @@ function Add() {
                 toast.error('Title must be between 5 and 100 characters');
                 return false;
             }
-            if (addPost.description && (addPost.description.length < 10 || addPost.description.length > 500)) {
+            if (addPost.description && (addPost.description.length < 10 || addPost.description.length > 3000)) {
                 toast.error('Description must be between 10 and 3000 characters');;
                 return false;
             }
@@ -213,7 +220,7 @@ function Add() {
                 setShowErrTitle(true);
                 return false;
             }
-            if (addPost.description.length < 10 || addPost.description.length > 500) {
+            if (addPost.description.length < 10 || addPost.description.length > 3000) {
                 toast.error('Description must be between 10 and 3000 characters');
                 document.getElementById('description').style.border = '1px solid red';
                 setShowErrDescription(true);
@@ -594,7 +601,7 @@ function Add() {
                                                     value={addPost.title}
                                                     onChange={(e) => setAddPost({ ...addPost, title: e.target.value })}
                                                 />
-                                                {showErrTitle && <p className='text-red-500 text-sm flex justify-end -mt-1'>minimum 5 characters maximum 100 characters</p>}
+                                                {showErrTitle && <p className='text-red-500 text-sm flex justify-end mt-1'>minimum 5 characters maximum 100 characters</p>}
                                             </div>
 
                                             {/* เว็บไซต์ */}
@@ -632,7 +639,7 @@ function Add() {
                                                         </option>
                                                     ))}
                                                 </select>
-                                                {showErrCategory && <p className='text-red-500 text-sm flex justify-end -mt-1'>Please select a type of scholarship</p>}
+                                                {showErrCategory && <p className='text-red-500 text-sm flex justify-end mt-1'>Please select a type of scholarship</p>}
                                             </div>
 
                                             {/* ประเทศ */}
@@ -658,7 +665,7 @@ function Add() {
                                                         </option>
                                                     ))}
                                                 </select>
-                                                {showErrCountry && <p className='text-red-500 text-sm flex justify-end -mt-1'>Please select a country</p>}
+                                                {showErrCountry && <p className='text-red-500 text-sm flex justify-end mt-1'>Please select a country</p>}
                                             </div>
                                         </div>
                                     </div>
@@ -751,7 +758,7 @@ function Add() {
                                             onChange={(e) => {
                                                 setAddPost({ ...addPost, description: e.target.value })
                                             }}></textarea>
-                                        {showErrDescription && <p className='text-red-500 text-sm flex justify-end -mt-1'>minimun 10 characters maximun 3,000 characters</p>}
+                                        {showErrDescription && <p className='text-red-500 text-sm flex justify-end mt-1'>minimun 10 characters maximun 3,000 characters</p>}
                                     </div>
                                 </div>
                             </div>
