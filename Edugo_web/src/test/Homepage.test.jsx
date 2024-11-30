@@ -65,6 +65,4 @@ describe('Homepage Component', () => {
 
     });
 
-    
-
 });
