@@ -13,7 +13,7 @@ function Homepage() {
     const [announce, setAnnounce] = useState([]);
     const [filterType, setFilterType] = useState('All');
     const [isLoading, setIsLoading] = useState(true);
-    
+
     useEffect(() => {
         setIsLoading(true);
         getAnnounce()
@@ -81,174 +81,177 @@ function Homepage() {
 
     return (
         <>
-        <Nav />
-        {isLoading ? (
-            <div className="Background">
-            </div>
-        ) : (
-            <div className="Background">
-                <div className="Maincontainer">
-                    <div className="mx-8 mb-7">
-                        <div className="grid grid-cols-2">
-                            <div className="mt-5">
-                                <h1 className="font-bold text-4xl text-black">Scholarship Management</h1>
+            <Nav />
+            {isLoading ? (
+                <div className="Background">
+                </div>
+            ) : (
+                <div className="Background">
+                    <div className="Maincontainer">
+                        <div className="mx-8 mb-7">
+                            <div className="grid grid-cols-2">
+                                <div className="mt-5">
+                                    <h1 className="font-bold text-4xl text-black">Scholarship Management</h1>
+                                </div>
+                                <div className="mt-5 flex justify-end">
+                                    <button
+                                        onClick={() => navigate('/add')}
+                                        className="btn button"
+                                    >
+                                        Post New Scholarship
+                                        <img src={icon} alt="" />
+                                    </button>
+                                </div>
                             </div>
-                            <div className="mt-5 flex justify-end">
-                                <button
-                                    onClick={() => navigate('/add')}
-                                    className="btn button"
-                                >
-                                    Add New Scholarship
-                                    <img src={icon} alt="" />
-                                </button>
-                            </div>
-                        </div>
 
-                        {/* Buttons for Filter */}
-                        <div className="summary-padding">
-                            <div
-                            
-                                className="border-lightgrey"
-                                onClick={() => handleFilterClick('All')}
-                            >
-                                <div className="summary-all-border">
-                                    <h1 className="summary-text">All Scholarship</h1>
-                                    <div className="flex flex-row ml-8 mt-2">
-                                        <h1 id='all-announce' data-testid='all-announce' className="text-3xl font-bold">{announce.length}</h1>
-                                        <h1 className="ml-5 my-auto font-bold text-lg">Scholarship</h1>
-                                    </div>
-                                </div>
-                            </div>
-                            <div
-                                className="border-lightgrey"
-                                onClick={() => handleFilterClick('Pending')}
-                            >
-                                <div className="border-l-4 border-gray-300 my-5">
-                                    <h1 className="summary-text">Pending Scholarship</h1>
-                                    <div className="flex flex-row ml-8 mt-2">
-                                        <h1 className="text-3xl font-bold">{checkPendingAnnounce.length}</h1>
-                                        <h1 className="ml-5 my-auto font-bold text-lg">Scholarship</h1>
-                                    </div>
-                                </div>
-                            </div>
-                            <div
-                                className="border-lightgrey"
-                                onClick={() => handleFilterClick('Open')}
-                            >
-                                <div className="summary-open-border">
-                                    <h1 className="summary-text">Opened Scholarship</h1>
-                                    <div className="flex flex-row ml-8 mt-2">
-                                        <h1 className="text-3xl font-bold">{checkOpenAnnounce.length}</h1>
-                                        <h1 className="ml-5 my-auto font-bold text-lg">Scholarship</h1>
-                                    </div>
-                                </div>
-                            </div>
-                            <div
-                                className="border-lightgrey"
-                                onClick={() => handleFilterClick('Close')}
-                            >
-                                <div className="border-l-4 border-pink-600 my-5">
-                                    <h1 className="summary-text">Closed Scholarship</h1>
-                                    <div className="flex flex-row ml-8 mt-2">
-                                        <h1 className="text-3xl font-bold">{checkCloseAnnounce.length}</h1>
-                                        <h1 className="ml-5 my-auto font-bold text-lg">Scholarship</h1>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* No Scholarship Filter */}
-                        <div className="mt-10 flex justify-center items-center flex-col">
-                            {filterType === 'All' && announce.length === 0 && (
-                                <>
-                                    <h1 className="noscholarship-text">This space is waiting for data</h1>
-                                    <img src={image_No_Scholarship} alt="" className="noscholarship" />
-                                </>
-                            )}
-                            {filterType !== 'All' && filteredAnnounce().length === 0 && (
-                                <>
-                                    <h1 className="noscholarship-text">This space is waiting for data</h1>
-                                    <img src={image_No_Scholarship} alt="" className="noscholarship" />
-                                </>
-                            )}
-                        </div>
-
-                        {/* Scholarship List */}
-                        <div className="ScholarLayout">
-                            {filteredAnnounce().map((announce, index) => (
+                            {/* Buttons for Filter */}
+                            <div className="summary-padding">
                                 <div
-                                    key={index}
-                                    className="border-lightgrey scholarship-card"
-                                    onClick={() => navigate(`/detail/${announce.id}`)}
+
+                                    className="border-lightgrey"
+                                    onClick={() => handleFilterClick('All')}
                                 >
-                                    <div className="grid grid-cols-2">
-                                        <div className=" w-52 h-72 mt-5 mb-5">
-                                            <img className='w-full h-full object-cover rounded-lg'
-                                                src={
-                                                    announce.image
-                                                        ? `${urlImage}${announce.image}`
-                                                        : image2
-                                                }
-                                                alt=""
-                                            />
+                                    <div className="summary-all-border summary-border-radius"> </div>
+                                    <div className="flex flex-col items-start mt-5">
+                                        <h1 className="summary-text">All Scholarship</h1>
+                                        <div className="flex flex-row items-center mt-2 ml-8">
+                                            <h1 className="text-3xl font-bold">{announce.length}</h1>
+                                            <h1 className="scholarshiptextsum">Scholarship</h1>
+                                    </div>
+                                    </div>
+                                </div>
+                                <div
+                                    className="border-lightgrey"
+                                    onClick={() => handleFilterClick('Pending')}
+                                >
+                                    <div className="summary-pending-border summary-border-radius"></div>
+                                    <div className="flex flex-col items-start mt-5 mb-5">
+                                        <h1 className="summary-text">Pending Scholarship</h1>
+                                        <div className="flex flex-row items-center mt-2 ml-8">
+                                            <h1 className="text-3xl font-bold">{checkPendingAnnounce.length}</h1>
+                                            <h1 className="scholarshiptextsum">Scholarship</h1>
                                         </div>
-                                        <div className="divide-y m-5 space-y-4">
-                                            <div className="grid-container ">
-                                                <h1 className="number-layout">
-                                                    #0000{index + 1}
-                                                </h1>
-                                                <div
-                                                    className={`rounded-md flex justify-center ${checkPendingAnnounce.some((item) => item.id === announce.id)
-                                                        ? 'border-gray-400 bg-gray-100'
-                                                        : checkOpenAnnounce.some((item) => item.id === announce.id)
-                                                            ? 'open-status'
-                                                            : 'border-red-400 bg-red-100'
-                                                        }`}
-                                                >
-                                                    <h1
-                                                          id='status'
-                                                          data-testid='status' // เพิ่ม data-testid ที่นี่
-                                                          className={`font-medium text-lg ${checkPendingAnnounce.some((item) => item.id === announce.id)
-                                                            ? 'text-gray-400'
+                                    </div>
+                                </div>
+                                <div
+                                    className="border-lightgrey"
+                                    onClick={() => handleFilterClick('Open')}
+                                >
+                                    <div className="summary-open-border summary-border-radius"></div>
+                                    <div className="flex flex-col items-start mt-5 mb-5">
+                                        <h1 className="summary-text">Opened Scholarship</h1> 
+                                        <div className="flex flex-row items-center mt-2 ml-8"> 
+                                            <h1 className="text-3xl font-bold">{checkOpenAnnounce.length}</h1>
+                                            <h1 className="scholarshiptextsum">Scholarship</h1>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div
+                                    className="border-lightgrey"
+                                    onClick={() => handleFilterClick('Close')}
+                                >   
+                                    <div className="summary-close-border summary-border-radius"></div>
+                                    <div className="flex flex-col items-start mt-5 mb-5"> 
+                                        <h1 className="summary-text">Closed Scholarship</h1>
+                                        <div className="flex flex-row items-center mt-2 ml-8">
+                                            <h1 className="text-3xl font-bold">{checkCloseAnnounce.length}</h1>
+                                            <h1 className="scholarshiptextsum">Scholarship</h1>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* No Scholarship Filter */}
+                            <div className="mt-10 flex justify-center items-center flex-col">
+                                {filterType === 'All' && announce.length === 0 && (
+                                    <>
+                                        <h1 className="noscholarship-text">This space is waiting for data</h1>
+                                        <img src={image_No_Scholarship} alt="" className="noscholarship" />
+                                    </>
+                                )}
+                                {filterType !== 'All' && filteredAnnounce().length === 0 && (
+                                    <>
+                                        <h1 className="noscholarship-text">This space is waiting for data</h1>
+                                        <img src={image_No_Scholarship} alt="" className="noscholarship" />
+                                    </>
+                                )}
+                            </div>
+
+                            {/* Scholarship List */}
+                            <div className="ScholarLayout">
+                                {filteredAnnounce().map((announce, index) => (
+                                    <div
+                                        key={index}
+                                        className="border-lightgrey scholarship-card"
+                                        onClick={() => navigate(`/detail/${announce.id}`)}
+                                    >
+                                        <div className="grid grid-cols-2">
+                                            <div className=" w-52 h-72 mt-5 mb-5">
+                                                <img className='w-full h-full object-cover rounded-lg'
+                                                    src={
+                                                        announce.image
+                                                            ? `${urlImage}${announce.image}`
+                                                            : image2
+                                                    }
+                                                    alt=""
+                                                />
+                                            </div>
+                                            <div className="divide-y m-5 space-y-4">
+                                                <div className="grid-container ">
+                                                    <h1 className="number-layout">
+                                                        #0000{index + 1}
+                                                    </h1>
+                                                    <div
+                                                        className={`rounded-md flex justify-center ${checkPendingAnnounce.some((item) => item.id === announce.id)
+                                                            ? 'border-gray-400 bg-gray-100'
                                                             : checkOpenAnnounce.some((item) => item.id === announce.id)
-                                                                ? 'text-lime-400'
-                                                                : 'text-red-400'
+                                                                ? 'open-status'
+                                                                : 'border-red-400 bg-red-100'
                                                             }`}
                                                     >
-                                                        {checkPendingAnnounce.some((item) => item.id === announce.id)
-                                                            ? 'Pending'
-                                                            : checkOpenAnnounce.some((item) => item.id === announce.id)
-                                                                ? 'Open'
-                                                                : 'Close'}
+                                                        <h1
+                                                            className={`font-medium text-lg ${checkPendingAnnounce.some((item) => item.id === announce.id)
+                                                                ? 'text-gray-400'
+                                                                : checkOpenAnnounce.some((item) => item.id === announce.id)
+                                                                    ? 'text-lime-400'
+                                                                    : 'text-red-400'
+                                                                }`}
+                                                        >
+                                                            {checkPendingAnnounce.some((item) => item.id === announce.id)
+                                                                ? 'Pending'
+                                                                : checkOpenAnnounce.some((item) => item.id === announce.id)
+                                                                    ? 'Open'
+                                                                    : 'Close'}
+                                                        </h1>
+                                                    </div>
+                                                </div>
+                                                <div className="information-layout">
+                                                    <h1 className="headingclamp font-normal text-2xl text-black">
+                                                        {announce.title}
+                                                    </h1>
+                                                    <h1 className="font-medium mt-4 text-medium text-black">
+                                                        Description
+                                                    </h1>
+                                                    <p className="font-regular descriptionclamp text-sm mt-2 text-gray-400">
+                                                        {announce.description}
+                                                    </p>
+                                                    <h1 className="font-medium mt-2 text-medium text-black">
+                                                        Scholarship period
+                                                    </h1>
+                                                    <h1 className="date-period-layout">
+                                                        {formatDateRange(announce.publish_date, announce.close_date)}
                                                     </h1>
                                                 </div>
                                             </div>
-                                            <div className="information-layout">
-                                                <h1 className="headingclamp font-normal text-2xl text-black">
-                                                    {announce.title}
-                                                </h1>
-                                                <h1 className="font-normal mt-4 text-medium text-black">
-                                                    Description
-                                                </h1>
-                                                <p className="descriptionclamp text-sm mt-2 text-gray-400">
-                                                    {announce.description}
-                                                </p>
-                                                <h1 className="font-normal mt-2 text-medium text-black">
-                                                    Scholarship period
-                                                </h1>
-                                                <h1 className="date-period-layout">
-                                                    {formatDateRange(announce.publish_date, announce.close_date)}
-                                                </h1>
-                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        )}
+            )}
         </>
     );
 }
