@@ -190,7 +190,7 @@ function Detail() {
                                     <label className='heading-text'>Description
                                         <span className="text-red-500">*</span>
                                     </label>
-                                    <h1 className='description-textarea'>{announce ? (announce.description) : (<p>Loading...</p>)}</h1>
+                                    <h1 className='description-textarea whitespace-pre-line'>{announce ? (announce.description) : (<p>Loading...</p>)}</h1>
                                 </div>
                             </div>
                         </div>
