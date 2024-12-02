@@ -41,7 +41,6 @@ function Detail() {
     const publishedTimeStr = publishedDate.toLocaleTimeString('en-GB', optionsTime)
     const closeDateStr = closeDate.toLocaleDateString('en-GB', optionsDate)
     const closeTimeStr = closeDate.toLocaleTimeString('en-GB', optionsTime)
-    console.log(announce)
 
     // ดูไฟล์ที่อัพโหลด
     const watchFile = (name) => {
