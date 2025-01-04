@@ -4,6 +4,7 @@ import Detail from '../components/Detail';
 import Add from '../components/Add';
 import Homepage from '../components/Homepage';
 import NotFound from '../components/NotFound';
+import Login from '../components/Login';
 // กำหนด base URL สำหรับการ routing
 const router = createBrowserRouter(
   [
@@ -26,6 +27,10 @@ const router = createBrowserRouter(
     {
       path: '/edit/:id',
       element: <Add />,
+    },
+    {
+      path: '/login',
+      element: <Login />,
     },
     {
       path: '*',
