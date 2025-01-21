@@ -14,6 +14,15 @@ export default {
       fontFamily: {
         'DM': ['DM Sans', 'sans-serif'],
       },
+      keyframes: {
+        'custom-popup': {
+          '0%': { transform: 'scale(0.95)', opacity: '0' },
+          '100%': { transform: 'scale(1)', opacity: '1' }
+        }
+      },
+      animation: {
+        'custom-popup': 'custom-popup 0.3s ease-out forwards'
+      }
     },
   },
   plugins: [

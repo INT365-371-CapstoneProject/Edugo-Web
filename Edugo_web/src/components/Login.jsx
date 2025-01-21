@@ -2,7 +2,9 @@ import React, { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import axios from "axios";
 import imageLogin from "../assets/login.png";
+import Swal from 'sweetalert2';
 const APT_ROOT = import.meta.env.VITE_API_ROOT;
+
 function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -10,6 +12,10 @@ function Login() {
     username: "",
     password: "",
     remember_me: false
+  });
+  const [inputErrors, setInputErrors] = useState({
+    email_username: "",
+    password: ""
   });
   const [error, setError] = useState("");
 
@@ -52,34 +58,108 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setInputErrors({ email_username: "", password: "" });
     
     const inputValue = formData.email || formData.username;
     const inputError = validateInput(inputValue);
-    if (inputError) {
-      setError(inputError);
-      return;
+    
+    let hasError = false;
+    
+    if (!formData.password) {
+      setInputErrors(prev => ({
+        ...prev,
+        password: "Password is required"
+      }));
+      hasError = true;
     }
 
+    if (inputError) {
+      setInputErrors(prev => ({
+        ...prev,
+        email_username: inputError
+      }));
+      hasError = true;
+    }
+
+    if (hasError) return;
+
     try {
-      // Create payload with only the filled field (email or username)
       const payload = {
         ...(formData.email ? { email: formData.email } : { username: formData.username }),
         password: formData.password,
         remember_me: formData.remember_me
       };
-      console.log(payload);
+      
       const response = await axios.post(`${APT_ROOT}/api/login`, payload, {
         headers: {
           'Content-Type': 'application/json'
         }
       });
+      
       if (response.status === 200) {
         localStorage.setItem('token', response.data.token);
-        // Redirect to homepage
+        
+        await Swal.fire({
+          title: 'Welcome Back!',
+          text: 'Login successful',
+          icon: 'success',
+          showConfirmButton: false,
+          timer: 1500,
+          timerProgressBar: true,
+          backdrop: `
+            rgba(0,0,123,0.2)
+            left top
+            no-repeat
+          `,
+          customClass: {
+            popup: 'animate-custom-popup'
+          },
+          didOpen: (popup) => {
+            popup.style.transition = 'all 0.3s ease-out';
+            popup.style.transform = 'scale(1)';
+            popup.style.opacity = '1';
+          },
+          willClose: (popup) => {
+            popup.style.transform = 'scale(0.95)';
+            popup.style.opacity = '0';
+          }
+        });
+        
         window.location.href = '/homepage';
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Login failed");
+      if (err.response) {
+        switch (err.response.status) {
+          case 400:
+          case 401:
+            setInputErrors({
+              email_username: "error", // Just set a flag to show red border
+              password: "Invalid email/username or password" // Only show message here
+            });
+            break;
+          case 404:
+            setInputErrors({
+              email_username: "User not found"
+            });
+            break;
+          case 429:
+            setInputErrors({
+              email_username: "Too many login attempts",
+              password: "Please try again later"
+            });
+            break;
+          default:
+            setInputErrors({
+              email_username: "Something went wrong",
+              password: "Please try again"
+            });
+        }
+      } else if (err.request) {
+        setInputErrors({
+          email_username: "Network error",
+          password: "Please check your internet connection"
+        });
+      }
     }
   };
 
@@ -103,8 +183,17 @@ function Login() {
                   value={formData.email || formData.username}
                   onChange={handleChange}
                   placeholder="Enter your email address or username"
-                  className="input input-bordered bg-gray-200 focus:bg-gray-100 transition-colors"
+                  className={`input input-bordered transition-colors
+                    ${inputErrors.email_username 
+                      ? 'bg-red-50 border-red-500 focus:border-red-500' 
+                      : 'bg-gray-200 focus:bg-gray-100'}`}
                 />
+                {/* Only show message if it's not the combined error state */}
+                {inputErrors.email_username && inputErrors.email_username !== "error" && (
+                  <label className="label">
+                    <span className="label-text-alt text-red-500">{inputErrors.email_username}</span>
+                  </label>
+                )}
               </div>
               <div className="form-control">
                 <label className="label">
@@ -117,7 +206,10 @@ function Login() {
                     value={formData.password}
                     onChange={handleChange}
                     placeholder="Enter your password"
-                    className="input input-bordered bg-gray-200 focus:bg-gray-100 transition-colors w-full"
+                    className={`input input-bordered w-full transition-colors
+                      ${inputErrors.password 
+                        ? 'bg-red-50 border-red-500 focus:border-red-500' 
+                        : 'bg-gray-200 focus:bg-gray-100'}`}
                   />
                   <button
                     type="button"
@@ -127,6 +219,11 @@ function Login() {
                     {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
                   </button>
                 </div>
+                {inputErrors.password && (
+                  <label className="label">
+                    <span className="label-text-alt text-red-500">{inputErrors.password}</span>
+                  </label>
+                )}
                 <div className="flex items-center justify-between mt-2">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
