@@ -10,7 +10,6 @@ function NotFound() {
 
   return (
     <>
-        <Nav />
         <div className="Background">
       <img src={error404} alt="" className="picture" />
       <p className="errofont">We couldn’t find the page 
