@@ -7,7 +7,7 @@ import Homepage from '../components/Homepage';
 import NotFound from '../components/NotFound';
 import Login from '../components/Login';
 import { isTokenExpired } from '../utils/auth.js';
-
+import ForgotPass from '../components/ForgotPass';
 // ฟังก์ชันตรวจสอบการเข้าสู่ระบบ
 const isAuthenticated = () => {
   const token = localStorage.getItem('token');
@@ -81,6 +81,10 @@ const router = createBrowserRouter(
           <Login />
         </PublicRoute>
       ),
+    },
+    {
+      path: '/forgot-password',
+      element: <ForgotPass />,
     },
     {
       path: '*',

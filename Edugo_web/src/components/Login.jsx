@@ -3,6 +3,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import axios from "axios";
 import imageLogin from "../assets/login.png";
 import Swal from 'sweetalert2';
+import { Link } from "react-router-dom";
 const APT_ROOT = import.meta.env.VITE_API_ROOT;
 
 function Login() {
@@ -235,9 +236,12 @@ function Login() {
                     />
                     <span className="label-text text-gray-600">Remember me</span>
                   </label>
-                  <a href="#" className="label-text-alt link link-hover text-[#64738B]">
+                  <Link 
+                    to="/forgot-password" 
+                    className="label-text-alt link link-hover text-[#64738B]"
+                  >
                     Forgot password?
-                  </a>
+                  </Link>
                 </div>
               </div>
               {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
