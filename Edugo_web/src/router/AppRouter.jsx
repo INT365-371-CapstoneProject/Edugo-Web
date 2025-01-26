@@ -64,15 +64,27 @@ const router = createBrowserRouter(
     },
     {
       path: '/detail/:id',
-      element: <Detail />,
+      element: (
+        <PrivateRoute>
+          <Detail />
+        </PrivateRoute>
+      ),
     },
     {
       path: '/add',
-      element: <Add />,
+      element: (
+        <PrivateRoute>
+          <Add />
+        </PrivateRoute>
+      ),
     },
     {
       path: '/edit/:id',
-      element: <Add />,
+      element: (
+        <PrivateRoute>
+          <Add />
+        </PrivateRoute>
+      ),
     },
     {
       path: '/login',
