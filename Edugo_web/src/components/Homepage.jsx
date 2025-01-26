@@ -21,7 +21,6 @@ function Homepage() {
     const [filterType, setFilterType] = useState('All');
     const [isLoading, setIsLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
-    const [filteredTotal, setFilteredTotal] = useState(0);
 
     const fetchAllAnnouncements = async () => {
         try {
@@ -137,7 +136,6 @@ function Homepage() {
         });
 
         const totalPages = Math.ceil(filteredData.length / announceData.per_page);
-        setFilteredTotal(filteredData.length);
         setCurrentPage(1);
         setFilterType(type);
         setAnnounceData(prev => ({
@@ -182,7 +180,7 @@ function Homepage() {
         const startIndex = (pageNumber - 1) * announceData.per_page;
         const endIndex = startIndex + announceData.per_page;
         const paginatedData = filteredData.slice(startIndex, endIndex);
-        
+
         if (paginatedData.length > 0 || pageNumber === 1) {
             setCurrentPage(pageNumber);
             setAnnounceData(prev => ({
@@ -200,17 +198,16 @@ function Homepage() {
         const filteredData = getFilteredData();
         const totalPages = Math.ceil(filteredData.length / announceData.per_page);
         const buttons = [];
-        
+
         for (let i = 1; i <= totalPages; i++) {
             buttons.push(
                 <button
                     key={i}
                     onClick={() => handlePageChange(i)}
-                    className={`px-4 py-2 mx-1 rounded ${
-                        currentPage === i 
+                    className={`px-4 py-2 mx-1 rounded ${currentPage === i
                             ? 'bg-blue-500 text-white'
                             : 'bg-white text-gray-700 hover:bg-gray-100'
-                    } border`}
+                        } border`}
                 >
                     {i}
                 </button>
@@ -257,7 +254,7 @@ function Homepage() {
                                         <div className="flex flex-row items-center mt-2 ml-8">
                                             <h1 className="text-3xl font-bold">{allAnnouncements.length}</h1>
                                             <h1 className="scholarshiptextsum">Scholarship</h1>
-                                    </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div
@@ -279,8 +276,8 @@ function Homepage() {
                                 >
                                     <div className="summary-open-border summary-border-radius"></div>
                                     <div className="flex flex-col items-start mt-5 mb-5">
-                                        <h1 className="summary-text">Opened Scholarship</h1> 
-                                        <div className="flex flex-row items-center mt-2 ml-8"> 
+                                        <h1 className="summary-text">Opened Scholarship</h1>
+                                        <div className="flex flex-row items-center mt-2 ml-8">
                                             <h1 className="text-3xl font-bold">{checkOpenAnnounce.length}</h1>
                                             <h1 className="scholarshiptextsum">Scholarship</h1>
                                         </div>
@@ -290,9 +287,9 @@ function Homepage() {
                                 <div
                                     className="border-lightgrey"
                                     onClick={() => handleFilterClick('Close')}
-                                >   
+                                >
                                     <div className="summary-close-border summary-border-radius"></div>
-                                    <div className="flex flex-col items-start mt-5 mb-5"> 
+                                    <div className="flex flex-col items-start mt-5 mb-5">
                                         <h1 className="summary-text">Closed Scholarship</h1>
                                         <div className="flex flex-row items-center mt-2 ml-8">
                                             <h1 className="text-3xl font-bold">{checkCloseAnnounce.length}</h1>
@@ -389,11 +386,10 @@ function Homepage() {
                                     <button
                                         onClick={() => handlePageChange(currentPage - 1)}
                                         disabled={currentPage === 1}
-                                        className={`px-4 py-2 mx-1 rounded ${
-                                            currentPage === 1
+                                        className={`px-4 py-2 mx-1 rounded ${currentPage === 1
                                                 ? 'bg-gray-100 text-gray-400'
                                                 : 'bg-white text-gray-700 hover:bg-gray-100'
-                                        } border`}
+                                            } border`}
                                     >
                                         Previous
                                     </button>
@@ -401,11 +397,10 @@ function Homepage() {
                                     <button
                                         onClick={() => handlePageChange(currentPage + 1)}
                                         disabled={currentPage === Math.ceil(getFilteredData().length / announceData.per_page)}
-                                        className={`px-4 py-2 mx-1 rounded ${
-                                            currentPage === Math.ceil(getFilteredData().length / announceData.per_page)
+                                        className={`px-4 py-2 mx-1 rounded ${currentPage === Math.ceil(getFilteredData().length / announceData.per_page)
                                                 ? 'bg-gray-100 text-gray-400'
                                                 : 'bg-white text-gray-700 hover:bg-gray-100'
-                                        } border`}
+                                            } border`}
                                     >
                                         Next
                                     </button>
