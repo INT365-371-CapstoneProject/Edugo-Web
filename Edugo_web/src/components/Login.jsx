@@ -3,10 +3,11 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import axios from "axios";
 import imageLogin from "../assets/login.png";
 import Swal from 'sweetalert2';
-import { Link } from "react-router-dom";
+import { useNavigate,Link, Route } from "react-router-dom";
 const APT_ROOT = import.meta.env.VITE_API_ROOT;
 
 function Login() {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -126,7 +127,7 @@ function Login() {
           }
         });
         
-        window.location.href = '/homepage';
+        navigate('/homepage');
       }
     } catch (err) {
       if (err.response) {
