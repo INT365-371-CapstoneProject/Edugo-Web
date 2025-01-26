@@ -3,7 +3,7 @@ import Nav from './Nav';
 import icon from '../assets/Vector.svg';
 import image2 from '../assets/bg-file-image.png';
 import { useNavigate } from 'react-router-dom';
-import { getAnnounce } from '../composable/getAnnounce';
+import { getAnnounce, getAnnounceImage } from '../composable/getAnnounce';
 import { urlImage } from '../composable/getImage';
 import image_No_Scholarship from '../assets/No_Scholarship.png';
 import '../style/style.css'; // Import CSS file
@@ -21,6 +21,7 @@ function Homepage() {
     const [filterType, setFilterType] = useState('All');
     const [isLoading, setIsLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
+    const [announceImages, setAnnounceImages] = useState({});
 
     const fetchAllAnnouncements = async () => {
         try {
@@ -30,7 +31,7 @@ function Homepage() {
 
             while (hasMore) {
                 const response = await getAnnounce(page);
-                if (response && response.data.length > 0) {
+                if (response && response.data && response.data.length > 0) {
                     allData = [...allData, ...response.data];
                     if (page >= response.last_page) {
                         hasMore = false;
@@ -61,6 +62,41 @@ function Homepage() {
             setIsLoading(false);
         });
     }, [currentPage]);
+
+    useEffect(() => {
+        // โหลดรูปภาพสำหรับทุกประกาศ
+        const loadImages = async () => {
+            try {
+                const images = {};
+                for (const announce of allAnnouncements) {
+                    try {
+                        const imageUrl = await getAnnounceImage(announce.id);
+                        if (imageUrl) {
+                            images[announce.id] = imageUrl;
+                        }
+                    } catch (error) {
+                        console.error(`Error loading image for announcement ${announce.id}:`, error);
+                    }
+                }
+                setAnnounceImages(images);
+            } catch (error) {
+                console.error('Error in loadImages:', error);
+            }
+        };
+        
+        if (allAnnouncements.length > 0) {
+            loadImages();
+        }
+    }, [allAnnouncements]);
+
+    useEffect(() => {
+        // Clean up function to revoke object URLs
+        return () => {
+            Object.values(announceImages).forEach(url => {
+                URL.revokeObjectURL(url);
+            });
+        };
+    }, []);
 
     const navigate = useNavigate();
 
@@ -205,8 +241,8 @@ function Homepage() {
                     key={i}
                     onClick={() => handlePageChange(i)}
                     className={`px-4 py-2 mx-1 rounded ${currentPage === i
-                            ? 'bg-blue-500 text-white'
-                            : 'bg-white text-gray-700 hover:bg-gray-100'
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-white text-gray-700 hover:bg-gray-100'
                         } border`}
                 >
                     {i}
@@ -318,20 +354,21 @@ function Homepage() {
                                         onClick={() => navigate(`/detail/${announce.id}`)}
                                     >
                                         <div className="grid grid-cols-2">
-                                            <div className=" w-52 h-72 mt-5 mb-5">
-                                                <img className='w-full h-full object-cover rounded-lg'
-                                                    src={
-                                                        announce.image
-                                                            ? `${urlImage}${announce.image}`
-                                                            : image2
-                                                    }
-                                                    alt=""
+                                            <div className="w-52 h-72 mt-5 mb-5">
+                                                <img 
+                                                    className='w-full h-full object-cover rounded-lg'
+                                                    src={announceImages[announce.id] || image2}
+                                                    alt={announce.title}
+                                                    onError={(e) => {
+                                                        e.target.onerror = null;
+                                                        e.target.src = image2;
+                                                    }}
                                                 />
                                             </div>
                                             <div className="divide-y m-5 space-y-4">
                                                 <div className="grid-container ">
                                                     <h1 className="number-layout">
-                                                        #0000{index + 1}
+                                                        #{((currentPage - 1) * announceData.per_page + index + 1).toString().padStart(4, '0')}
                                                     </h1>
                                                     <div
                                                         className={`rounded-md flex justify-center ${checkPendingAnnounce.some((item) => item.id === announce.id)
@@ -387,8 +424,8 @@ function Homepage() {
                                         onClick={() => handlePageChange(currentPage - 1)}
                                         disabled={currentPage === 1}
                                         className={`px-4 py-2 mx-1 rounded ${currentPage === 1
-                                                ? 'bg-gray-100 text-gray-400'
-                                                : 'bg-white text-gray-700 hover:bg-gray-100'
+                                            ? 'bg-gray-100 text-gray-400'
+                                            : 'bg-white text-gray-700 hover:bg-gray-100'
                                             } border`}
                                     >
                                         Previous
@@ -398,8 +435,8 @@ function Homepage() {
                                         onClick={() => handlePageChange(currentPage + 1)}
                                         disabled={currentPage === Math.ceil(getFilteredData().length / announceData.per_page)}
                                         className={`px-4 py-2 mx-1 rounded ${currentPage === Math.ceil(getFilteredData().length / announceData.per_page)
-                                                ? 'bg-gray-100 text-gray-400'
-                                                : 'bg-white text-gray-700 hover:bg-gray-100'
+                                            ? 'bg-gray-100 text-gray-400'
+                                            : 'bg-white text-gray-700 hover:bg-gray-100'
                                             } border`}
                                     >
                                         Next
