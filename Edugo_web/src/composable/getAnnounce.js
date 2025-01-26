@@ -30,7 +30,7 @@ const getAnnounceById = async (id) => {
     }
 };
 
-export const getAnnounceImage = async (id) => {
+const getAnnounceImage = async (id) => {
     try {
         // แก้ไข URL endpoint และแยก config สำหรับ image request
         const imageConfig = {
@@ -56,4 +56,4 @@ export const getAnnounceImage = async (id) => {
     }
 };
 
-export { getAnnounce, getAnnounceById, url, APT_ROOT };
+export { getAnnounce, getAnnounceById, url, APT_ROOT, getAnnounceImage};
