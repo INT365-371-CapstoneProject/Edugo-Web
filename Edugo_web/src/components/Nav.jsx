@@ -1,10 +1,20 @@
 import React from 'react'
-import { Link } from 'react-router-dom'; // Import Link from react-router-dom
+import { Link, useNavigate } from 'react-router-dom'; // Add useNavigate
 import img_edugo from '../assets/edugologo.svg'
 import img_profile from '../assets/profiletest.jpeg'
 import '../style/navstyle.css'; // Import CSS file
 
 function Nav() {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // Clear authentication data from localStorage
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    // Redirect to login page
+    navigate('/login');
+  };
+
   return (
     <div className="navbar-shadow">
       
@@ -16,18 +26,18 @@ function Nav() {
         </div>
 
         {/* โปรไฟล์รูปกลมๆ ด้านขวา พร้อมชื่อ */}
-        <div className="flex items-center justify-end space-x-5">
+        {/* <div className="flex items-center justify-end space-x-5">
           <img src={img_profile} alt="" className="rounded-full w-9 h-10" />
-          <div className="ml-2 text-center font-regular text-black">Provider Name</div> {/* เพิ่มชื่อด้านหลังรูปโปรไฟล์ */}
-        </div>
+          <div className="ml-2 text-center font-regular text-black">Provider Name</div>
+        </div> */}
 
-        {/* <div className="w-2/3">
+        <div className="w-2/3">
           <div className="form-control ml-10">
             <input type="text" placeholder="Scholarship Management" className="input input-bordered w-24 md:w-auto" />
           </div>
-        </div> */}
+        </div>
 
-        {/* <div className='w-1/3 flex flex-row'>
+        <div className='w-1/3 flex flex-row'>
           <div className="dropdown dropdown-end ml-10">
             <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
               <div className="w-10 rounded-full">
@@ -46,13 +56,13 @@ function Nav() {
                 </a>
               </li>
               <li><a>Settings</a></li>
-              <li><a>Logout</a></li>
+              <li><a onClick={handleLogout}>Logout</a></li>
             </ul>
           </div>
           <div className='font-bold ml-3 my-auto'>
             <h1 >Provider Name</h1>
           </div>
-        </div> */}
+        </div>
       </div>
   )
 }

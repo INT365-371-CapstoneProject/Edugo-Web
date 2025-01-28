@@ -127,7 +127,7 @@ function Login() {
           }
         });
         
-        navigate('/homepage');
+        window.location.href = '/'; // Redirect to home page
       }
     } catch (err) {
       if (err.response) {
