@@ -8,6 +8,7 @@ import { urlImage } from '../composable/getImage';
 import image_No_Scholarship from '../assets/No_Scholarship.png';
 import '../style/style.css'; // Import CSS file
 import '../style/home.css'; // Import CSS file
+import jwt_decode from 'jwt-decode'; // Make sure to import jwt-decode
 
 function Homepage() {
     const [announceData, setAnnounceData] = useState({
@@ -22,6 +23,7 @@ function Homepage() {
     const [isLoading, setIsLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const [announceImages, setAnnounceImages] = useState({});
+    const [userRole, setUserRole] = useState(null);
 
     const fetchAllAnnouncements = async () => {
         try {
@@ -31,6 +33,7 @@ function Homepage() {
 
             while (hasMore) {
                 const response = await getAnnounce(page);
+                console.log('API Response:', response); // เพิ่ม log เพื่อดูข้อมูลที่ได้จาก API
                 if (response && response.data && response.data.length > 0) {
                     allData = [...allData, ...response.data];
                     if (page >= response.last_page) {
@@ -42,6 +45,7 @@ function Homepage() {
                 }
             }
             setAllAnnouncements(allData);
+            console.log('Processed announcements:', allData); // เพิ่ม log เพื่อดูข้อมูลหลังการประมวลผล
         } catch (error) {
             console.error('Error fetching all announcements:', error);
         }
@@ -83,7 +87,7 @@ function Homepage() {
                 console.error('Error in loadImages:', error);
             }
         };
-        
+
         if (allAnnouncements.length > 0) {
             loadImages();
         }
@@ -252,200 +256,282 @@ function Homepage() {
         return buttons;
     };
 
+    const renderAdminView = () => {
+        return (
+            <div className="Background">
+                <div className="Maincontainer">
+                    <div className="mx-8 mb-7">
+                        <div className="bg-white rounded-lg shadow-sm p-6 mt-5">
+                            <h1 className="font-['DM_Sans'] text-3xl font-semibold text-left leading-[48px]">
+                                Administrator Management
+                            </h1>
+                        </div>
+
+                        {/* Admin dashboard statistics */}
+                        <div className="grid grid-cols-3 gap-4 mt-8">
+                            <div className="stat-card bg-white p-6 rounded-lg shadow">
+                                <h2 className="text-xl font-semibold">Total Users</h2>
+                                <p className="text-3xl font-bold mt-2">1,234</p>
+                            </div>
+                            <div className="stat-card bg-white p-6 rounded-lg shadow">
+                                <h2 className="text-xl font-semibold">Active Scholarships</h2>
+                                <p className="text-3xl font-bold mt-2">{checkOpenAnnounce.length}</p>
+                            </div>
+                            <div className="stat-card bg-white p-6 rounded-lg shadow">
+                                <h2 className="text-xl font-semibold">Total Applications</h2>
+                                <p className="text-3xl font-bold mt-2">567</p>
+                            </div>
+                        </div>
+
+                        {/* Add more admin-specific content here */}
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    const renderProviderView = () => {
+        return (
+            <div className="Background">
+                <div className="Maincontainer">
+                    {/* Existing provider view code */}
+                    <div className="mx-8 mb-7">
+                        <div className="grid grid-cols-2">
+                            <div className="mt-5">
+                                <h1 className="font-bold text-4xl text-black">Scholarship Management</h1>
+                            </div>
+                            <div className="mt-5 flex justify-end">
+                                <button
+                                    onClick={() => navigate('/add')}
+                                    className="btn button"
+                                >
+                                    Post New Scholarship
+                                    <img src={icon} alt="" />
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Buttons for Filter */}
+                        <div className="summary-padding">
+                            <div
+
+                                className="border-lightgrey"
+                                onClick={() => handleFilterClick('All')}
+                            >
+                                <div className="summary-all-border summary-border-radius"> </div>
+                                <div className="flex flex-col items-start mt-5">
+                                    <h1 className="summary-text">All Scholarship</h1>
+                                    <div className="flex flex-row items-center mt-2 ml-8">
+                                        <h1 className="text-3xl font-bold">{allAnnouncements.length}</h1>
+                                        <h1 className="scholarshiptextsum">Scholarship</h1>
+                                    </div>
+                                </div>
+                            </div>
+                            <div
+                                className="border-lightgrey"
+                                onClick={() => handleFilterClick('Pending')}
+                            >
+                                <div className="summary-pending-border summary-border-radius"></div>
+                                <div className="flex flex-col items-start mt-5 mb-5">
+                                    <h1 className="summary-text">Pending Scholarship</h1>
+                                    <div className="flex flex-row items-center mt-2 ml-8">
+                                        <h1 className="text-3xl font-bold">{checkPendingAnnounce.length}</h1>
+                                        <h1 className="scholarshiptextsum">Scholarship</h1>
+                                    </div>
+                                </div>
+                            </div>
+                            <div
+                                className="border-lightgrey"
+                                onClick={() => handleFilterClick('Open')}
+                            >
+                                <div className="summary-open-border summary-border-radius"></div>
+                                <div className="flex flex-col items-start mt-5 mb-5">
+                                    <h1 className="summary-text">Opened Scholarship</h1>
+                                    <div className="flex flex-row items-center mt-2 ml-8">
+                                        <h1 className="text-3xl font-bold">{checkOpenAnnounce.length}</h1>
+                                        <h1 className="scholarshiptextsum">Scholarship</h1>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div
+                                className="border-lightgrey"
+                                onClick={() => handleFilterClick('Close')}
+                            >
+                                <div className="summary-close-border summary-border-radius"></div>
+                                <div className="flex flex-col items-start mt-5 mb-5">
+                                    <h1 className="summary-text">Closed Scholarship</h1>
+                                    <div className="flex flex-row items-center mt-2 ml-8">
+                                        <h1 className="text-3xl font-bold">{checkCloseAnnounce.length}</h1>
+                                        <h1 className="scholarshiptextsum">Scholarship</h1>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* No Scholarship Filter */}
+                        <div className="mt-10 flex justify-center items-center flex-col">
+                            {(filterType === 'All' ? allAnnouncements.length === 0 : getFilteredData().length === 0) && (
+                                <>
+                                    <h1 className="noscholarship-text">This space is waiting for data</h1>
+                                    <img src={image_No_Scholarship} alt="" className="noscholarship" />
+                                </>
+                            )}
+                        </div>
+
+                        {/* Scholarship List */}
+                        <div className="ScholarLayout">
+                            {filteredAnnounce().map((announce, index) => (
+                                <div
+                                    key={index}
+                                    className="border-lightgrey scholarship-card"
+                                    onClick={() => navigate(`/detail/${announce.id}`)}
+                                >
+                                    <div className="grid grid-cols-12 gap-4">
+                                        {/* รูปภาพด้านซ้าย */}
+                                        <div className="col-span-5">
+                                            <img
+                                                className='w-[260px] h-[285px] object-cover rounded-lg mt-4'
+                                                src={announceImages[announce.id] || image2}
+                                                alt={announce.title}
+                                                onError={(e) => {
+                                                    e.target.onerror = null;
+                                                    e.target.src = image2;
+                                                }}
+                                            />
+                                        </div>
+
+                                        {/* ข้อมูลด้านขวา - ปรับ padding ให้สมดุลกับรูปที่กว้างขึ้น */}
+                                        <div className="col-span-7 py-4 pl-4 pr-2">
+                                            <div className="flex justify-between items-center mb-2">
+                                                <h1 className="number-layout text-sm">
+                                                    #{((currentPage - 1) * announceData.per_page + index + 1).toString().padStart(4, '0')}
+                                                </h1>
+                                                <div
+                                                    className={`rounded-md px-3 py-1 ${
+                                                        checkPendingAnnounce.some((item) => item.id === announce.id)
+                                                            ? 'border-gray-400 bg-gray-100'
+                                                            : checkOpenAnnounce.some((item) => item.id === announce.id)
+                                                                ? 'open-status'
+                                                                : 'border-red-400 bg-red-100'
+                                                    }`}
+                                                >
+                                                    <h1 className={`font-medium text-sm ${
+                                                        checkPendingAnnounce.some((item) => item.id === announce.id)
+                                                            ? 'text-gray-400'
+                                                            : checkOpenAnnounce.some((item) => item.id === announce.id)
+                                                                ? 'text-lime-400'
+                                                                : 'text-red-400'
+                                                    }`}>
+                                                        {checkPendingAnnounce.some((item) => item.id === announce.id)
+                                                            ? 'Pending'
+                                                            : checkOpenAnnounce.some((item) => item.id === announce.id)
+                                                                ? 'Open'
+                                                                : 'Close'}
+                                                    </h1>
+                                                </div>
+                                            </div>
+
+                                            {/* ส่วนแสดงผล title */}
+                                            <div className="space-y-3">
+                                                <h1 className="text-lg font-semibold line-clamp-2 text-black">
+                                                    {announce?.title || 'Untitled Scholarship'} {/* เพิ่ม fallback text */}
+                                                </h1>
+                                                
+                                                <div>
+                                                    <h2 className="font-medium text-sm text-gray-700">Description</h2>
+                                                    <p className="text-xs text-gray-500 line-clamp-3 mt-1">
+                                                        {announce?.description || 'No description available'}
+                                                    </p>
+                                                </div>
+
+                                                <div>
+                                                    <h2 className="font-medium text-sm text-gray-700 mb-1">
+                                                        Scholarship period
+                                                    </h2>
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-blue-600 text-xs">
+                                                            {formatDateRange(announce.publish_date, announce.close_date)}
+                                                        </span>
+                                                        <span className="px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded-md">
+                                                            {announce.education_level || 'Not specified'}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Pagination */}
+                        {getFilteredData().length > announceData.per_page && (
+                            <div className="flex justify-center items-center mt-8 mb-8">
+                                <button
+                                    onClick={() => handlePageChange(currentPage - 1)}
+                                    disabled={currentPage === 1}
+                                    className={`px-4 py-2 mx-1 rounded ${currentPage === 1
+                                        ? 'bg-gray-100 text-gray-400'
+                                        : 'bg-white text-gray-700 hover:bg-gray-100'
+                                        } border`}
+                                >
+                                    Previous
+                                </button>
+                                {renderPaginationButtons()}
+                                <button
+                                    onClick={() => handlePageChange(currentPage + 1)}
+                                    disabled={currentPage === Math.ceil(getFilteredData().length / announceData.per_page)}
+                                    className={`px-4 py-2 mx-1 rounded ${currentPage === Math.ceil(getFilteredData().length / announceData.per_page)
+                                        ? 'bg-gray-100 text-gray-400'
+                                        : 'bg-white text-gray-700 hover:bg-gray-100'
+                                        } border`}
+                                >
+                                    Next
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    useEffect(() => {
+        const checkUserRole = () => {
+            const token = localStorage.getItem('token');
+            if (token) {
+                try {
+                    const decoded = jwt_decode(token);
+                    setUserRole(decoded.role); // Assuming role is stored in token
+                    console.log('User role:', decoded.role); // For debugging
+                } catch (error) {
+                    console.error('Error decoding token:', error);
+                    setUserRole('provider'); // Default fallback
+                }
+            } else {
+                setUserRole('provider'); // Default fallback
+            }
+        };
+
+        checkUserRole();
+    }, []);
+
     return (
         <>
             <Nav />
             {isLoading ? (
                 <div className="Background">
+                    {/* Loading state */}
                 </div>
             ) : (
-                <div className="Background">
-                    <div className="Maincontainer">
-                        <div className="mx-8 mb-7">
-                            <div className="grid grid-cols-2">
-                                <div className="mt-5">
-                                    <h1 className="font-bold text-4xl text-black">Scholarship Management</h1>
-                                </div>
-                                <div className="mt-5 flex justify-end">
-                                    <button
-                                        onClick={() => navigate('/add')}
-                                        className="btn button"
-                                    >
-                                        Post New Scholarship
-                                        <img src={icon} alt="" />
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Buttons for Filter */}
-                            <div className="summary-padding">
-                                <div
-
-                                    className="border-lightgrey"
-                                    onClick={() => handleFilterClick('All')}
-                                >
-                                    <div className="summary-all-border summary-border-radius"> </div>
-                                    <div className="flex flex-col items-start mt-5">
-                                        <h1 className="summary-text">All Scholarship</h1>
-                                        <div className="flex flex-row items-center mt-2 ml-8">
-                                            <h1 className="text-3xl font-bold">{allAnnouncements.length}</h1>
-                                            <h1 className="scholarshiptextsum">Scholarship</h1>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div
-                                    className="border-lightgrey"
-                                    onClick={() => handleFilterClick('Pending')}
-                                >
-                                    <div className="summary-pending-border summary-border-radius"></div>
-                                    <div className="flex flex-col items-start mt-5 mb-5">
-                                        <h1 className="summary-text">Pending Scholarship</h1>
-                                        <div className="flex flex-row items-center mt-2 ml-8">
-                                            <h1 className="text-3xl font-bold">{checkPendingAnnounce.length}</h1>
-                                            <h1 className="scholarshiptextsum">Scholarship</h1>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div
-                                    className="border-lightgrey"
-                                    onClick={() => handleFilterClick('Open')}
-                                >
-                                    <div className="summary-open-border summary-border-radius"></div>
-                                    <div className="flex flex-col items-start mt-5 mb-5">
-                                        <h1 className="summary-text">Opened Scholarship</h1>
-                                        <div className="flex flex-row items-center mt-2 ml-8">
-                                            <h1 className="text-3xl font-bold">{checkOpenAnnounce.length}</h1>
-                                            <h1 className="scholarshiptextsum">Scholarship</h1>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div
-                                    className="border-lightgrey"
-                                    onClick={() => handleFilterClick('Close')}
-                                >
-                                    <div className="summary-close-border summary-border-radius"></div>
-                                    <div className="flex flex-col items-start mt-5 mb-5">
-                                        <h1 className="summary-text">Closed Scholarship</h1>
-                                        <div className="flex flex-row items-center mt-2 ml-8">
-                                            <h1 className="text-3xl font-bold">{checkCloseAnnounce.length}</h1>
-                                            <h1 className="scholarshiptextsum">Scholarship</h1>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* No Scholarship Filter */}
-                            <div className="mt-10 flex justify-center items-center flex-col">
-                                {(filterType === 'All' ? allAnnouncements.length === 0 : getFilteredData().length === 0) && (
-                                    <>
-                                        <h1 className="noscholarship-text">This space is waiting for data</h1>
-                                        <img src={image_No_Scholarship} alt="" className="noscholarship" />
-                                    </>
-                                )}
-                            </div>
-
-                            {/* Scholarship List */}
-                            <div className="ScholarLayout">
-                                {filteredAnnounce().map((announce, index) => (
-                                    <div
-                                        key={index}
-                                        className="border-lightgrey scholarship-card"
-                                        onClick={() => navigate(`/detail/${announce.id}`)}
-                                    >
-                                        <div className="grid grid-cols-2">
-                                            <div className="w-52 h-72 mt-5 mb-5">
-                                                <img 
-                                                    className='w-full h-full object-cover rounded-lg'
-                                                    src={announceImages[announce.id] || image2}
-                                                    alt={announce.title}
-                                                    onError={(e) => {
-                                                        e.target.onerror = null;
-                                                        e.target.src = image2;
-                                                    }}
-                                                />
-                                            </div>
-                                            <div className="divide-y m-5 space-y-4">
-                                                <div className="grid-container ">
-                                                    <h1 className="number-layout">
-                                                        #{((currentPage - 1) * announceData.per_page + index + 1).toString().padStart(4, '0')}
-                                                    </h1>
-                                                    <div
-                                                        className={`rounded-md flex justify-center ${checkPendingAnnounce.some((item) => item.id === announce.id)
-                                                            ? 'border-gray-400 bg-gray-100'
-                                                            : checkOpenAnnounce.some((item) => item.id === announce.id)
-                                                                ? 'open-status'
-                                                                : 'border-red-400 bg-red-100'
-                                                            }`}
-                                                    >
-                                                        <h1
-                                                            className={`font-medium text-lg ${checkPendingAnnounce.some((item) => item.id === announce.id)
-                                                                ? 'text-gray-400'
-                                                                : checkOpenAnnounce.some((item) => item.id === announce.id)
-                                                                    ? 'text-lime-400'
-                                                                    : 'text-red-400'
-                                                                }`}
-                                                        >
-                                                            {checkPendingAnnounce.some((item) => item.id === announce.id)
-                                                                ? 'Pending'
-                                                                : checkOpenAnnounce.some((item) => item.id === announce.id)
-                                                                    ? 'Open'
-                                                                    : 'Close'}
-                                                        </h1>
-                                                    </div>
-                                                </div>
-                                                <div className="information-layout">
-                                                    <h1 className="headingclamp font-normal text-2xl text-black">
-                                                        {announce.title}
-                                                    </h1>
-                                                    <h1 className="font-medium mt-4 text-medium text-black">
-                                                        Description
-                                                    </h1>
-                                                    <p className="font-regular descriptionclamp text-sm mt-2 text-gray-400">
-                                                        {announce.description}
-                                                    </p>
-                                                    <h1 className="font-medium mt-2 text-medium text-black">
-                                                        Scholarship period
-                                                    </h1>
-                                                    <h1 className="date-period-layout">
-                                                        {formatDateRange(announce.publish_date, announce.close_date)}
-                                                    </h1>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Pagination */}
-                            {getFilteredData().length > announceData.per_page && (
-                                <div className="flex justify-center items-center mt-8 mb-8">
-                                    <button
-                                        onClick={() => handlePageChange(currentPage - 1)}
-                                        disabled={currentPage === 1}
-                                        className={`px-4 py-2 mx-1 rounded ${currentPage === 1
-                                            ? 'bg-gray-100 text-gray-400'
-                                            : 'bg-white text-gray-700 hover:bg-gray-100'
-                                            } border`}
-                                    >
-                                        Previous
-                                    </button>
-                                    {renderPaginationButtons()}
-                                    <button
-                                        onClick={() => handlePageChange(currentPage + 1)}
-                                        disabled={currentPage === Math.ceil(getFilteredData().length / announceData.per_page)}
-                                        className={`px-4 py-2 mx-1 rounded ${currentPage === Math.ceil(getFilteredData().length / announceData.per_page)
-                                            ? 'bg-gray-100 text-gray-400'
-                                            : 'bg-white text-gray-700 hover:bg-gray-100'
-                                            } border`}
-                                    >
-                                        Next
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
+                // Conditional rendering based on role
+                <>
+                    {['admin', 'superadmin'].includes(userRole)
+                        ? renderAdminView()
+                        : renderProviderView()
+                    }
+                </>
             )}
         </>
     );

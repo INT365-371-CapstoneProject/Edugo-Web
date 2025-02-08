@@ -4,6 +4,7 @@ import axios from "axios";
 import imageLogin from "../assets/login.png";
 import Swal from 'sweetalert2';
 import { useNavigate,Link, Route } from "react-router-dom";
+import jwt_decode from 'jwt-decode'; // Import jwt-decode
 const APT_ROOT = import.meta.env.VITE_API_ROOT;
 
 function Login() {
@@ -99,7 +100,24 @@ function Login() {
       });
       
       if (response.status === 200) {
-        localStorage.setItem('token', response.data.token);
+        const token = response.data.token;
+        
+        // Decode token to check role
+        const decoded = jwt_decode(token);
+        const validRoles = ['provider', 'admin', 'superadmin'];
+        
+        if (!decoded.role || !validRoles.includes(decoded.role)) {
+          Swal.fire({
+            title: 'Access Denied',
+            text: 'You do not have permission to access this system.',
+            icon: 'error',
+            confirmButtonColor: '#d33',
+          });
+          return;
+        }
+
+        // If role is valid, save token and proceed
+        localStorage.setItem('token', token);
         
         await Swal.fire({
           title: 'Welcome Back!',
