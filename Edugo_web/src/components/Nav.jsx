@@ -85,14 +85,18 @@ function Nav() {
               <li>
                 <a className="justify-between" onClick={handleProfile}>
                   Profile
-                  
                 </a>
               </li>
               <li><a onClick={handleLogout}>Logout</a></li>
             </ul>
           </div>
           <div className='font-bold ml-3 my-auto'>
-            <h1 >{userData.company_name}</h1>
+            <h1>
+              {userData.company_name || 
+                (userData.first_name && userData.last_name 
+                  ? `${userData.first_name} ${userData.last_name}`
+                  : userData.username)}
+            </h1>
           </div>
         </div>
       </div>
