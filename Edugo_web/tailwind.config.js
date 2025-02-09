@@ -13,6 +13,7 @@ export default {
       },
       fontFamily: {
         'DM': ['DM Sans', 'sans-serif'],
+        dmSans: ['DM Sans', 'sans-serif'],
       },
       keyframes: {
         'custom-popup': {
