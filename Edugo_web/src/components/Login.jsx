@@ -145,7 +145,7 @@ function Login() {
           }
         });
         
-        window.location.href = '/'; // Redirect to home page
+        window.location.href = '/un2'; // Redirect to home page
       }
     } catch (err) {
       if (err.response) {
