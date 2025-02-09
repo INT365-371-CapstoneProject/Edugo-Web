@@ -15,7 +15,11 @@ const checkAuth = () => {
   const token = localStorage.getItem('token');
   const validRoles = ['provider', 'admin', 'superadmin'];
   
-  if (!token || isTokenExpired(token)) return { isValid: false };
+  if (!token) return { isValid: false };
+  if (isTokenExpired(token)) {
+    localStorage.removeItem('token');
+    return { isValid: false };
+  }
 
   try {
     const decoded = jwt_decode(token);
@@ -26,40 +30,33 @@ const checkAuth = () => {
     };
   } catch (error) {
     console.error('Token decode error:', error);
+    localStorage.removeItem('token');
     return { isValid: false };
   }
 };
 
 // คอมโพเนนต์สำหรับป้องกันเส้นทางส่วนตัว
 const PrivateRoute = ({ children }) => {
-  const token = localStorage.getItem('token');
-  const expired = token ? isTokenExpired(token) : false;
-  const [hasAlerted, setHasAlerted] = useState(false);
   const auth = checkAuth();
+  const [hasAlerted, setHasAlerted] = useState(false);
 
   useEffect(() => {
-    if (token && !auth.isValid && !hasAlerted) {
+    if (!auth.isValid && !hasAlerted) {
       Swal.fire({
-        title: expired ? 'Session Expired' : 'Access Denied',
-        text: expired ? 'Please log in again to continue.' : 
-              'You do not have permission to access this page.',
+        title: 'Access Denied',
+        text: 'Please log in to continue.',
         icon: 'warning',
         confirmButtonText: 'OK',
         confirmButtonColor: '#3085d6',
         customClass: {
           popup: 'animated fadeInDown'
         }
-      }).then(() => {
-        if (expired) {
-          localStorage.removeItem('token');
-          window.location.href = '/login';
-        }
       });
       setHasAlerted(true);
     }
-  }, [token, expired, hasAlerted, auth.isValid]);
+  }, [auth.isValid, hasAlerted]);
 
-  return auth.isValid ? children : null;
+  return auth.isValid ? children : <Navigate to="/login" replace />;
 };
 
 // คอมโพเนนต์สำหรับเส้นทางสาธารณะ
