@@ -1,4 +1,5 @@
 .Maincontainer {
+    @apply container mx-auto bg-white rounded-lg shadow-md mt-8 mb-8;
     display: fixed;
     justify-content: center;
     align-items: center;
@@ -15,12 +16,13 @@
     border: 1.5px solid var(--Foundation-Grey-Normal, #CBD5E0);
     background: var(--White, #FFF);
 }
-.Background{
-display: flex;
-padding-bottom: 56px;
-flex-direction: column;
-align-items: center;
-background-color: #F9FAFF; 
+.Background {
+    @apply min-h-screen bg-gray-50;
+    display: flex;
+    padding-bottom: 56px;
+    flex-direction: column;
+    align-items: center;
+    background-color: #F9FAFF; 
 }
 
 /* ให้ body ใช้ flexbox เพื่อให้พื้นที่ว่างถูกจัดการโดยอัตโนมัติ */
