@@ -246,7 +246,7 @@ const Profile = () => {
             return;
         }
 
-        if (formData.phone_person && !validatePhone(formData.phone_person)) {
+        if (formData.phone_number && !validatePhone(formData.phone_number)) {
             notify.error("Please enter a valid 10-digit phone number");
             return;
         }
@@ -275,6 +275,14 @@ const Profile = () => {
                 }
             });
             notify.success("Personal information updated successfully!");
+
+            // Check if first_name or last_name was changed
+            if (formData.first_name !== userData.first_name || formData.last_name !== userData.last_name) {
+                // Wait for 1 second before refreshing
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            }
         } catch (error) {
             notify.error("Failed to update personal information");
             setUserData(prev => ({ ...prev }));
@@ -546,62 +554,21 @@ const Profile = () => {
                 <div className="p-6 flex flex-col md:flex-row items-center md:items-start gap-6">
                     {renderAvatarSection(true)}
                     <div className="flex-1 text-center md:text-left">
-                        <div className="flex items-center gap-4">
-                            {editName ? (
-                                <div className="flex flex-col gap-2">
-                                    <input
-                                        type="text"
-                                        name="first_name"
-                                        value={nameFormData.first_name}
-                                        onChange={handleNameChange}
-                                        placeholder="First Name"
-                                        className="border rounded p-1 text-sm"
-                                    />
-                                    <input
-                                        type="text"
-                                        name="last_name"
-                                        value={nameFormData.last_name}
-                                        onChange={handleNameChange}
-                                        placeholder="Last Name"
-                                        className="border rounded p-1 text-sm"
-                                    />
-                                </div>
-                            ) : (
-                                <h2 className="text-lg font-bold">
-                                    {userData.first_name && userData.last_name 
-                                        ? `${userData.first_name} ${userData.last_name} (Admin name)`
-                                        : `${userData.username} (Admin name)`}
-                                </h2>
-                            )}
+                        <div className="flex flex-col gap-2">
+                            <h2 className="text-lg font-bold">
+                                {userData.first_name && userData.last_name 
+                                    ? `${userData.first_name} ${userData.last_name} (Admin name)`
+                                    : `${userData.username} (Admin name)`}
+                            </h2>
                             <p className="text-sm text-gray-500">
                                 {userRole === 'superadmin' ? 'Super Admin' : 'Administrator'}
                             </p>
                         </div>
                     </div>
-                    <div className="flex-none">
-                        {renderEditButtons(
-                            editName,
-                            handleSaveName,
-                            () => {
-                                setEditName(false);
-                                setNameFormData({
-                                    first_name: userData.first_name || '',
-                                    last_name: userData.last_name || '',
-                                });
-                            },
-                            () => {
-                                setEditName(true);
-                                setNameFormData({
-                                    first_name: userData.first_name || '',
-                                    last_name: userData.last_name || '',
-                                });
-                            }
-                        )}
-                    </div>
                 </div>
             </div>
 
-            {/* Personal Information Section */}
+            {/* Rest of the admin profile rendering */}
             <div className="bg-white rounded-lg shadow-sm">
                 <div className="p-6">
                     <div className="flex justify-between items-center mb-4">
@@ -643,8 +610,8 @@ const Profile = () => {
                                     <label className="text-sm text-gray-500">Phone</label>
                                     <input
                                         type="text"
-                                        name="phone_person"
-                                        value={formData.phone_person || ''}
+                                        name="phone_number" 
+                                        value={formData.phone_number || ''} 
                                         onChange={handleInputChange}
                                         className="w-full border rounded p-2"
                                     />
@@ -676,7 +643,7 @@ const Profile = () => {
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-500">Phone</p>
-                                    <p className="text-base">{userData.phone_person || 'Not specified'}</p>
+                                    <p className="text-base">{userData.phone_number || 'Not specified'}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-500">Email Address</p>
