@@ -10,6 +10,7 @@ import Login from '../components/Login';
 import { isTokenExpired } from '../utils/auth.js';
 import ForgotPass from '../components/ForgotPass';
 import Profile from '../components/Profile';
+
 // ฟังก์ชันตรวจสอบการเข้าสู่ระบบและบทบาท
 const checkAuth = () => {
   const token = localStorage.getItem('token');
