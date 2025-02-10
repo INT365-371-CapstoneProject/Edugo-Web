@@ -56,4 +56,28 @@ const getAnnounceImage = async (id) => {
     }
 };
 
-export { getAnnounce, getAnnounceById, url, APT_ROOT, getAnnounceImage};
+const getAnnounceAttach = async (id) => {
+    try {
+        const attachConfig = {
+            ...config,
+            responseType: 'blob',
+            headers: {
+                ...config.headers,
+                'Accept': 'application/pdf'
+            }
+        };
+        
+        const response = await axios.get(`${APT_ROOT}/api/announce/${id}/attach`, attachConfig);
+        
+        if (response.data) {
+            const attachUrl = URL.createObjectURL(response.data);
+            return attachUrl;
+        }
+        return null;
+    } catch (error) {
+        console.error('Error fetching attachment:', error);
+        return null;
+    }
+};
+
+export { getAnnounce, getAnnounceById, url, APT_ROOT, getAnnounceImage, getAnnounceAttach };

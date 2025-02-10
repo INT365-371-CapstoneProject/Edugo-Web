@@ -12,7 +12,7 @@ import icon2 from '../assets/Vector.svg'
 import image1 from '../assets/cancel-post.png';
 import image3 from '../assets/undraw_happy_announcement_re_tsm0 1.png';
 import { urlImage } from '../composable/getImage';
-import { useNavigate, Link, useParams } from 'react-router-dom';
+import { useNavigate, Link, useParams, useLocation } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import '../style/style.css'; // Import CSS file
@@ -20,6 +20,7 @@ import '../style/details.css'; // Import CSS file
 
 function Add() {
     const navigate = useNavigate();
+    const location = useLocation();
     const { id } = useParams();
     const isEditMode = !!id;
     const [country, setCountry] = useState([]);
@@ -58,6 +59,7 @@ function Add() {
         "country_id": 0
     });
     const [editPost, setEditPost] = useState({});
+    const [attachFileName, setAttachFileName] = useState(''); // เพิ่ม state สำหรับเก็บชื่อไฟล์แนบ
 
     const handletoHome = () => {
         if (isEditMode) {
@@ -74,6 +76,15 @@ function Add() {
                 .then(data => {
                     if (data) {
                         setEditPost(data);
+                        // ตั้งค่า imagePreview ถ้ามีรูปภาพ
+                        if (data.image) {
+                            setImagePreview(`${urlImage}/${data.image}`);
+                        }
+                        // ตั้งค่าชื่อไฟล์แนบ
+                        if (data.attach_name) {
+                            setAttachFileName(data.attach_name);
+                            document.getElementById('fileNameInput').placeholder = data.attach_name;
+                        }
                         // แยกวันที่และเวลา
                         const date = new Date(data.publish_date);
                         const dateEnd = new Date(data.close_date);
@@ -121,6 +132,19 @@ function Add() {
                 });
         }
     }, [id, isEditMode])
+
+    useEffect(() => {
+        if (isEditMode && location.state) {
+            const { imageUrl, attachUrl, attachName } = location.state;
+            if (imageUrl) {
+                setImagePreview(imageUrl);
+            }
+            if (attachName) {
+                setAttachFileName(attachName);
+                document.getElementById('fileNameInput').placeholder = attachName;
+            }
+        }
+    }, [isEditMode, location.state]);
 
     // เช็คว่ามีการแก้ไขข้อมูลหรือไม่
     useEffect(() => {
@@ -360,12 +384,16 @@ function Add() {
     const UpdatePost = async (formData) => {
         try {
             if (formData) {
-                const res = await axios.put(`${url}/update/${id}`, formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                    maxContentLength: 50 * 1024 * 1024, // ปรับขนาดสูงสุดที่รับได้ที่ 50MB
-                    maxBodyLength: 50 * 1024 * 1024, // ปรับขนาดสูงสุดของ body ที่ส่งไปที่ 50MB
+                const token = localStorage.getItem("token");
+                const headers = {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data',
+                };
+
+                const res = await axios.put(`${url}/${id}`, formData, {
+                    headers,
+                    maxContentLength: 50 * 1024 * 1024,
+                    maxBodyLength: 50 * 1024 * 1024,
                 });
                 if (res.status === 200) {
                     setTimeout(() => {
@@ -380,7 +408,7 @@ function Add() {
             document.getElementById('waiting_modal').close();
             document.getElementById('error_modal').showModal();
         } finally {
-            setIsSubmitting(false); // เปิดปุ่ม submit
+            setIsSubmitting(false);
         }
     }
 
@@ -388,12 +416,16 @@ function Add() {
     const CreatePost = async (formData) => {
         try {
             if (formData) {
-                const res = await axios.post(`${url}/add`, formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                    maxContentLength: 50 * 1024 * 1024, // ปรับขนาดสูงสุดที่รับได้ที่ 50MB
-                    maxBodyLength: 50 * 1024 * 1024, // ปรับขนาดสูงสุดของ body ที่ส่งไปที่ 50MB
+                const token = localStorage.getItem("token");
+                const headers = {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data',
+                };
+
+                const res = await axios.post(`${url}`, formData, {
+                    headers,
+                    maxContentLength: 50 * 1024 * 1024,
+                    maxBodyLength: 50 * 1024 * 1024,
                 });
                 if (res.status === 201) {
                     setTimeout(() => {
@@ -408,7 +440,7 @@ function Add() {
             document.getElementById('waiting_modal').close();
             document.getElementById('error_modal').showModal();
         } finally {
-            setIsSubmitting(false); // เปิดปุ่ม submit อีกครั้ง
+            setIsSubmitting(false);
         }
     }
 
@@ -429,7 +461,7 @@ function Add() {
             toast.error('Only JPG, JPEG, and PNG files are allowed');
             setImagePreview(null);
             setAddPost({ ...addPost, image: null });
-        } else {
+        } else if (file) {
             const previewUrl = URL.createObjectURL(file); // สร้าง URL ของไฟล์เพื่อแสดงผล
             setImagePreview(previewUrl); // อัพเดท state ด้วย URL ที่สร้างขึ้น
             setAddPost({ ...addPost, image: file });
@@ -440,11 +472,11 @@ function Add() {
         const file = e.target.files[0];
         if (file && file.type !== 'application/pdf') {
             toast.error('Only PDF files are allowed');
-            document.getElementById('fileNameInput').placeholder = 'No file chosen';
+            document.getElementById('fileNameInput').placeholder = attachFileName || 'No file chosen';
             setAddPost({ ...addPost, attach_file: null });
-        } else {
-            const fileName = file?.name;
-            document.getElementById('fileNameInput').placeholder = fileName || 'No file chosen';
+        } else if (file) {
+            setAttachFileName(file.name);
+            document.getElementById('fileNameInput').placeholder = file.name;
             setAddPost({ ...addPost, attach_file: file });
         }
     };
@@ -551,19 +583,15 @@ function Add() {
                                 <div className='grid grid-cols-3 gap-4'>
                                     {/* คอลัมน์สำหรับรูปภาพ */}
                                     <div className='relative rounded-lg overflow-hidden'>
-                                        {isEditMode ? (
-                                            <img
-                                                src={imagePreview ? imagePreview : (editPost.image ? `${urlImage}/${editPost.image}` : image)}
-                                                alt=""
-                                                className='w-full h-full object-cover rounded-lg'
-                                            />
-                                        ) : (
-                                            <img
-                                                src={imagePreview || image}
-                                                alt=""
-                                                className='w-full h-full object-cover rounded-lg'
-                                            />
-                                        )}
+                                        <img
+                                            src={imagePreview || image}
+                                            alt=""
+                                            className='w-full h-full object-cover rounded-lg'
+                                            onError={(e) => {
+                                                console.error('Image failed to load:', e);
+                                                e.target.src = image; // ใช้รูปภาพ default ถ้าโหลดรูปไม่สำเร็จ
+                                            }}
+                                        />
                                         <div className='absolute inset-0 bg-gray-700 bg-opacity-50 p-8 flex justify-center items-center'>
                                             <div className='flex justify-center items-center flex-col text-center'>
                                                 <p className='text-white mb-4'>Photo Upload should 1587 x 2245 maximum</p>
@@ -742,7 +770,7 @@ function Add() {
                                                 <input id='fileInput' type="file" hidden onChange={handleFileChange} />
                                             </div>
                                             <div className='col-span-3 flex items-center'>
-                                                <input id='fileNameInput' className='w-full h-4/5 pl-8 placeholder:text-black bg-white border-section ' type="text" placeholder={isEditMode ? (editPost.attach_file ? editPost.attach_file : "No Attach Files") : 'No file chosen'} disabled />
+                                                <input id='fileNameInput' className='w-full h-4/5 pl-8 placeholder:text-black bg-white border-section ' type="text" placeholder={attachFileName || (isEditMode ? "No Attach Files" : "No file chosen")} disabled />
                                             </div>
                                         </div>
                                     </div>

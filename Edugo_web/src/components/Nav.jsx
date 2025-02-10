@@ -16,7 +16,6 @@ function Nav() {
       try {
         const profileData = await getProfile();
         setUserData(profileData.profile);
-        console.log('Profile data:', profileData.profile);
 
         const imageUrl = await getAvatar();
         if (imageUrl) {

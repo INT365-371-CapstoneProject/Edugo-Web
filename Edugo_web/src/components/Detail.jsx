@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { getAnnounceById } from '../composable/getAnnounce'
+import { getAnnounceById, getAnnounceImage, getAnnounceAttach } from '../composable/getAnnounce'
 import icon1 from '../assets/deleteicon.svg';
 import icon from '../assets/editicon.svg'
 import image2 from '../assets/bg-file-image.png';
@@ -17,20 +17,63 @@ function Detail() {
     const navigate = useNavigate();
     const { id } = useParams()
     const [announce, setAnnounce] = React.useState({})
+    const [imageUrl, setImageUrl] = React.useState(null);
+    const [attachUrl, setAttachUrl] = React.useState(null);
+
+    // แยก useEffect สำหรับการโหลดข้อมูลและรูปภาพ
     useEffect(() => {
         window.scrollTo(0, 0);
-        getAnnounceById(id)
-            .then(data => {
-                if (data) {
-                    setAnnounce(data)
-                } else {
-                    console.log('No data found or an error occurred.')
+        const fetchAnnounceData = async () => {
+            try {
+                const announceData = await getAnnounceById(id);
+                if (announceData) {
+                    setAnnounce(announceData);
                 }
-            })
-            .catch(error => {
-                console.error(error)
-            })
-    }, [])
+            } catch (error) {
+                console.error('Error fetching announce data:', error);
+            }
+        };
+        fetchAnnounceData();
+    }, [id]);
+
+    // แก้ไข useEffect สำหรับการโหลดรูปภาพและไฟล์แนบ
+    useEffect(() => {
+        const fetchMediaData = async () => {
+            try {
+                if (id) {
+                    // โหลดรูปภาพ
+                    const imgUrl = await getAnnounceImage(id);
+                    if (imgUrl) {
+                        setImageUrl(imgUrl);
+                    }
+
+                    // โหลดไฟล์แนบ - เช็คจาก attach_file แทน
+
+                    const attUrl = await getAnnounceAttach(id);
+                    if (attUrl) {
+                        setAttachUrl(attUrl);
+                    }
+
+                }
+            } catch (error) {
+                console.error('Error fetching media:', error);
+            }
+        };
+
+        fetchMediaData();
+    }, [id, announce?.attach_file]); // ลบ imageUrl ออกจาก dependencies
+
+    // แยก useEffect สำหรับ cleanup
+    useEffect(() => {
+        return () => {
+            if (imageUrl) {
+                URL.revokeObjectURL(imageUrl);
+            }
+            if (attachUrl) {
+                URL.revokeObjectURL(attachUrl);
+            }
+        };
+    }, []); // ทำ cleanup เฉพาะตอน unmount
 
     // เอา published_date มาแปลงเป็นวันที่และเวลาเพื่อเอามา show
     const publishedDate = new Date(announce?.publish_date)
@@ -43,8 +86,10 @@ function Detail() {
     const closeTimeStr = closeDate.toLocaleTimeString('en-GB', optionsTime)
 
     // ดูไฟล์ที่อัพโหลด
-    const watchFile = (name) => {
-        window.open(`${urlPDF}${name}`, '_blank');
+    const watchFile = () => {
+        if (attachUrl) {
+            window.open(attachUrl, '_blank');
+        }
     }
 
 
@@ -56,7 +101,7 @@ function Detail() {
                 navigate('/')
             }
         }
-        catch(error){
+        catch (error) {
             console.error(error)
         }
     }
@@ -77,7 +122,18 @@ function Detail() {
                                 )}
                             </div>
                             <div className='mt-5 flex justify-end'>
-                                <button onClick={() => navigate(`/edit/${id}`)} type='button' className='btn hover:bg-blue-700 bg-blue-500 text-white border-none w-2/5'>Edit Scholarship
+                                <button 
+                                    onClick={() => navigate(`/edit/${id}`, { 
+                                        state: { 
+                                            imageUrl: imageUrl,
+                                            attachUrl: attachUrl,
+                                            attachName: announce.attach_name 
+                                        }
+                                    })} 
+                                    type='button' 
+                                    className='btn hover:bg-blue-700 bg-blue-500 text-white border-none w-2/5'
+                                >
+                                    Edit Scholarship
                                     <img src={icon} alt="" />
                                 </button>
                             </div>
@@ -86,9 +142,9 @@ function Detail() {
                         <div className='grid grid-rows-3 mt-10 gap-10'>
                             <div className='grid grid-cols-3 gap-4'>
                                 <div className='bg-no-repeat bg-cover rounded-lg'>
-                                    <img src={announce?.image ? `${urlImage}${announce?.image}` : image2} alt="" className='w-full h-full object-cover rounded-lg' />
+                                    <img src={imageUrl || image2} alt="" className='w-full h-full object-cover rounded-lg' />
                                 </div>
-                        {/* พวกเนื้อหา */}
+                                {/* พวกเนื้อหา */}
                                 <div className='border-section col-span-2 '>
                                     <div className='detail-information-layout'>
                                         <div className='grid grid-rows-2 gap-2'>
@@ -169,12 +225,12 @@ function Detail() {
                                         <p className='col-span-6 items-center flex text-slate-400 text-sm'>*upload PDF file with maximum size 5 MB</p>
                                     </div>
                                     {announce ? (
-                                        announce.attach_file != "null" && announce.attach_file != null ? (
-                                            <h1 
-                                                className='attach-file-text' 
-                                                onClick={() => watchFile(announce.attach_file)}
+                                        announce.attach_name ? (
+                                            <h1
+                                                className='attach-file-text'
+                                                onClick={watchFile}
                                             >
-                                                {announce.attach_file}
+                                                {announce.attach_name} {/* แสดง attach_name แทน attach_file */}
                                             </h1>
                                         ) : (
                                             <h1 className='mx-8 border-section rounded-lg h-12 flex items-center pl-7'>No Attach Files</h1>
@@ -201,10 +257,10 @@ function Detail() {
                         </div>
                         <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle justify-center items-center">
                             <div className="modal-box bg-white">
-                                <img src={image3} alt="" className='mb-4 justify-center items-center ml-8 mt-7 w-5/6'/>
-                                <p className="heading-text text-center">Are you sure you want to 
-                                <span class="block">delete this scholarship ?</span></p>
-                                {announce ? (<p className="delete-title-modal">{announce.title}</p>):( <p>Loading...</p>)}
+                                <img src={image3} alt="" className='mb-4 justify-center items-center ml-8 mt-7 w-5/6' />
+                                <p className="heading-text text-center">Are you sure you want to
+                                    <span className="block">delete this scholarship ?</span></p>
+                                {announce ? (<p className="delete-title-modal">{announce.title}</p>) : (<p>Loading...</p>)}
                                 <div className="modal-action flex flex-col justify-center items-center">
                                     <div className='button-gap'>
                                         <button
