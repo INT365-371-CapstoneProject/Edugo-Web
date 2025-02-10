@@ -33,7 +33,6 @@ function Homepage() {
 
             while (hasMore) {
                 const response = await getAnnounce(page);
-                console.log('API Response:', response); // เพิ่ม log เพื่อดูข้อมูลที่ได้จาก API
                 if (response && response.data && response.data.length > 0) {
                     allData = [...allData, ...response.data];
                     if (page >= response.last_page) {
@@ -45,7 +44,6 @@ function Homepage() {
                 }
             }
             setAllAnnouncements(allData);
-            console.log('Processed announcements:', allData); // เพิ่ม log เพื่อดูข้อมูลหลังการประมวลผล
         } catch (error) {
             console.error('Error fetching all announcements:', error);
         }
@@ -504,7 +502,6 @@ function Homepage() {
                 try {
                     const decoded = jwt_decode(token);
                     setUserRole(decoded.role); // Assuming role is stored in token
-                    console.log('User role:', decoded.role); // For debugging
                 } catch (error) {
                     console.error('Error decoding token:', error);
                     setUserRole('provider'); // Default fallback
