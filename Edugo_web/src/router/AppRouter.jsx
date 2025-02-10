@@ -73,6 +73,10 @@ const router = createBrowserRouter(
       element: <Navigate to="/login" replace />,
     },
     {
+      path: '/un2',
+      element: <Navigate to="/login" replace />,
+    },
+    {
       path: '/homepage',
       element: (
         <PrivateRoute>
@@ -133,7 +137,6 @@ const router = createBrowserRouter(
     basename: import.meta.env.BASE_URL,  // ใช้ base URL จาก Vite
   }
 );
-
 function AppRouter() {
   return <RouterProvider router={router} />;
 }

@@ -44,4 +44,4 @@ const getProfile = async () => {
     }
 }
 
-export { getAvatar, getProfile };
+export { getAvatar, getProfile, urlProfile };
