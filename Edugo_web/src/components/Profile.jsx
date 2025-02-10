@@ -6,6 +6,28 @@ import { Pencil, X, Check, Save, XCircle } from "lucide-react";
 import { getAvatar, getProfile, urlProfile } from '../composable/getProfile';
 import defaultAvatar from '../assets/default-avatar.png';
 import jwt_decode from 'jwt-decode';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+// Add validation functions at the top of the file
+const validateEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+};
+
+const validatePhone = (phone) => {
+    const re = /^[0-9]{10}$/;
+    return re.test(phone);
+};
+
+const validateName = (name) => {
+    return name.length >= 2 && name.length <= 50;
+};
+
+const validatePostalCode = (code) => {
+    const re = /^[0-9]{5}$/;
+    return re.test(code);
+};
 
 const Profile = () => {
     const [userData, setUserData] = useState({});
@@ -97,13 +119,13 @@ const Profile = () => {
         const file = e.target.files[0];
         if (file) {
             if (file.size > 5 * 1024 * 1024) { // 5MB limit
-                alert('File size too large. Please choose an image under 5MB.');
+                notify.error("File size must be less than 5MB");
                 return;
             }
             
-            const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+            const validTypes = ['image/jpeg', 'image/png'];
             if (!validTypes.includes(file.type)) {
-                alert('Please select a valid image file (JPEG, PNG, or GIF).');
+                notify.error("Please select a valid image file (JPEG, PNG)");
                 return;
             }
 
@@ -111,18 +133,46 @@ const Profile = () => {
             setNewAvatar(file);
             const previewUrl = URL.createObjectURL(file);
             setAvatarUrl(previewUrl);
+            notify.success("Image selected successfully!");
         }
+    };
+
+    // Add notify object if not already defined
+    const notify = {
+        success: (msg) => toast.success(msg, {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            theme: "light"
+        }),
+        error: (msg) => toast.error(msg, {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            theme: "light"
+        }),
+        loading: (msg) => toast.loading(msg, {
+            position: "top-right",
+            closeOnClick: false,
+            closeButton: false,
+            theme: "light"
+        })
     };
 
     const handleSaveAvatar = async () => {
         if (!newAvatar) return;
         
+        const loadingToastId = notify.loading("Updating avatar...");
+        
         try {
             const formData = new FormData();
             formData.append('avatar', newAvatar);
-            
-            // Show loading state
-            const loadingToast = alert('Updating avatar...');
             
             const response = await axios.put(urlProfile, formData, {
                 headers: {
@@ -132,22 +182,45 @@ const Profile = () => {
             });
 
             if (response.data) {
+                toast.dismiss(loadingToastId);
+                notify.success("Avatar updated successfully!");
                 setEditAvatar(false);
                 setNewAvatar(null);
-                // Refresh avatar
-                const newImageUrl = await getAvatar();
-                if (newImageUrl) {
-                    setAvatarUrl(newImageUrl);
-                }
-                alert('Avatar updated successfully!');
+                
+                // Wait for 1 second before refreshing
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
             }
         } catch (error) {
-            console.error('Error updating avatar:', error);
-            alert('Failed to update avatar. Please try again.');
+            toast.dismiss(loadingToastId);
+            notify.error(error.response?.data?.message || "Failed to update avatar. Please try again.");
+            setAvatarUrl(previousAvatarUrl || defaultAvatar);
         }
     };
 
     const handleSavePersonal = async () => {
+        // Validate personal information
+        if (formData.email && !validateEmail(formData.email)) {
+            notify.error("Please enter a valid email address");
+            return;
+        }
+
+        if (formData.phone_person && !validatePhone(formData.phone_person)) {
+            notify.error("Please enter a valid 10-digit phone number");
+            return;
+        }
+
+        if (formData.first_name && !validateName(formData.first_name)) {
+            notify.error("First name must be between 2 and 50 characters");
+            return;
+        }
+
+        if (formData.last_name && !validateName(formData.last_name)) {
+            notify.error("Last name must be between 2 and 50 characters");
+            return;
+        }
+
         try {
             // Update UI immediately
             const updatedData = { ...formData };
@@ -161,15 +234,30 @@ const Profile = () => {
                     'Content-Type': 'application/json'
                 }
             });
+            notify.success("Personal information updated successfully!");
         } catch (error) {
-            console.error('Error updating personal info:', error);
-            // Revert changes if save fails
+            notify.error("Failed to update personal information");
             setUserData(prev => ({ ...prev }));
-            // Optionally show error message
         }
     };
 
     const handleSaveCompany = async () => {
+        // Validate company information
+        if (formData.phone && !validatePhone(formData.phone)) {
+            notify.error("Please enter a valid 10-digit company phone number");
+            return;
+        }
+
+        if (formData.postal_code && !validatePostalCode(formData.postal_code)) {
+            notify.error("Please enter a valid 5-digit postal code");
+            return;
+        }
+
+        if (formData.company_name && !validateName(formData.company_name)) {
+            notify.error("Company name must be between 2 and 50 characters");
+            return;
+        }
+
         try {
             // Update UI immediately
             const updatedData = { ...formData };
@@ -183,9 +271,9 @@ const Profile = () => {
                     'Content-Type': 'application/json'
                 }
             });
+            notify.success("Company information updated successfully!");
         } catch (error) {
-            console.error('Error updating company info:', error);
-            // Revert changes if save fails
+            notify.error("Failed to update company information");
             setUserData(prev => ({ ...prev }));
         }
     };
@@ -720,9 +808,11 @@ const Profile = () => {
         </div>
     );
 
+    // Add ToastContainer to the render
     return (
         <>
             <Nav />
+            <ToastContainer />
             <div className="Background">
                 <div className="Maincontainer">
                     {['admin', 'superadmin'].includes(userRole) 
