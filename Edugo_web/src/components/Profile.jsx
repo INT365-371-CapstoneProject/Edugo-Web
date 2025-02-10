@@ -251,41 +251,62 @@ const Profile = () => {
             return;
         }
 
-        if (formData.first_name && !validateName(formData.first_name)) {
-            notify.error("First name must be between 2 and 50 characters");
+        // ตรวจสอบว่าถ้ามีการกรอก first_name หรือ last_name อย่างใดอย่างหนึ่ง ต้องกรอกอีกอันด้วย
+        if ((formData.first_name && !formData.last_name) || (!formData.first_name && formData.last_name)) {
+            notify.error("Please enter both First Name and Last Name");
             return;
         }
 
-        if (formData.last_name && !validateName(formData.last_name)) {
-            notify.error("Last name must be between 2 and 50 characters");
-            return;
+        // ถ้ามีการกรอกทั้งคู่ ให้ตรวจสอบความถูกต้อง
+        if (formData.first_name && formData.last_name) {
+            if (!validateName(formData.first_name)) {
+                notify.error("First name must be between 2 and 50 characters");
+                return;
+            }
+            if (!validateName(formData.last_name)) {
+                notify.error("Last name must be between 2 and 50 characters");
+                return;
+            }
         }
 
         try {
-            // Update UI immediately
-            const updatedData = { ...formData };
-            setUserData(prev => ({ ...prev, ...updatedData }));
-            setEditPersonal(false);
+            // ตรวจสอบว่ามีการเปลี่ยนแปลง first_name หรือ last_name หรือไม่
+            const nameChanged = (formData.first_name !== userData.first_name) || 
+                              (formData.last_name !== userData.last_name);
 
-            // Send request in background
-            await axios.put(urlProfile, formData, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    'Content-Type': 'application/json'
-                }
+            // ถ้าไม่มีการกรอกชื่อเลย ให้ส่งค่าเป็น null หรือ empty string
+            const dataToUpdate = {
+                ...formData,
+                first_name: formData.first_name || null,
+                last_name: formData.last_name || null
+            };
+
+            // Send request to update
+            const response = await axios.put(urlProfile, dataToUpdate, {
+                headers: getAuthHeaders()
             });
-            notify.success("Personal information updated successfully!");
 
-            // Check if first_name or last_name was changed
-            if (formData.first_name !== userData.first_name || formData.last_name !== userData.last_name) {
-                // Wait for 1 second before refreshing
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1000);
+            if (response.data) {
+                notify.success("Personal information updated successfully!");
+                
+                // Update UI
+                setUserData(prev => ({
+                    ...prev,
+                    ...dataToUpdate
+                }));
+                setEditPersonal(false);
+
+                // รีเฟรชหน้าถ้ามีการเปลี่ยนชื่อ
+                if (nameChanged) {
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                }
             }
         } catch (error) {
-            notify.error("Failed to update personal information");
-            setUserData(prev => ({ ...prev }));
+            notify.error(error.response?.data?.message || "Failed to update personal information");
+            // Revert form data to original values
+            setFormData(userData);
         }
     };
 
