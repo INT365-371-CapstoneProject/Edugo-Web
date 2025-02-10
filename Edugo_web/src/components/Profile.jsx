@@ -8,6 +8,8 @@ import defaultAvatar from '../assets/default-avatar.png';
 import jwt_decode from 'jwt-decode';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Select from 'react-select';
+import { Country, City } from 'country-state-city';
 
 // Add validation functions at the top of the file
 const validateEmail = (email) => {
@@ -30,6 +32,11 @@ const validatePostalCode = (code) => {
 };
 
 const Profile = () => {
+    const countryOptions = Country.getAllCountries().map(country => ({
+        value: country.isoCode,
+        label: country.name
+    }));
+
     const [userData, setUserData] = useState({});
     const [avatarUrl, setAvatarUrl] = useState(null);
     const [userRole, setUserRole] = useState(null);
@@ -45,6 +52,9 @@ const Profile = () => {
         last_name: '',
     });
     const [previousAvatarUrl, setPreviousAvatarUrl] = useState(null);
+    const [selectedCountry, setSelectedCountry] = useState(null);
+    const [selectedCity, setSelectedCity] = useState(null);
+    const [cities, setCities] = useState([]);
     const navigate = useNavigate();
 
     const getAuthHeaders = (isMultipart = false) => {
@@ -98,6 +108,36 @@ const Profile = () => {
             }
         };
     }, []);
+
+    useEffect(() => {
+        if (userData.country) {
+            const country = Country.getAllCountries().find(
+                c => c.name === userData.country
+            );
+            if (country) {
+                setSelectedCountry({
+                    value: country.isoCode,
+                    label: country.name
+                });
+                
+                // Load cities for the selected country
+                const countryCities = City.getCitiesOfCountry(country.isoCode) || [];
+                const cityOptions = countryCities.map(city => ({
+                    value: city.name,
+                    label: city.name
+                }));
+                setCities(cityOptions);
+                
+                // Set selected city if it exists in userData
+                if (userData.city) {
+                    const cityOption = cityOptions.find(c => c.label === userData.city);
+                    if (cityOption) {
+                        setSelectedCity(cityOption);
+                    }
+                }
+            }
+        }
+    }, [userData.country, userData.city]);
 
     const handleNameChange = (e) => {
         const { name, value } = e.target;
@@ -302,6 +342,36 @@ const Profile = () => {
         }
     };
 
+    const handleCountryChange = (selectedOption) => {
+        setSelectedCountry(selectedOption);
+        setFormData(prev => ({
+            ...prev,
+            country: selectedOption.label,
+            city: '' // Reset city when country changes
+        }));
+        
+        // Get cities for selected country
+        if (selectedOption) {
+            const countryCities = City.getCitiesOfCountry(selectedOption.value) || [];
+            const cityOptions = countryCities.map(city => ({
+                value: city.name,
+                label: city.name
+            }));
+            setCities(cityOptions);
+        } else {
+            setCities([]);
+        }
+        setSelectedCity(null);
+    };
+
+    const handleCityChange = (selectedOption) => {
+        setSelectedCity(selectedOption);
+        setFormData(prev => ({
+            ...prev,
+            city: selectedOption.label
+        }));
+    };
+
     const ActionButton = ({ onClick, icon: Icon, label, variant = 'primary' }) => {
         const baseStyles = "flex items-center gap-2 px-3 py-1.5 rounded-md transition-all duration-200 font-medium text-sm";
         const variants = {
@@ -424,6 +494,50 @@ const Profile = () => {
             </div>
         </div>
     );
+
+    const renderLocationFields = () => {
+        if (editCompany) {
+            return (
+                <>
+                    <div>
+                        <label className="text-sm text-gray-500">Country</label>
+                        <Select
+                            value={selectedCountry}
+                            onChange={handleCountryChange}
+                            options={countryOptions}
+                            className="w-full"
+                            placeholder="Select Country"
+                            isClearable
+                        />
+                    </div>
+                    <div>
+                        <label className="text-sm text-gray-500">City</label>
+                        <Select
+                            value={selectedCity}
+                            onChange={handleCityChange}
+                            options={cities}
+                            className="w-full"
+                            placeholder="Select City"
+                            isDisabled={!selectedCountry}
+                            isClearable
+                        />
+                    </div>
+                </>
+            );
+        }
+        return (
+            <>
+                <div>
+                    <p className="text-sm text-gray-500">Country</p>
+                    <p className="text-base">{userData.country || 'Not specified'}</p>
+                </div>
+                <div>
+                    <p className="text-sm text-gray-500">City</p>
+                    <p className="text-base">{userData.city || 'Not specified'}</p>
+                </div>
+            </>
+        );
+    };
 
     const renderAdminProfile = () => (
         <div className="p-8">
@@ -650,24 +764,42 @@ const Profile = () => {
                                         className="w-full border rounded p-2"
                                     />
                                 </div>
+                                {/* แทนที่ input ของ Country และ City ด้วย Select components */}
                                 <div>
-                                    <label className="text-sm text-gray-500">City</label>
-                                    <input
-                                        type="text"
-                                        name="city"
-                                        value={formData.city || ''}
-                                        onChange={handleInputChange}
-                                        className="w-full border rounded p-2"
+                                    <label className="text-sm text-gray-500">Country</label>
+                                    <Select
+                                        value={selectedCountry}
+                                        onChange={handleCountryChange}
+                                        options={countryOptions}
+                                        className="w-full"
+                                        placeholder="Select Country"
+                                        isClearable
+                                        styles={{
+                                            control: (base) => ({
+                                                ...base,
+                                                minHeight: '42px',
+                                                border: '1px solid #e2e8f0'
+                                            })
+                                        }}
                                     />
                                 </div>
                                 <div>
-                                    <label className="text-sm text-gray-500">Country</label>
-                                    <input
-                                        type="text"
-                                        name="country"
-                                        value={formData.country || ''}
-                                        onChange={handleInputChange}
-                                        className="w-full border rounded p-2"
+                                    <label className="text-sm text-gray-500">City</label>
+                                    <Select
+                                        value={selectedCity}
+                                        onChange={handleCityChange}
+                                        options={cities}
+                                        className="w-full"
+                                        placeholder="Select City"
+                                        isDisabled={!selectedCountry}
+                                        isClearable
+                                        styles={{
+                                            control: (base) => ({
+                                                ...base,
+                                                minHeight: '42px',
+                                                border: '1px solid #e2e8f0'
+                                            })
+                                        }}
                                     />
                                 </div>
                                 <div>
