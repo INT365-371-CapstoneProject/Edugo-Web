@@ -173,15 +173,27 @@ function Detail() {
                                                 <p>Loading...</p>
                                             )}
                                         </div>
-                                        <div className='grid grid-rows-2 gap-2'>
-                                            <label className='heading-text'>Type of Scholarship
-                                                <span className="text-red-500">*</span>
-                                            </label>
-                                            {announce ? (
-                                                <h1 className='detail-information-text'>{announce.category}</h1>
-                                            ) : (
-                                                <p>Loading...</p>
-                                            )}
+                                        <div className='grid grid-cols-2 gap-4'>
+                                            <div className='grid grid-rows-2 gap-2'>
+                                                <label className='heading-text'>Type of Scholarship
+                                                    <span className="text-red-500">*</span>
+                                                </label>
+                                                {announce ? (
+                                                    <h1 className='detail-information-text'>{announce.category}</h1>
+                                                ) : (
+                                                    <p>Loading...</p>
+                                                )}
+                                            </div>
+                                            <div className='grid grid-rows-2 gap-2'>
+                                                <label className='heading-text'>Educational Level
+                                                    <span className="text-red-500">*</span>
+                                                </label>
+                                                {announce ? (
+                                                    <h1 className='detail-information-text'>{announce.education_level}</h1>
+                                                ) : (
+                                                    <p>Loading...</p>
+                                                )}
+                                            </div>
                                         </div>
                                         <div className='grid grid-rows-2 gap-2'>
                                             <label className='heading-text'>Country

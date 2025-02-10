@@ -55,11 +55,16 @@ function Add() {
         "posts_type": "Announce",
         "publish_Date": '',
         "close_date": '',
-        "category_id": 0,
-        "country_id": 0
+        "category_id": '',
+        "country_id": '',
+        "education_level": '' // Add this line
     });
     const [editPost, setEditPost] = useState({});
     const [attachFileName, setAttachFileName] = useState(''); // เพิ่ม state สำหรับเก็บชื่อไฟล์แนบ
+
+    // เพิ่ม state ใหม่สำหรับเก็บ URL รูปภาพจริง
+    const [actualImageUrl, setActualImageUrl] = useState('');
+    const [displayImage, setDisplayImage] = useState(image);
 
     const handletoHome = () => {
         if (isEditMode) {
@@ -76,15 +81,29 @@ function Add() {
                 .then(data => {
                     if (data) {
                         setEditPost(data);
-                        // ตั้งค่า imagePreview ถ้ามีรูปภาพ
+                        // รวมการ set ค่าเริ่มต้นทั้งหมดไว้ที่เดียว
+                        setAddPost({
+                            title: data.title || '',
+                            description: data.description || '',
+                            url: data.url || '',
+                            category_id: data.category_id || '',
+                            education_level: data.education_level || '',
+                            country_id: data.country_id || ''
+                        });
+                        
+                        // Set dropdown values
+                        setSelectedValue(data.category_id?.toString() || '');
+                        setSelectedCountry(data.country_id?.toString() || '');
+                        
+                        // Set other initial values
                         if (data.image) {
                             setImagePreview(`${urlImage}/${data.image}`);
                         }
-                        // ตั้งค่าชื่อไฟล์แนบ
                         if (data.attach_name) {
                             setAttachFileName(data.attach_name);
                             document.getElementById('fileNameInput').placeholder = data.attach_name;
                         }
+
                         // แยกวันที่และเวลา
                         const date = new Date(data.publish_date);
                         const dateEnd = new Date(data.close_date);
@@ -129,6 +148,7 @@ function Add() {
                 })
                 .catch(error => {
                     console.error(error);
+                    setImagePreview(image);
                 });
         }
     }, [id, isEditMode])
@@ -308,6 +328,7 @@ function Add() {
                         publish_Date: value => value === '',
                         close_date: value => value === '',
                         posts_type: value => value === 'Announce',
+                        education_level: value => value === '' // Add this line
                     };
 
                     Object.entries(addPost).forEach(([key, value]) => {
@@ -345,6 +366,7 @@ function Add() {
                         publish_Date: value => value === '',
                         close_date: value => value === '',
                         posts_type: value => value === 'Announce',
+                        education_level: value => value === '' // Add this line
                     };
                     Object.entries(updatedPost).forEach(([key, value]) => {
                         if (skipConditions[key]?.(value)) {
@@ -455,16 +477,27 @@ function Add() {
 
     // เอาไว้ show รุปที่เลือก
     const handleImageChange = (e) => {
-        const file = e.target.files[0]; // เลือกไฟล์รูปแรกที่ผู้ใช้เลือก
+        const file = e.target.files[0];
         const validImageTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+        
+        // Cleanup previous blob URL
+        if (imagePreview && imagePreview.startsWith('blob:')) {
+            URL.revokeObjectURL(imagePreview);
+        }
+        
         if (file && !validImageTypes.includes(file.type)) {
             toast.error('Only JPG, JPEG, and PNG files are allowed');
-            setImagePreview(null);
-            setAddPost({ ...addPost, image: null });
+            setAddPost(prev => ({ ...prev, image: null }));
+            setImagePreview(image);
         } else if (file) {
-            const previewUrl = URL.createObjectURL(file); // สร้าง URL ของไฟล์เพื่อแสดงผล
-            setImagePreview(previewUrl); // อัพเดท state ด้วย URL ที่สร้างขึ้น
-            setAddPost({ ...addPost, image: file });
+            try {
+                const newUrl = URL.createObjectURL(file);
+                setImagePreview(newUrl);
+                setAddPost(prev => ({ ...prev, image: file }));
+            } catch (error) {
+                console.error('Error creating blob URL:', error);
+                setImagePreview(image);
+            }
         }
     };
 
@@ -540,6 +573,18 @@ function Add() {
     };
 
     useEffect(() => {
+        return () => {
+            // cleanup function จะทำงานเมื่อ component unmount
+            if (imagePreview && imagePreview.startsWith('blob:')) {
+                URL.revokeObjectURL(imagePreview);
+            }
+            if (displayImage && displayImage.startsWith('blob:')) {
+                URL.revokeObjectURL(displayImage);
+            }
+        };
+    }, [imagePreview, displayImage]);
+
+    useEffect(() => {
         if (addPost.title.length >= 5 && addPost.title.length <= 100) {
             document.getElementById('title').style.border = '1px solid #E5E7EB';
             setShowErrTitle(false);
@@ -584,12 +629,13 @@ function Add() {
                                     {/* คอลัมน์สำหรับรูปภาพ */}
                                     <div className='relative rounded-lg overflow-hidden'>
                                         <img
+                                            key={displayImage} // เพิ่ม key เพื่อบังคับให้ React render ใหม่เมื่อ URL เปลี่ยน
                                             src={imagePreview || image}
                                             alt=""
                                             className='w-full h-full object-cover rounded-lg'
-                                            onError={(e) => {
-                                                console.error('Image failed to load:', e);
-                                                e.target.src = image; // ใช้รูปภาพ default ถ้าโหลดรูปไม่สำเร็จ
+                                            onError={() => {
+                                                console.error('Image failed to load');
+                                                setDisplayImage(image);
                                             }}
                                         />
                                         <div className='absolute inset-0 bg-gray-700 bg-opacity-50 p-8 flex justify-center items-center'>
@@ -625,9 +671,9 @@ function Add() {
                                                     type="text"
                                                     id='title'
                                                     className='-mt-2 h-full border-section placeholder:text-slate-300 p-3 font-sans bg-white'
-                                                    placeholder={isEditMode ? editPost.title : "Fill your scholarship's name"}
-                                                    value={addPost.title}
-                                                    onChange={(e) => setAddPost({ ...addPost, title: e.target.value })}
+                                                    placeholder={isEditMode ? editPost.title || '' : "Fill your scholarship's name"}
+                                                    value={addPost.title || ''}
+                                                    onChange={(e) => setAddPost(prev => ({ ...prev, title: e.target.value }))}
                                                 />
                                                 {showErrTitle && <p className='text-red-500 text-sm flex justify-end mt-1'>minimum 5 characters maximum 100 characters</p>}
                                             </div>
@@ -638,36 +684,62 @@ function Add() {
                                                 <input
                                                     type="url"
                                                     className='-mt-2 h-full border-section placeholder:text-slate-300 p-3 font-sans bg-white'
-                                                    placeholder={isEditMode ? (editPost.url ? editPost.url : "No Website") : "Fill your scholarship's website"}
-                                                    value={addPost.url}
-                                                    onChange={(e) => setAddPost({ ...addPost, url: e.target.value })}
+                                                    placeholder={isEditMode ? (editPost.url || "No Website") : "Fill your scholarship's website"}
+                                                    value={addPost.url || ''}
+                                                    onChange={(e) => setAddPost(prev => ({ ...prev, url: e.target.value }))}
                                                 />
                                             </div>
 
-                                            {/* ประเภทของทุน */}
-                                            <div className='grid grid-rows-2'>
-                                                <label className='heading-text'>Type of Scholarship
-                                                    <span className="text-red-500">*</span>
-                                                </label>
-                                                <select
-                                                    id='category'
-                                                    className={`-mt-1 border-section p-3 font-sans ${selectedValue ? 'text-black' : 'text-slate-300 bg-white'}`}
-                                                    value={selectedValue}
-                                                    onChange={(e) => {
-                                                        handleChangeSelected(e);
-                                                        setAddPost({ ...addPost, category_id: e.target.value });
-                                                    }}
-                                                >
-                                                    <option value="" disabled>
-                                                        {isEditMode ? editPost.category : 'Select category of scholarship'}
-                                                    </option>
-                                                    {category.map((item, index) => (
-                                                        <option key={index} value={item.id} className='text-black'>
-                                                            {item.category_name}
+                                            {/* ประเภทของทุน และ ระดับการศึกษา - แสดงในบรรทัดเดียวกัน */}
+                                            <div className='grid grid-cols-2 gap-4'>
+                                                <div className='grid grid-rows-2'>
+                                                    <label className='heading-text'>Type of Scholarship
+                                                        <span className="text-red-500">*</span>
+                                                    </label>
+                                                    <select
+                                                        id='category'
+                                                        className={`w-full -mt-1 border-section p-3 font-sans text-sm bg-white`}
+                                                        value={isEditMode && !selectedValue ? 
+                                                            category.find(item => item.category === editPost.category)?.id || '' 
+                                                            : selectedValue || ''}
+                                                        onChange={(e) => {
+                                                            handleChangeSelected(e);
+                                                            setAddPost(prev => ({ ...prev, category_id: e.target.value || '' }));
+                                                        }}
+                                                        style={{ color: selectedValue || editPost.category ? 'black' : '#94a3b8' }}
+                                                    >
+                                                        <option value="" disabled style={{ color: '#94a3b8' }}>
+                                                            {isEditMode ? editPost.category : 'Select category'}
                                                         </option>
-                                                    ))}
-                                                </select>
-                                                {showErrCategory && <p className='text-red-500 text-sm flex justify-end mt-1'>Please select a type of scholarship</p>}
+                                                        {category.map((item, index) => (
+                                                            <option 
+                                                                key={index} 
+                                                                value={item.id} 
+                                                                style={{ color: 'black' }}
+                                                            >
+                                                                {item.category_name}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                                <div className='grid grid-rows-2'>
+                                                    <label className='heading-text'>Educational Level
+                                                        <span className="text-red-500">*</span>
+                                                    </label>
+                                                    <select
+                                                        id='education_level'
+                                                        className={`w-full -mt-1 border-section p-3 font-sans text-sm ${addPost.education_level ? 'text-black' : 'text-slate-300 bg-white'}`}
+                                                        value={addPost.education_level || ''}
+                                                        onChange={(e) => setAddPost(prev => ({ ...prev, education_level: e.target.value || '' }))}
+                                                    >
+                                                        <option value="" disabled>
+                                                            {isEditMode ? editPost.education_level : 'Select level'}
+                                                        </option>
+                                                        <option value="Undergraduate" className='text-black'>Undergraduate</option>
+                                                        <option value="Master" className='text-black'>Master</option>
+                                                        <option value="Doctoral" className='text-black'>Doctorate</option>
+                                                    </select>
+                                                </div>
                                             </div>
 
                                             {/* ประเทศ */}
@@ -678,10 +750,10 @@ function Add() {
                                                 <select
                                                     id='country'
                                                     className={`-mt-1 border-section p-3 font-sans ${selectedCountry ? 'text-black' : 'text-slate-300 bg-white'}`}
-                                                    value={selectedCountry}
+                                                    value={selectedCountry || ''}
                                                     onChange={(e) => {
                                                         handleChangeSelectedCountry(e);
-                                                        setAddPost({ ...addPost, country_id: e.target.value });
+                                                        setAddPost(prev => ({ ...prev, country_id: e.target.value || '' }));
                                                     }}
                                                 >
                                                     <option value="" disabled>
@@ -710,7 +782,7 @@ function Add() {
                                                 <input
                                                     type="date"
                                                     placeholder="Select Date"
-                                                    value={formattedDate}
+                                                    value={formattedDate || ''}
                                                     onChange={handleDateChange} // จัดรูปแบบวันที่เมื่อมีการเลือก
                                                     className="form-border"
                                                     required
@@ -720,7 +792,7 @@ function Add() {
                                                 <input
                                                     type="time"
                                                     placeholder="Select Time"
-                                                    value={formattedTime}
+                                                    value={formattedTime || ''}
                                                     onChange={handleTimeChange} // จัดรูปแบบเวลาเมื่อมีการเลือก
                                                     className="time-border"
                                                     required
@@ -736,7 +808,7 @@ function Add() {
                                                 <input
                                                     type="date"
                                                     placeholder="Select Date"
-                                                    value={formattedDateEnd}
+                                                    value={formattedDateEnd || ''}
                                                     onChange={handleDateChangeEnd} // จัดรูปแบบวันที่เมื่อมีการเลือก
                                                     className="form-border col-span-2 font-sans text-center"
                                                     required
@@ -746,7 +818,7 @@ function Add() {
                                                 <input
                                                     type="time"
                                                     placeholder="Select Time"
-                                                    value={formattedTimeEnd}
+                                                    value={formattedTimeEnd || ''}
                                                     onChange={handleTimeChangeEnd} // จัดรูปแบบเวลาเมื่อมีการเลือก
                                                     className="time-border"
                                                     required
@@ -781,10 +853,10 @@ function Add() {
                                         <label className='heading-text'>Description
                                             <span className="text-red-500">*</span>
                                         </label>
-                                        <textarea id='description' className='resize-none h-72 mt-4 font-sans p-4 border-section bg-white' value={addPost.description}
-                                            placeholder={isEditMode ? editPost.description : "Provide additional details about the scholarship."}
+                                        <textarea id='description' className='resize-none h-72 mt-4 font-sans p-4 border-section bg-white' value={addPost.description || ''}
+                                            placeholder={isEditMode ? editPost.description || '' : "Provide additional details about the scholarship."}
                                             onChange={(e) => {
-                                                setAddPost({ ...addPost, description: e.target.value })
+                                                setAddPost(prev => ({ ...prev, description: e.target.value }))
                                             }}></textarea>
                                         {showErrDescription && <p className='text-red-500 text-sm flex justify-end mt-1'>minimun 10 characters maximun 3,000 characters</p>}
                                     </div>
