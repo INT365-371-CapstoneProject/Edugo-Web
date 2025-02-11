@@ -71,7 +71,7 @@ const ForgotPass = () => {
         new_password: newPassword,
       });
       // Redirect to login page after successful verification
-      window.location.href = '/un2';
+      window.location.href = '/un2'; // Redirect to home page
     } catch (err) {
       if (err.response) {
         // Handle different error status codes
@@ -225,7 +225,7 @@ const ForgotPass = () => {
         
         <div className="text-center mt-4">
           <a
-            href="/login"
+            href="/un2"
             className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors duration-200"
           >
             Back to Login
