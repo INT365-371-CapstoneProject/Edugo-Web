@@ -10,7 +10,7 @@ import image3 from '../assets/Trashillustration.png';
 import { url } from '../composable/getAnnounce';
 import '../style/style.css'; // Import CSS file
 import '../style/details.css'; // Import CSS file
-
+import jwt_decode from 'jwt-decode';
 
 function Detail() {
     const navigate = useNavigate();
@@ -21,9 +21,17 @@ function Detail() {
     const [userRole, setUserRole] = React.useState(null);
 
     useEffect(() => {
-        // Get user role from localStorage
-        const role = localStorage.getItem('role');
-        setUserRole(role);
+        // Get role from JWT token
+        const token = localStorage.getItem('token');
+        if (token) {
+            try {
+                const decoded = jwt_decode(token);
+                setUserRole(decoded.role);
+            } catch (error) {
+                console.error('Error decoding token:', error);
+                setUserRole(null);
+            }
+        }
     }, []);
 
     // แยก useEffect สำหรับการโหลดข้อมูลและรูปภาพ
@@ -134,7 +142,7 @@ function Detail() {
                                 )}
                             </div>
                             <div className='mt-5 flex justify-end'>
-                                {userRole && userRole !== 'admin' && userRole !== 'super admin' && (
+                                {userRole && userRole !== 'admin' && userRole !== 'superadmin' && (
                                     <button 
                                         onClick={() => navigate(`/edit/${id}`, { 
                                             state: { 
