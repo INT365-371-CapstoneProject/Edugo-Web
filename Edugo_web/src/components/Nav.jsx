@@ -9,7 +9,6 @@ import axios from 'axios';
 import debounce from 'lodash/debounce';
 
 const APT_ROOT = import.meta.env.VITE_API_ROOT;
-const urlSearch = `${APT_ROOT}/api/search/announce`;
 
 function Nav() {
   const navigate = useNavigate();
@@ -19,12 +18,18 @@ function Nav() {
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [searchEndpoint, setSearchEndpoint] = useState('announce-provider');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const profileData = await getProfile();
         setUserData(profileData.profile);
+        
+        // Set search endpoint based on user role
+        if (profileData.profile.role === 'admin' || profileData.profile.role === 'superadmin') {
+          setSearchEndpoint('announce-admin');
+        }
 
         const imageUrl = await getAvatar();
         if (imageUrl) {
@@ -75,11 +80,8 @@ function Nav() {
         params: params
       };
 
-      console.log('Search URL:', urlSearch); // Debug log
-      console.log('Config:', config); // Debug log
-      
-      const { data } = await axios.get(urlSearch, config);
-      console.log('Search response:', data); // Debug log
+      const searchUrl = `${APT_ROOT}/api/search/${searchEndpoint}`;
+      const { data } = await axios.get(searchUrl, config);
 
       navigate({
         pathname: '/search',
@@ -87,7 +89,6 @@ function Nav() {
       });
     } catch (error) {
       console.error('Search failed:', error.response?.data || error.message);
-      console.error('Full error:', error); // Debug log
     }
   };
 
@@ -109,7 +110,8 @@ function Nav() {
           params: { search: query }
         };
 
-        const { data } = await axios.get(urlSearch, config);
+        const searchUrl = `${APT_ROOT}/api/search/${searchEndpoint}`;
+        const { data } = await axios.get(searchUrl, config);
         setSearchResults(data.data || []);
       } catch (error) {
         console.error('Search failed:', error);
@@ -118,7 +120,7 @@ function Nav() {
         setIsSearching(false);
       }
     }, 300),
-    []
+    [searchEndpoint]
   );
 
   // Update search handler for input changes

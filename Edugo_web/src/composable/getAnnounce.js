@@ -1,7 +1,25 @@
 import axios from "axios";
 const APT_ROOT = import.meta.env.VITE_API_ROOT;
-const url = `${APT_ROOT}/api/announce`;
 const token = localStorage.getItem("token");
+
+// Decode JWT token to get role
+const decodeToken = (token) => {
+    if (!token) return null;
+    try {
+        return JSON.parse(atob(token.split('.')[1]));
+    } catch (error) {
+        console.error('Error decoding token:', error);
+        return null;
+    }
+};
+
+const decodedToken = decodeToken(token);
+const role = decodedToken?.role;
+
+const url = role === "admin" || role === "superadmin" 
+    ? `${APT_ROOT}/api/announce-admin` 
+    : `${APT_ROOT}/api/announce`;
+
 const config = {
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -43,7 +61,7 @@ const getAnnounceImage = async (id) => {
         };
         
         // ใช้ APT_ROOT แทน VITE_API เพื่อให้ตรงกับ base URL ที่ใช้
-        const response = await axios.get(`${APT_ROOT}/api/announce/${id}/image`, imageConfig);
+        const response = await axios.get(`${url}/${id}/image`, imageConfig);
         
         // ตรวจสอบว่ามี response.data ก่อนสร้าง URL
         if (response.data) {
@@ -67,7 +85,7 @@ const getAnnounceAttach = async (id) => {
             }
         };
         
-        const response = await axios.get(`${APT_ROOT}/api/announce/${id}/attach`, attachConfig);
+        const response = await axios.get(`${url}/${id}/attach`, attachConfig);
         
         if (response.data) {
             const attachUrl = URL.createObjectURL(response.data);

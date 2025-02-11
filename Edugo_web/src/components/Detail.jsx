@@ -5,7 +5,6 @@ import icon1 from '../assets/deleteicon.svg';
 import icon from '../assets/editicon.svg'
 import image2 from '../assets/bg-file-image.png';
 import Nav from './Nav'
-import { urlImage, urlPDF } from '../composable/getImage';
 import axios from 'axios';
 import image3 from '../assets/Trashillustration.png';
 import { url } from '../composable/getAnnounce';
@@ -19,6 +18,13 @@ function Detail() {
     const [announce, setAnnounce] = React.useState({})
     const [imageUrl, setImageUrl] = React.useState(null);
     const [attachUrl, setAttachUrl] = React.useState(null);
+    const [userRole, setUserRole] = React.useState(null);
+
+    useEffect(() => {
+        // Get user role from localStorage
+        const role = localStorage.getItem('role');
+        setUserRole(role);
+    }, []);
 
     // แยก useEffect สำหรับการโหลดข้อมูลและรูปภาพ
     useEffect(() => {
@@ -96,15 +102,21 @@ function Detail() {
     // func ลบข้อมูล
     const deleteData = async () => {
         try {
-            const res = await axios.delete(`${url}/delete/${id}`)
+            const token = localStorage.getItem('token');
+            const res = await axios.delete(`${url}/${id}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             if (res.status === 200) {
-                navigate('/')
+                navigate('/');
             }
         }
         catch (error) {
-            console.error(error)
+            console.error(error);
         }
     }
+
     return (
         <>
             <Nav />
@@ -122,20 +134,22 @@ function Detail() {
                                 )}
                             </div>
                             <div className='mt-5 flex justify-end'>
-                                <button 
-                                    onClick={() => navigate(`/edit/${id}`, { 
-                                        state: { 
-                                            imageUrl: imageUrl,
-                                            attachUrl: attachUrl,
-                                            attachName: announce.attach_name 
-                                        }
-                                    })} 
-                                    type='button' 
-                                    className='btn hover:bg-blue-700 bg-blue-500 text-white border-none w-2/5'
-                                >
-                                    Edit Scholarship
-                                    <img src={icon} alt="" />
-                                </button>
+                                {userRole && userRole !== 'admin' && userRole !== 'super admin' && (
+                                    <button 
+                                        onClick={() => navigate(`/edit/${id}`, { 
+                                            state: { 
+                                                imageUrl: imageUrl,
+                                                attachUrl: attachUrl,
+                                                attachName: announce.attach_name 
+                                            }
+                                        })} 
+                                        type='button' 
+                                        className='btn hover:bg-blue-700 bg-blue-500 text-white border-none w-2/5'
+                                    >
+                                        Edit Scholarship
+                                        <img src={icon} alt="" />
+                                    </button>
+                                )}
                             </div>
                         </div>
                         {/* ส่วนFrom */}

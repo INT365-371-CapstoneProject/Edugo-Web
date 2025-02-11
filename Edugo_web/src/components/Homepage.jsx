@@ -4,11 +4,57 @@ import icon from '../assets/Vector.svg';
 import image2 from '../assets/bg-file-image.png';
 import { useNavigate } from 'react-router-dom';
 import { getAnnounce, getAnnounceImage } from '../composable/getAnnounce';
-import { urlImage } from '../composable/getImage';
 import image_No_Scholarship from '../assets/No_Scholarship.png';
 import '../style/style.css'; // Import CSS file
 import '../style/home.css'; // Import CSS file
 import jwt_decode from 'jwt-decode'; // Make sure to import jwt-decode
+
+const mockData = [
+    {
+        id: 1,
+        name: "Engineering Scholarship 2024",
+        appointment: "2024-03-15",
+        email: "contact@engineering.edu",
+        status: "Approved"
+    },
+    {
+        id: 2,
+        name: "Medical Studies Grant",
+        appointment: "2024-03-20",
+        email: "med.scholarship@health.org",
+        status: "Pending"
+    },
+    {
+        id: 3,
+        name: "Arts & Design Fellowship",
+        appointment: "2024-03-25",
+        email: "arts@creative.edu",
+        status: "Rejected"
+    },
+    {
+        id: 4,
+        name: "Business Excellence Award",
+        appointment: "2024-04-01",
+        email: "business@corp.edu",
+        status: "Approved"
+    },
+    {
+        id: 5,
+        name: "Science Research Grant",
+        appointment: "2024-04-05",
+        email: "science@research.org",
+        status: "Pending"
+    }
+];
+
+const statusColors = {
+    Approved: "bg-green-100 text-green-800",
+    Pending: "bg-yellow-100 text-yellow-800",
+    Rejected: "bg-red-100 text-red-800"
+};
+
+const itemsPerPage = 5;
+const totalPages = Math.ceil(mockData.length / itemsPerPage);
 
 function Homepage() {
     const [announceData, setAnnounceData] = useState({
@@ -24,28 +70,34 @@ function Homepage() {
     const [currentPage, setCurrentPage] = useState(1);
     const [announceImages, setAnnounceImages] = useState({});
     const [userRole, setUserRole] = useState(null);
+    const [displayedData] = useState(mockData);
+    const [activeTab, setActiveTab] = useState('scholarships');
+    const [adminCurrentPage, setAdminCurrentPage] = useState(1);
+    const [adminItemsPerPage] = useState(10);
+    const [adminAnnounceData, setAdminAnnounceData] = useState({
+        data: [],
+        total: 0,
+        page: 1,
+        last_page: 1,
+        per_page: 10
+    });
 
-    const fetchAllAnnouncements = async () => {
+    const fetchAllAnnouncements = async (page = 1) => {
         try {
-            let allData = [];
-            let page = 1;
-            let hasMore = true;
-
-            while (hasMore) {
-                const response = await getAnnounce(page);
-                if (response && response.data && response.data.length > 0) {
-                    allData = [...allData, ...response.data];
-                    if (page >= response.last_page) {
-                        hasMore = false;
+            const response = await getAnnounce(page);
+            if (response) {
+                setAdminAnnounceData(response);
+                setAllAnnouncements(prev => {
+                    // หากเป็นหน้าแรก ให้แทนที่ข้อมูลทั้งหมด
+                    if (page === 1) {
+                        return response.data;
                     }
-                    page++;
-                } else {
-                    hasMore = false;
-                }
+                    // หากเป็นหน้าอื่นๆ ให้เพิ่มข้อมูลต่อท้าย
+                    return [...prev, ...response.data];
+                });
             }
-            setAllAnnouncements(allData);
         } catch (error) {
-            console.error('Error fetching all announcements:', error);
+            console.error('Error fetching announcements:', error);
         }
     };
 
@@ -254,34 +306,208 @@ function Homepage() {
         return buttons;
     };
 
+    const handleAdminPageChange = (newPage) => {
+        setAdminCurrentPage(newPage);
+    };
+
     const renderAdminView = () => {
+        const tableContent = () => {
+            if (activeTab === 'approvals') {
+                return (
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                            <tr>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">No.</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Appointment</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Contact</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                            {displayedData.map((item, index) => (
+                                <tr key={item.id} className="hover:bg-gray-50">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {index + 1}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                        {item.name}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {item.appointment}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {item.email}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <span className={`px-2 py-1 text-xs rounded-full ${statusColors[item.status]}`}>
+                                            {item.status}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <button className="text-blue-600 hover:text-blue-800">
+                                            Review
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                );
+            }
+
+            return (
+                <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                        <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">No.</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Period</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Education Level</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                        {adminAnnounceData.data.map((announce, index) => {
+                            const status = checkPendingAnnounce.some(item => item.id === announce.id)
+                                ? 'Pending'
+                                : checkOpenAnnounce.some(item => item.id === announce.id)
+                                    ? 'Open'
+                                    : 'Close';
+
+                            const startIndex = (adminAnnounceData.page - 1) * adminAnnounceData.per_page;
+
+                            return (
+                                <tr key={announce.id} className="hover:bg-gray-50">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {startIndex + index + 1}
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="text-sm font-medium text-gray-900">{announce.title}</div>
+                                        <div className="text-sm text-gray-500 line-clamp-1">{announce.description}</div>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {formatDateRange(announce.publish_date, announce.close_date)}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <span className="px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded-md">
+                                            {announce.education_level || 'Not specified'}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                            status === 'Open' ? 'bg-green-100 text-green-800' :
+                                            status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
+                                            'bg-red-100 text-red-800'
+                                        }`}>
+                                            {status}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <button 
+                                            onClick={() => navigate(`/detail/${announce.id}`)}
+                                            className="text-blue-600 hover:text-blue-800"
+                                        >
+                                            View
+                                        </button>
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            );
+        };
+
+        const renderAdminPagination = () => {
+            if (!adminAnnounceData || adminAnnounceData.last_page <= 1) return null;
+
+            return (
+                <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                    <div className="flex-1 flex justify-center">
+                        <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                            <button
+                                onClick={() => handleAdminPageChange(adminCurrentPage - 1)}
+                                disabled={adminCurrentPage === 1}
+                                className={`px-4 py-2 mx-1 rounded ${
+                                    adminCurrentPage === 1
+                                        ? 'bg-gray-100 text-gray-400'
+                                        : 'bg-white text-gray-700 hover:bg-gray-100'
+                                } border`}
+                            >
+                                Previous
+                            </button>
+                            {[...Array(adminAnnounceData.last_page)].map((_, i) => (
+                                <button
+                                    key={i + 1}
+                                    onClick={() => handleAdminPageChange(i + 1)}
+                                    className={`px-4 py-2 mx-1 rounded ${
+                                        adminCurrentPage === i + 1
+                                            ? 'bg-blue-500 text-white'
+                                            : 'bg-white text-gray-700 hover:bg-gray-100'
+                                    } border`}
+                                >
+                                    {i + 1}
+                                </button>
+                            ))}
+                            <button
+                                onClick={() => handleAdminPageChange(adminCurrentPage + 1)}
+                                disabled={adminCurrentPage === adminAnnounceData.last_page}
+                                className={`px-4 py-2 mx-1 rounded ${
+                                    adminCurrentPage === adminAnnounceData.last_page
+                                        ? 'bg-gray-100 text-gray-400'
+                                        : 'bg-white text-gray-700 hover:bg-gray-100'
+                                } border`}
+                            >
+                                Next
+                            </button>
+                        </nav>
+                    </div>
+                </div>
+            );
+        };
+
         return (
-            <div className="Background">
-                <div className="Maincontainer">
-                    <div className="mx-8 mb-7">
-                        <div className="bg-white rounded-lg shadow-sm p-6 mt-5">
-                            <h1 className="font-['DM_Sans'] text-3xl font-semibold text-left leading-[48px]">
-                                Administrator Management
-                            </h1>
+            <div className="min-h-screen bg-gray-50 py-8">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="mb-8">
+                        <h1 className="text-3xl font-bold text-gray-900">Administrator Management</h1>
+                    </div>
+
+                    <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+                        <div className="border-b border-gray-200 bg-gray-50">
+                            <div className="px-6 py-4">
+                                <nav className="flex space-x-4">
+                                    <button 
+                                        className={`px-4 py-2 text-sm font-medium rounded-md ${
+                                            activeTab === 'approvals' 
+                                                ? 'bg-blue-50 text-blue-700' 
+                                                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                                        }`}
+                                        onClick={() => setActiveTab('approvals')}
+                                    >
+                                        Approval Management
+                                    </button>
+                                    <button 
+                                        className={`px-4 py-2 text-sm font-medium rounded-md ${
+                                            activeTab === 'scholarships' 
+                                                ? 'bg-blue-50 text-blue-700' 
+                                                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                                        }`}
+                                        onClick={() => setActiveTab('scholarships')}
+                                    >
+                                        Scholarship Management
+                                    </button>
+                                </nav>
+                            </div>
                         </div>
 
-                        {/* Admin dashboard statistics */}
-                        <div className="grid grid-cols-3 gap-4 mt-8">
-                            <div className="stat-card bg-white p-6 rounded-lg shadow">
-                                <h2 className="text-xl font-semibold">Total Users</h2>
-                                <p className="text-3xl font-bold mt-2">1,234</p>
-                            </div>
-                            <div className="stat-card bg-white p-6 rounded-lg shadow">
-                                <h2 className="text-xl font-semibold">Active Scholarships</h2>
-                                <p className="text-3xl font-bold mt-2">{checkOpenAnnounce.length}</p>
-                            </div>
-                            <div className="stat-card bg-white p-6 rounded-lg shadow">
-                                <h2 className="text-xl font-semibold">Total Applications</h2>
-                                <p className="text-3xl font-bold mt-2">567</p>
-                            </div>
+                        <div className="overflow-x-auto">
+                            {tableContent()}
                         </div>
-
-                        {/* Add more admin-specific content here */}
+                        {renderAdminPagination()}
                     </div>
                 </div>
             </div>
@@ -406,21 +632,19 @@ function Homepage() {
                                                     #{((currentPage - 1) * announceData.per_page + index + 1).toString().padStart(4, '0')}
                                                 </h1>
                                                 <div
-                                                    className={`rounded-md px-3 py-1 ${
-                                                        checkPendingAnnounce.some((item) => item.id === announce.id)
-                                                            ? 'border-gray-400 bg-gray-100'
-                                                            : checkOpenAnnounce.some((item) => item.id === announce.id)
-                                                                ? 'open-status'
-                                                                : 'border-red-400 bg-red-100'
-                                                    }`}
+                                                    className={`rounded-md px-3 py-1 ${checkPendingAnnounce.some((item) => item.id === announce.id)
+                                                        ? 'border-gray-400 bg-gray-100'
+                                                        : checkOpenAnnounce.some((item) => item.id === announce.id)
+                                                            ? 'open-status'
+                                                            : 'border-red-400 bg-red-100'
+                                                        }`}
                                                 >
-                                                    <h1 className={`font-medium text-sm ${
-                                                        checkPendingAnnounce.some((item) => item.id === announce.id)
-                                                            ? 'text-gray-400'
-                                                            : checkOpenAnnounce.some((item) => item.id === announce.id)
-                                                                ? 'text-lime-400'
-                                                                : 'text-red-400'
-                                                    }`}>
+                                                    <h1 className={`font-medium text-sm ${checkPendingAnnounce.some((item) => item.id === announce.id)
+                                                        ? 'text-gray-400'
+                                                        : checkOpenAnnounce.some((item) => item.id === announce.id)
+                                                            ? 'text-lime-400'
+                                                            : 'text-red-400'
+                                                        }`}>
                                                         {checkPendingAnnounce.some((item) => item.id === announce.id)
                                                             ? 'Pending'
                                                             : checkOpenAnnounce.some((item) => item.id === announce.id)
@@ -435,7 +659,7 @@ function Homepage() {
                                                 <h1 className="text-lg font-semibold line-clamp-2 text-black">
                                                     {announce?.title || 'Untitled Scholarship'} {/* เพิ่ม fallback text */}
                                                 </h1>
-                                                
+
                                                 <div>
                                                     <h2 className="font-medium text-sm text-gray-700">Description</h2>
                                                     <p className="text-xs text-gray-500 line-clamp-3 mt-1">
@@ -513,6 +737,12 @@ function Homepage() {
 
         checkUserRole();
     }, []);
+
+    useEffect(() => {
+        if (activeTab === 'scholarships') {
+            fetchAllAnnouncements(adminCurrentPage);
+        }
+    }, [adminCurrentPage, activeTab]);
 
     return (
         <>

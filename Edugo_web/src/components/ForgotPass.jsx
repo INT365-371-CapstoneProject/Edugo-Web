@@ -71,7 +71,7 @@ const ForgotPass = () => {
         new_password: newPassword,
       });
       // Redirect to login page after successful verification
-      window.location.href = '/login';
+      window.location.href = '/un2';
     } catch (err) {
       if (err.response) {
         // Handle different error status codes
