@@ -11,7 +11,6 @@ import icon1 from '../assets/icon-attach.svg';
 import icon2 from '../assets/Vector.svg'
 import image1 from '../assets/cancel-post.png';
 import image3 from '../assets/undraw_happy_announcement_re_tsm0 1.png';
-import { urlImage } from '../composable/getImage';
 import { useNavigate, Link, useParams, useLocation } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';

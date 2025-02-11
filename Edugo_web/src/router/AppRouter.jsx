@@ -66,6 +66,32 @@ const PublicRoute = ({ children }) => {
   return auth.isValid ? <Navigate to="/homepage" replace /> : children;
 };
 
+// คอมโพเนนต์สำหรับเส้นทางที่เฉพาะ Provider เท่านั้น
+const ProviderOnlyRoute = ({ children }) => {
+  const auth = checkAuth();
+  const [hasAlerted, setHasAlerted] = useState(false);
+
+  useEffect(() => {
+    if (!auth.isValid || auth.role !== 'provider') {
+      if (!hasAlerted) {
+        Swal.fire({
+          title: 'Access Denied',
+          text: 'This page is only accessible to providers.',
+          icon: 'error',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#3085d6',
+          customClass: {
+            popup: 'animated fadeInDown'
+          }
+        });
+        setHasAlerted(true);
+      }
+    }
+  }, [auth.isValid, auth.role, hasAlerted]);
+
+  return (auth.isValid && auth.role === 'provider') ? children : <Navigate to="/homepage" replace />;
+};
+
 // กำหนด base URL สำหรับการ routing
 const router = createBrowserRouter(
   [
@@ -97,7 +123,9 @@ const router = createBrowserRouter(
       path: '/add',
       element: (
         <PrivateRoute>
-          <Add />
+          <ProviderOnlyRoute>
+            <Add />
+          </ProviderOnlyRoute>
         </PrivateRoute>
       ),
     },
@@ -105,7 +133,9 @@ const router = createBrowserRouter(
       path: '/edit/:id',
       element: (
         <PrivateRoute>
-          <Add />
+          <ProviderOnlyRoute>
+            <Add />
+          </ProviderOnlyRoute>
         </PrivateRoute>
       ),
     },
