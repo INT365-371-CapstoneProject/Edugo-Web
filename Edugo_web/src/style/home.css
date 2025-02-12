@@ -64,11 +64,9 @@
 }
 .scholarship-card{
     width: 100%;
-    min-height: 320px;
-    transition: all 0.3s ease;
+    height: 350px;
     overflow: hidden;
-    margin: auto; 
-    padding: 22px 24px;
+    padding: 24px;
     justify-content: center;
     align-items: center;
 }
@@ -78,6 +76,8 @@
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 .scholarship-cover{
+        align-items: center;
+        justify-content: center;
         max-width: 206px;
         height: 285px;
         object-fit: cover;
@@ -85,27 +85,61 @@
         
 }
 .open-status{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 90px;
     border-radius: 7px;
     background: #E3F8D4;
-
+}
+.close-status{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 90px;
+    border-radius: 7px;
+    background: #F9C7E1;
+}
+.pending-status{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 90px;
+    border-radius: 7px;
+    background: #ECF0F6;
 }
 .headingclamp{
+ padding-top: 16px;
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+  line-clamp: 2; 
+  height: 67px;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 1.125rem; /* หรือ 18px */
+  font-weight: 600;
+  color: #000;
+
+  word-wrap: break-word; 
+}
+.descriptionclamp{
+
+ width: 180px;
   display: -webkit-box; 
   -webkit-box-orient: vertical; 
   overflow: hidden; 
   text-overflow: ellipsis; 
   -webkit-line-clamp: 2; 
   line-clamp: 2; 
-  height: 61px;
-}
-.descriptionclamp{
-  display: -webkit-box; 
-  -webkit-box-orient: vertical; 
-  overflow: hidden; 
-  text-overflow: ellipsis; 
-  -webkit-line-clamp: 3; 
-  line-clamp: 3; 
-  height: 58px;
+
+  font-size: 0.75rem; /* หรือ 12px */
+  margin-top: 0.25rem; /* หรือ 4px */
+  color: #6B7280; /* สีเทา 500 จาก Tailwind */
+
+  word-wrap: break-word; 
 }
 .information-layout{
     padding-top: 6%;
@@ -125,9 +159,9 @@
         color: #1D4ED8; 
 }
 .educational-level-status{
-    margin-left: auto; /* ทำให้ .educational-level-status ไปอยู่ทางขวา */
+    /* margin-left: auto; ทำให้ .educational-level-status ไปอยู่ทางขวา */
     display: flex;
-    width: 100px;
+    width: auto;
     height: 27.869px;
     padding: 5.738px 29.508px;
     justify-content: center;

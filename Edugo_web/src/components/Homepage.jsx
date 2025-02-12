@@ -626,17 +626,17 @@ function Homepage() {
                                         </div>
 
                                         {/* ข้อมูลด้านขวา - ปรับ padding ให้สมดุลกับรูปที่กว้างขึ้น */}
-                                        <div className="col-span-7 py-4 pl-12 pr-2">
-                                            <div className="flex justify-between items-center mb-2">
+                                        <div className="col-span-7 pl-12 pr-2">
+                                            <div className="flex justify-between items-center">
                                                 <h1 className="number-layout text-sm">
                                                     #{((currentPage - 1) * announceData.per_page + index + 1).toString().padStart(4, '0')}
                                                 </h1>
                                                 <div
                                                     className={`rounded-md px-3 py-1 ${checkPendingAnnounce.some((item) => item.id === announce.id)
-                                                        ? 'border-gray-400 bg-gray-100'
+                                                        ? 'pending-status'
                                                         : checkOpenAnnounce.some((item) => item.id === announce.id)
                                                             ? 'open-status'
-                                                            : 'border-red-400 bg-red-100'
+                                                            : 'close-status'
                                                         }`}
                                                 >
                                                     <h1 className={`font-medium text-sm ${checkPendingAnnounce.some((item) => item.id === announce.id)
@@ -656,13 +656,13 @@ function Homepage() {
 
                                             {/* ส่วนแสดงผล title */}
                                             <div className="space-y-3">
-                                                <h1 className="text-lg font-semibold line-clamp-2 text-black mt-4">
+                                                <h1 className="headingclamp">
                                                     {announce?.title || 'Untitled Scholarship'} {/* เพิ่ม fallback text */}
                                                 </h1>
 
                                                 <div>
-                                                    <h2 className="font-medium text-sm text-gray-700 mt-4">Description</h2>
-                                                    <p className="text-xs text-gray-500 line-clamp-3 mt-1">
+                                                    <h2 className="font-medium text-sm text-gray-700 pt-1 ">Description</h2>
+                                                    <p className="descriptionclamp">
                                                         {announce?.description || 'No description available'}
                                                     </p>
                                                 </div>
@@ -681,8 +681,8 @@ function Homepage() {
                                                 </div>
                                             </div>
                                         </div>
+                                        </div>
                                     </div>
-                                </div>
                             ))}
                         </div>
 
