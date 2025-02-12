@@ -1,0 +1,126 @@
+.AllButton{
+  display: flex; /* ใช้ Flexbox */
+  align-items: center; /* จัดตำแหน่งเนื้อหาในแนวตั้งให้ตรงกลาง */
+  gap: 7.5px;
+
+  border-radius: 37.5px;
+  border: 0.75px solid var(--Foundation-Grey-Normal, #c0c0c0);
+  color: #575757;
+
+  transition: all 0.2s ease-in-out; /* เพิ่มการเปลี่ยนแปลงที่ค่อยๆ เกิดขึ้นใน 0.2 วินาที */
+  font-weight: 500; /* ใช้ตัวอักษรหนา (medium) */
+  font-size: 0.875rem; /* ขนาดตัวอักษร 0.875rem (เท่ากับ 14px) */
+  
+padding: 8px 16px;
+justify-content: center;
+
+}
+.primary-button {
+    background-color: #5baae3; /* bg-blue-400 */
+    color: white; /* text-white */
+    transition: background-color 0.2s ease; /* การเปลี่ยนสีพื้นหลังเมื่อเกิดการโต้ตอบ */
+  }
+  .primary-button:hover {
+    background-color: #2b6cb0; /* hover:bg-blue-600 */
+  }
+.success-button {
+    background-color: #31D0AA; /* bg-blue-400 */
+    color: white; /* text-white */
+    transition: background-color 0.2s ease; /* การเปลี่ยนสีพื้นหลังเมื่อเกิดการโต้ตอบ */
+  }
+  .success-button:hover {
+    background-color: #27A688; /* hover:bg-blue-600 */
+  }
+.danger-button {
+    background-color: #F9F9FA; /* bg-blue-400 */
+    color: rgb(120, 120, 120); /* text-white */
+    transition: background-color 0.2s ease; /* การเปลี่ยนสีพื้นหลังเมื่อเกิดการโต้ตอบ */
+  }
+  .danger-button:hover {
+    background-color: #94A2B8; /* hover:bg-blue-600 */
+    color: white;
+  }
+.edit-button {
+    background-color: #ffffff; /* bg-blue-400 */
+    transition: background-color 0.2s ease; /* การเปลี่ยนสีพื้นหลังเมื่อเกิดการโต้ตอบ */
+  }
+  .edit-button:hover {
+    background-color: #C0CDFF; /* hover:bg-blue-600 */
+    color: #ffffff;
+  }
+.profile-font{  
+    color: #000;
+
+    /* Heading/Heading 3 */
+    font-family: "DM Sans";
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 48px; /* 150% */
+}
+.name-font{
+    color: #000;
+    font-family: "DM Sans";
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 36px; /* 150% */
+}
+.subhead-font{
+    color: #000;
+font-family: "DM Sans";
+font-size: 24px;
+font-style: normal;
+font-weight: 600;
+}
+.maininfo-sub-font{
+    color: var(--foundation-grey-normal-hover, #94A2B8);
+font-family: "DM Sans";
+font-size: 20px;
+font-style: normal;
+font-weight: 400;
+line-height: 36px; /* 180% */
+}
+.edit-form-box{
+    width: 100%; /* w-full */
+    border: 1px solid #bcbcbc; /* border (ใช้สีเทาอ่อนตาม default ของ Tailwind) */
+    border-radius: 2rem; /* rounded */
+    padding: 0.5rem; /* p-2 */
+    padding-left: 20px;
+}
+.editphoto-button{
+
+  display: flex; /* flex */
+  align-items: center; /* items-center */
+  gap: 0.375rem; /* gap-1.5 */
+  padding-left: 1rem; /* px-4 */
+  padding-right: 1rem; /* px-4 */
+  padding-top: 0.375rem; /* py-1.5 */
+  padding-bottom: 0.375rem; /* py-1.5 */
+
+  background-color: #ffffff; /* bg-gray-100 */
+  color: #575757; /* text-gray-700 */
+
+  border-radius: 37.5px;
+  border: 0.75px solid var(--Foundation-Grey-Normal, #CBD5E0);
+
+  transition: all 0.2s ease-in-out; /* เพิ่มการเปลี่ยนแปลงที่ค่อยๆ เกิดขึ้นใน 0.2 วินาที */
+  font-weight: 500; /* ใช้ตัวอักษรหนา (medium) */
+  font-size: 0.875rem; /* ขนาดตัวอักษร 0.875rem (เท่ากับ 14px) */
+
+}
+
+.profilecontainer{
+    padding: 1.5rem; /* p-6 */
+    display: flex; /* flex */
+    flex-direction: column; /* flex-col */
+    align-items: center; /* items-center */
+    gap: 1.5rem; /* gap-6 */
+}
+
+@media (min-width: 768px) { /* สำหรับหน้าจอขนาด medium และใหญ่ */
+    .profilecontainer {
+        flex-direction: row; /* md:flex-row */
+        align-items: flex-start; /* md:items-start */
+    }
+}

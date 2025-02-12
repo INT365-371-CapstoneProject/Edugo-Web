@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
+
 .Maincontainer {
     @apply container mx-auto bg-white rounded-lg shadow-md mt-8 mb-8;
     display: fixed;
@@ -55,3 +57,49 @@ html, body {
     font-size: 12px;
     color: #bababa;
   }
+  input {
+    background-color: white;
+    color: #1a202c; /* สีข้อความดำในโหมด light */
+  }
+  
+  @media (prefers-color-scheme: dark) {
+    input {
+      background-color: white; /* ให้พื้นหลังเป็นสีขาวเสมอ */
+      color: #1a202c; /* ให้ข้อความเป็นสีดำเสมอ */
+    }
+  }
+  /* กำหนดสีให้กับข้อความที่ถูกเลือก */
+::selection {
+  background-color: #355FFF; /* สีพื้นหลังฟ้าของข้อความที่ถูกเลือก */
+  color: white; /* สีของตัวอักษรที่ถูกเลือก */
+}
+
+/* หรือถ้าคุณอยากให้เฉพาะในฟอร์มของคุณ */
+input::selection, textarea::selection {
+  background-color: #355FFF;
+  color: white;
+}
+
+
+.ProfileContainer {
+  display: fixed;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin-top: 56px;
+  gap: 10px;
+  padding: 24px;
+
+  height: auto;
+  max-width: 1110px;
+  min-width: 1110px;
+  
+  border-radius: 15px;
+  border: 1px solid var(--Foundation-Grey-Normal, #CBD5E0);
+  background: var(--White, #FFF);
+}
+
+/* สำหรับการปรับแต่ง Autofill */
+input:autofill {
+  background-color: #fce4e4;  /* สีพื้นหลังแดง */
+}
