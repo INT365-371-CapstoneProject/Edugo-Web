@@ -68,14 +68,22 @@
     transition: all 0.3s ease;
     overflow: hidden;
     margin: auto; 
-    padding: 0px 24px;
+    padding: 22px 24px;
+    justify-content: center;
+    align-items: center;
 }
 
 .scholarship-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
-
+.scholarship-cover{
+        max-width: 206px;
+        height: 285px;
+        object-fit: cover;
+        border-radius: 8px; /* rounded-lg */
+        
+}
 .open-status{
     border-radius: 7px;
     background: #E3F8D4;
@@ -115,6 +123,27 @@
         font-weight: 500;
         font-size: 15px; 
         color: #1D4ED8; 
+}
+.educational-level-status{
+    margin-left: auto; /* ทำให้ .educational-level-status ไปอยู่ทางขวา */
+    display: flex;
+    width: 100px;
+    height: 27.869px;
+    padding: 5.738px 29.508px;
+    justify-content: center;
+    align-items: center;
+    gap: 8.197px;
+
+    border-radius: 5.738px;
+    background: var(--Foundation-Blue-Light, #EBEFFF);
+
+    color: #9EB2FF;
+
+    font-family: "DM Sans";
+    font-size: 11.475px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 16.393px; /* 142.857% */
 }
 .summary-border-radius{
     border-top-right-radius: 4px; /* ทำมุมมนที่มุมขวาบน */

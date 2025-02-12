@@ -4,6 +4,7 @@ import axios from "axios";
 import imageLogin from "../assets/login.png";
 import Swal from 'sweetalert2';
 import { useNavigate,Link, Route } from "react-router-dom";
+import '../style/style.css'; // Import CSS file
 import jwt_decode from 'jwt-decode'; // Import jwt-decode
 const APT_ROOT = import.meta.env.VITE_API_ROOT;
 
@@ -184,18 +185,18 @@ function Login() {
   };
 
   return (
-    <div className="hero min-h-screen bg-white font-['DM_Sans']">
-      <div className="card flex-shrink-0 w-full max-w-4xl shadow-2xl bg-white border">
+    <div className="flex items-center justify-center min-h-screen overflow-hidden font-['DM_Sans'] Backgound">
+      <div className="card flex-shrink-0 w-full max-w-5xl shadow-sm bg-white border">
         <div className="hero-content flex-row gap-0 p-0">
           <div className="w-1/2 p-12">
             <form onSubmit={handleSubmit}>
               <div className="form-control text-left">
-                <h2 className="text-4xl font-bold text-gray-800 mb-4">Welcome</h2>
-                <p className="text-sm text-gray-600 mb-6">Welcome to EDUGO! Discover valuable educational information and opportunities. Register for access to reliable scholarships and resources.</p>
+                <h2 className="text-4xl font-normal text-gray-800 mb-4">Welcome back</h2>
+                <p className="text-sm font-light text-gray-600 mb-6">Welcome back to EDUGO! Discover valuable educational information and opportunities. Register for access to reliable scholarships and resources.</p>
               </div>
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text text-[18px] leading-[25px] text-black">Email/Username</span>
+                  <span className="label-text text-[18px] leading-[25px] text-black font-normal">Email/Username</span>
                 </label>
                 <input
                   type="text"
@@ -203,10 +204,10 @@ function Login() {
                   value={formData.email || formData.username}
                   onChange={handleChange}
                   placeholder="Enter your email address or username"
-                  className={`input input-bordered transition-colors
+                  className={`input transition-colors
                     ${inputErrors.email_username 
                       ? 'bg-red-50 border-red-500 focus:border-red-500' 
-                      : 'bg-gray-200 focus:bg-gray-100'}`}
+                      : 'bg-gray-100 focus:bg-gray-100'}`}
                 />
                 {/* Only show message if it's not the combined error state */}
                 {inputErrors.email_username && inputErrors.email_username !== "error" && (
@@ -217,7 +218,7 @@ function Login() {
               </div>
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text text-[18px] leading-[25px] text-black">Password</span>
+                  <span className="label-text text-[18px] leading-[25px] text-black mt-4 font-normal">Password</span>
                 </label>
                 <div className="relative">
                   <input
@@ -226,14 +227,14 @@ function Login() {
                     value={formData.password}
                     onChange={handleChange}
                     placeholder="Enter your password"
-                    className={`input input-bordered w-full transition-colors
+                    className={`input w-full transition-colors
                       ${inputErrors.password 
                         ? 'bg-red-50 border-red-500 focus:border-red-500' 
-                        : 'bg-gray-200 focus:bg-gray-100'}`}
+                        : 'bg-gray-100 focus:bg-gray-100'}`}
                   />
                   <button
                     type="button"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-500"
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
@@ -257,7 +258,7 @@ function Login() {
                   </label>
                   <Link 
                     to="/forgot-password" 
-                    className="label-text-alt link link-hover text-[#64738B]"
+                    className="label-text-alt link link-hover text-[#64738B] pt-12"
                   >
                     Forgot password?
                   </Link>
@@ -275,8 +276,8 @@ function Login() {
           <div className="bg-[#EBEFFF] flex items-center justify-center mr-12 py-16 bordder rounded-lg">
             <img
               src={imageLogin}
-              alt="Edugo Logo"
-              className="w-72 h-auto drop-shadow-lg mx-8"
+              alt="Edugo Welcome"
+              className="welcomelogin"
             />
           </div>
 

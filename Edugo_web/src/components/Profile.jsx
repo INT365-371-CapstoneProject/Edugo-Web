@@ -9,6 +9,8 @@ import jwt_decode from 'jwt-decode';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Select from 'react-select';
+import '../style/profile.css'; // Import CSS file
+import '../style/style.css'; // Import CSS file
 import { Country, City } from 'country-state-city';
 
 // Add validation functions at the top of the file
@@ -402,12 +404,12 @@ const Profile = () => {
     };
 
     const ActionButton = ({ onClick, icon: Icon, label, variant = 'primary' }) => {
-        const baseStyles = "flex items-center gap-2 px-3 py-1.5 rounded-md transition-all duration-200 font-medium text-sm";
+        const baseStyles = "AllButton";
         const variants = {
-            primary: "bg-blue-500 text-white hover:bg-blue-600 active:bg-blue-700",
-            success: "bg-green-500 text-white hover:bg-green-600 active:bg-green-700",
-            danger: "bg-red-500 text-white hover:bg-red-600 active:bg-red-700",
-            edit: "text-blue-500 hover:bg-blue-50 hover:text-blue-600"
+            primary: "primary-button",
+            success: "success-button",
+            danger: "danger-button",
+            edit: "edit-button"
         };
 
         return (
@@ -513,7 +515,7 @@ const Profile = () => {
                     ) : (
                         <button
                             onClick={() => setEditAvatar(true)}
-                            className="flex items-center gap-1.5 px-4 py-1.5 bg-gray-100 text-gray-700 rounded-full text-sm font-medium hover:bg-gray-200 transition-colors duration-200"
+                            className="editphoto-button"
                         >
                             <Pencil className="w-4 h-4" />
                             Edit Photo
@@ -570,13 +572,13 @@ const Profile = () => {
 
     const renderAdminProfile = () => (
         <div className="p-8">
-            <h1 className="text-2xl font-bold mb-6">My Profile</h1>
-            <div className="bg-white rounded-lg shadow-sm mb-8">
-                <div className="p-6 flex flex-col md:flex-row items-center md:items-start gap-6">
+            <h1 className="profile-font mb-6">My Profile</h1>
+            <div className="bg-white rounded-lg mb-8 border p-4">
+                <div className="profilecontainer">
                     {renderAvatarSection(true)}
                     <div className="flex-1 text-center md:text-left">
                         <div className="flex flex-col gap-2">
-                            <h2 className="text-lg font-bold">
+                            <h2 className="name-font">
                                 {userData.first_name && userData.last_name 
                                     ? `${userData.first_name} ${userData.last_name} (Admin name)`
                                     : `${userData.username} (Admin name)`}
@@ -590,9 +592,9 @@ const Profile = () => {
             </div>
 
             {/* Rest of the admin profile rendering */}
-            <div className="bg-white rounded-lg shadow-sm">
+            <div className="bg-white rounded-lg border p-4">
                 <div className="p-6">
-                    <div className="flex justify-between items-center mb-4">
+                    <div className="flex justify-between items-center mb-4 subhead-font">
                         <h3 className="text-lg font-semibold">Personal Information</h3>
                         {renderEditButtons(
                             editPersonal,
@@ -604,47 +606,47 @@ const Profile = () => {
                             }
                         )}
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-4 p-4">
                         {editPersonal ? (
                             <>
                                 <div>
-                                    <label className="text-sm text-gray-500">First Name</label>
+                                    <label className="maininfo-sub-font">First Name</label>
                                     <input
                                         type="text"
                                         name="first_name"
                                         value={formData.first_name || ''}
                                         onChange={handleInputChange}
-                                        className="w-full border rounded p-2"
+                                        className="edit-form-box"
                                     />
                                 </div>
                                 <div>
-                                    <label className="text-sm text-gray-500">Last Name</label>
+                                    <label className="maininfo-sub-font">Last Name</label>
                                     <input
                                         type="text"
                                         name="last_name"
                                         value={formData.last_name || ''}
                                         onChange={handleInputChange}
-                                        className="w-full border rounded p-2"
+                                        className="edit-form-box"
                                     />
                                 </div>
                                 <div>
-                                    <label className="text-sm text-gray-500">Phone</label>
+                                    <label className="maininfo-sub-font">Phone</label>
                                     <input
                                         type="text"
                                         name="phone_number" 
                                         value={formData.phone_number || ''} 
                                         onChange={handleInputChange}
-                                        className="w-full border rounded p-2"
+                                        className="edit-form-box"
                                     />
                                 </div>
                                 <div>
-                                    <label className="text-sm text-gray-500">Email Address</label>
+                                    <label className="maininfo-sub-font">Email Address</label>
                                     <input
                                         type="email"
                                         name="email"
                                         value={formData.email || ''}
                                         onChange={handleInputChange}
-                                        className="w-full border rounded p-2"
+                                        className="edit-form-box"
                                     />
                                 </div>
                             </>
@@ -934,7 +936,7 @@ const Profile = () => {
             <Nav />
             <ToastContainer />
             <div className="Background">
-                <div className="Maincontainer">
+                <div className="ProfileContainer">
                     {['admin', 'superadmin'].includes(userRole) 
                         ? renderAdminProfile() 
                         : renderProviderProfile()

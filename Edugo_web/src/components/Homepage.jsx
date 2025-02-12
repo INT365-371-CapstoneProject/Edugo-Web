@@ -615,7 +615,7 @@ function Homepage() {
                                         {/* รูปภาพด้านซ้าย */}
                                         <div className="col-span-5">
                                             <img
-                                                className='w-[260px] h-[285px] object-cover rounded-lg mt-4'
+                                                className='scholarship-cover'
                                                 src={announceImages[announce.id] || image2}
                                                 alt={announce.title}
                                                 onError={(e) => {
@@ -626,7 +626,7 @@ function Homepage() {
                                         </div>
 
                                         {/* ข้อมูลด้านขวา - ปรับ padding ให้สมดุลกับรูปที่กว้างขึ้น */}
-                                        <div className="col-span-7 py-4 pl-4 pr-2">
+                                        <div className="col-span-7 py-4 pl-12 pr-2">
                                             <div className="flex justify-between items-center mb-2">
                                                 <h1 className="number-layout text-sm">
                                                     #{((currentPage - 1) * announceData.per_page + index + 1).toString().padStart(4, '0')}
@@ -656,29 +656,28 @@ function Homepage() {
 
                                             {/* ส่วนแสดงผล title */}
                                             <div className="space-y-3">
-                                                <h1 className="text-lg font-semibold line-clamp-2 text-black">
+                                                <h1 className="text-lg font-semibold line-clamp-2 text-black mt-4">
                                                     {announce?.title || 'Untitled Scholarship'} {/* เพิ่ม fallback text */}
                                                 </h1>
 
                                                 <div>
-                                                    <h2 className="font-medium text-sm text-gray-700">Description</h2>
+                                                    <h2 className="font-medium text-sm text-gray-700 mt-4">Description</h2>
                                                     <p className="text-xs text-gray-500 line-clamp-3 mt-1">
                                                         {announce?.description || 'No description available'}
                                                     </p>
                                                 </div>
 
                                                 <div>
-                                                    <h2 className="font-medium text-sm text-gray-700 mb-1">
+                                                    <h2 className="font-medium text-sm text-gray-700 mb-1 mt-6">
                                                         Scholarship period
                                                     </h2>
-                                                    <div className="flex items-center justify-between">
-                                                        <span className="text-blue-600 text-xs">
+                                                        <span className="date-period-layout">
                                                             {formatDateRange(announce.publish_date, announce.close_date)}
                                                         </span>
-                                                        <span className="px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded-md">
+                                                        <span className="educational-level-status mt-4">
                                                             {announce.education_level || 'Not specified'}
                                                         </span>
-                                                    </div>
+                                                    
                                                 </div>
                                             </div>
                                         </div>

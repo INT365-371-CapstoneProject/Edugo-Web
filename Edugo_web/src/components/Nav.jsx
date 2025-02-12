@@ -171,7 +171,7 @@ function Nav() {
   };
 
   return (
-    <div className="navbar-shadow sticky top-0 bg-white flex items-center h-16 border-b border-gray-200 z-50">
+    <div className="navbar-shadow top-0 bg-white flex items-center h-16 border-b border-gray-200 z-50">
       {/* Logo section */}
       <div className="w-[200px]">
         <Link to="/">

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import '../style/style.css'; // Import CSS file
+import '../style/home.css'; // Import CSS file
 const APT_ROOT = import.meta.env.VITE_API_ROOT;
 const ForgotPass = () => {
   const [email, setEmail] = useState('');

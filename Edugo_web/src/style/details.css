@@ -268,3 +268,6 @@ select:focus, option:focus, .border-section:focus{
     text-decoration: underline; /* hover:underline */
     color: #355FFF;
 }
+.welcomelogin{
+    width: 83%;
+}
