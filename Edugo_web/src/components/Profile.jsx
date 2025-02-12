@@ -682,7 +682,7 @@ const Profile = () => {
 
     const renderProviderProfile = () => (
         <div className="p-8">
-            <h1 className="text-2xl font-bold mb-6">My Profile</h1>
+             <h1 className="profile-font mb-6">My Profile</h1>
 
             {/* Company Section */}
             <div className="bg-white rounded-lg shadow-sm mb-8">
@@ -697,10 +697,10 @@ const Profile = () => {
                                     value={nameFormData.company_name}
                                     onChange={handleNameChange}
                                     placeholder="Company Name"
-                                    className="border rounded p-1 text-lg font-bold"
+                                    className="name-font"
                                 />
                             ) : (
-                                <h2 className="text-lg font-bold">
+                                <h2 className="name-font">
                                     {userData.company_name} (Company name)
                                 </h2>
                             )}
@@ -729,7 +729,7 @@ const Profile = () => {
             {/* Company Information Section */}
             <div className="bg-white rounded-lg shadow-sm mb-8">
                 <div className="p-6">
-                    <div className="flex justify-between items-center mb-4">
+                    <div className="flex justify-between items-center mb-4 subhead-font">
                         <h3 className="text-lg font-semibold">Company Information</h3>
                         {renderEditButtons(
                             editCompany,
@@ -844,7 +844,7 @@ const Profile = () => {
             {/* Personal Information Section */}
             <div className="bg-white rounded-lg shadow-sm">
                 <div className="p-6">
-                    <div className="flex justify-between items-center mb-4">
+                    <div className="flex justify-between items-center mb-4 subhead-font">
                         <h3 className="text-lg font-semibold">Personal Information</h3>
                         {renderEditButtons(
                             editPersonal,
@@ -904,11 +904,11 @@ const Profile = () => {
                             <>
                                 <div>
                                     <p className="text-sm text-gray-500">First Name</p>
-                                    <p className="text-base">{userData.first_name || 'ยังไม่มีข้อมูล'}</p>
+                                    <p className="text-base">{userData.first_name || '-'}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-500">Last Name</p>
-                                    <p className="text-base">{userData.last_name || 'ยังไม่มีข้อมูล'}</p>
+                                    <p className="text-base">{userData.last_name || '-'}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-500">Role</p>
@@ -916,7 +916,7 @@ const Profile = () => {
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-500">Phone</p>
-                                    <p className="text-base">{userData.phone_person || 'ยังไม่มีข้อมูล'}</p>
+                                    <p className="text-base">{userData.phone_person || '-'}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-500">Email Address</p>
