@@ -242,7 +242,23 @@ const Profile = () => {
     };
 
     const handleSavePersonal = async () => {
-        // Validate personal information
+        // ตรวจสอบว่ามี First Name และ Last Name หรือไม่
+        if (!formData.first_name || !formData.last_name) {
+            notify.error("Please enter both First Name and Last Name before updating other information");
+            return;
+        }
+
+        // ตรวจสอบความถูกต้องของ First Name และ Last Name
+        if (!validateName(formData.first_name)) {
+            notify.error("First name must be between 2 and 50 characters");
+            return;
+        }
+        if (!validateName(formData.last_name)) {
+            notify.error("Last name must be between 2 and 50 characters");
+            return;
+        }
+
+        // Validate other personal information
         if (formData.email && !validateEmail(formData.email)) {
             notify.error("Please enter a valid email address");
             return;
@@ -313,6 +329,12 @@ const Profile = () => {
     };
 
     const handleSaveCompany = async () => {
+        // ตรวจสอบว่ามี First Name และ Last Name หรือไม่จาก userData
+        if (!userData.first_name || !userData.last_name) {
+            notify.error("Please enter your First Name and Last Name in Personal Information section before updating company details");
+            return;
+        }
+
         // Validate company information
         if (formData.phone && !validatePhone(formData.phone)) {
             notify.error("Please enter a valid 10-digit company phone number");
@@ -377,7 +399,8 @@ const Profile = () => {
         setSelectedCountry(selectedOption);
         setFormData(prev => ({
             ...prev,
-            country: selectedOption.label,
+            // ถ้า selectedOption เป็น null ให้เซ็ตเป็นค่าว่าง
+            country: selectedOption ? selectedOption.label : '',
             city: '' // Reset city when country changes
         }));
         
@@ -399,7 +422,8 @@ const Profile = () => {
         setSelectedCity(selectedOption);
         setFormData(prev => ({
             ...prev,
-            city: selectedOption.label
+            // ถ้า selectedOption เป็น null ให้เซ็ตเป็นค่าว่าง
+            city: selectedOption ? selectedOption.label : ''
         }));
     };
 
@@ -840,6 +864,19 @@ const Profile = () => {
                     </div>
                 </div>
             </div>
+
+            {/* แนะนำให้กรอก Personal Information ก่อนถ้ายังไม่มี First Name และ Last Name */}
+            {(!userData.first_name || !userData.last_name) && (
+                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+                    <div className="flex">
+                        <div className="ml-3">
+                            <p className="text-sm text-yellow-700">
+                                Please complete your personal information (First Name and Last Name) before updating other details.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Personal Information Section */}
             <div className="bg-white rounded-lg shadow-sm">
