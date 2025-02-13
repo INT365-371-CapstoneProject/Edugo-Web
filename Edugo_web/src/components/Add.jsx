@@ -736,7 +736,7 @@ function Add() {
                                                         </option>
                                                         <option value="Undergraduate" className='text-black'>Undergraduate</option>
                                                         <option value="Master" className='text-black'>Master</option>
-                                                        <option value="Doctoral" className='text-black'>Doctorate</option>
+                                                        <option value="Doctorate" className='text-black'>Doctorate</option>
                                                     </select>
                                                 </div>
                                             </div>
