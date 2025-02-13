@@ -29,4 +29,7 @@ export default {
   plugins: [
     daisyui,
   ],
+  corePlugins: {
+    // ...existing corePlugins
+  },
 }
