@@ -7,13 +7,96 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 0.75rem 11rem;
+        padding: 0;
         background-color: white;
         box-shadow: 0px 2px 10px 0px rgba(0, 0, 0, 0.07)!important;
         position: sticky; /* ทำให้ navbar ติดอยู่ด้านบน */
         top: 0; /* อยู่ที่ด้านบนสุด */
 
-        height: 4.6rem; /* ความสูงของ navbar */
+        height: 4rem; /* ความสูงของ navbar */
         border-bottom: 1px solid #e5e7eb; /* เส้นขอบล่างสีเทา */
         z-index: 50; /* ทำให้ navbar อยู่เหนือเนื้อหาที่อื่น */
-    }
+}
+
+/* Custom Scrollbar */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #E5E7EB;
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #D1D5DB;
+}
+
+/* Hide scrollbar by default */
+.search-container {
+  display: none;
+}
+
+/* Show scrollbar only when content overflows */
+.search-container.has-overflow {
+  scrollbar-width: thin;
+  -ms-overflow-style: auto;
+}
+
+.search-container.has-overflow::-webkit-scrollbar {
+  display: block;
+  width: 6px;
+  height: 6px;
+}
+
+/* Hide scrollbar completely */
+.scrollbar-none {
+  display: none;
+}
+
+/* Base hidden scrollbar */
+.scrollbar-hidden {
+  display: none;
+}
+
+/* Show scrollbar only when has-scroll class is present */
+.scrollbar-hidden.has-scroll {
+  scrollbar-width: thin;
+  -ms-overflow-style: auto;
+}
+
+.scrollbar-hidden.has-scroll::-webkit-scrollbar {
+  display: block;
+  width: 6px;
+}
+
+.scrollbar-hidden.has-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-hidden.has-scroll::-webkit-scrollbar-thumb {
+  background-color: #E5E7EB;
+  border-radius: 3px;
+}
+
+/* Hide scrollbar completely with no-scrollbar class */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Add containment for overflow */
+.overflow-container {
+  contain: content;
+}

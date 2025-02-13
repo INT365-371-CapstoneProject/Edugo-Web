@@ -844,12 +844,12 @@ const Profile = () => {
                                     <p className="text-base">{userData.address}</p>
                                 </div>
                                 <div>
-                                    <p className="text-sm text-gray-500">City</p>
-                                    <p className="text-base">{userData.city}</p>
-                                </div>
-                                <div>
                                     <p className="text-sm text-gray-500">Country</p>
                                     <p className="text-base">{userData.country}</p>
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-500">City</p>
+                                    <p className="text-base">{userData.city}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-500">Postal code</p>
