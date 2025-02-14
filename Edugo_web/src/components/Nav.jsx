@@ -18,7 +18,6 @@ function Nav() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(-1);
   const [searchEndpoint, setSearchEndpoint] = useState('announce-provider');
   const [categories, setCategories] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
@@ -150,7 +149,7 @@ function Nav() {
       params.append('education_level', selectedEducationLevels.join(','));
     }
 
-    // Don't navigate if there are no search parameters
+    // Return if there are no search parameters
     if (params.toString() === '') {
       return;
     }
@@ -167,110 +166,32 @@ function Nav() {
 
       const searchUrl = `${APT_ROOT}/api/search/${searchEndpoint}`;
       const { data } = await axios.get(searchUrl, config);
-
-      navigate({
-        pathname: '/search',
-        search: `?${params.toString()}`
-      });
+      
+      // Update search results instead of navigating
+      setSearchResults(data.data || []);
     } catch (error) {
       console.error('Search failed:', error.response?.data || error.message);
     }
   };
 
-  // Create debounced search function
-  const debouncedSearch = useCallback(
-    debounce(async (query, categories, educationLevels) => {
-      if (!query.trim() && categories.length === 0 && educationLevels.length === 0) {
-        setSearchResults([]);
-        return;
-      }
-
-      try {
-        const token = localStorage.getItem('token');
-        const params = new URLSearchParams();
-        
-        if (query.trim()) {
-          params.append('search', query.trim());
-        }
-        if (categories.length > 0) {
-          params.append('category', categories.join(','));
-        }
-        if (educationLevels.length > 0) {
-          params.append('education_level', educationLevels.join(','));
-        }
-
-        const config = {
-          headers: { 
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          params: Object.fromEntries(params)
-        };
-
-        const searchUrl = `${APT_ROOT}/api/search/${searchEndpoint}`;
-        const { data } = await axios.get(searchUrl, config);
-        setSearchResults(data.data || []);
-      } catch (error) {
-        console.error('Search failed:', error);
-        setSearchResults([]);
-      } finally {
-        setIsSearching(false);
-      }
-    }, 300),
-    [searchEndpoint]
-  );
-
-  // Update search handler for input changes
+  // Update search handler for input changes - remove auto-search
   const handleSearchChange = (e) => {
     const query = e.target.value;
     setSearchQuery(query);
-    setIsSearching(true);
-    setSelectedIndex(-1);
-    debouncedSearch(query, selectedCategories, selectedEducationLevels);
   };
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
-      e.preventDefault(); // Always prevent form submission
-      if (searchResults.length > 0) {
-        navigate(`/detail/${searchResults[0].id}`);
-      }
-      // Do nothing if there are no results
+      e.preventDefault();
+      handleSearch(e);
     }
   };
 
-  // Add keyboard navigation handler
+  // Simplify handleKeyDown to only handle Enter
   const handleKeyDown = (e) => {
-    if (!searchResults.length) {
-      // Prevent form submission on Enter if there are no results
-      if (e.key === 'Enter' && !searchQuery.trim()) {
-        e.preventDefault();
-        return;
-      }
-      return;
-    }
-
-    switch (e.key) {
-      case 'ArrowDown':
-        e.preventDefault();
-        setSelectedIndex(prev => 
-          prev < searchResults.length - 1 ? prev + 1 : prev
-        );
-        break;
-      case 'ArrowUp':
-        e.preventDefault();
-        setSelectedIndex(prev => prev > 0 ? prev - 1 : 0);
-        break;
-      case 'Enter':
-        e.preventDefault();
-        if (selectedIndex >= 0 && searchResults[selectedIndex]) {
-          navigate(`/detail/${searchResults[selectedIndex].id}`);
-        } else if (searchResults.length > 0) {
-          navigate(`/detail/${searchResults[0].id}`);
-        }
-        break;
-      default:
-        break;
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSearch(e);
     }
   };
 
@@ -279,9 +200,6 @@ function Nav() {
       const newCategories = prev.includes(categoryName)
         ? prev.filter(name => name !== categoryName)
         : [...prev, categoryName];
-      
-      // Trigger search with current query and new categories
-      debouncedSearch(searchQuery, newCategories, selectedEducationLevels);
       return newCategories;
     });
   };
@@ -291,9 +209,6 @@ function Nav() {
       const newLevels = prev.includes(level)
         ? prev.filter(name => name !== level)
         : [...prev, level];
-      
-      // Trigger search with current query, categories, and education levels
-      debouncedSearch(searchQuery, selectedCategories, newLevels);
       return newLevels;
     });
   };
@@ -366,6 +281,7 @@ function Nav() {
                       type="text"
                       value={searchQuery}
                       onChange={handleSearchChange}
+                      onKeyPress={handleKeyPress}
                       onKeyDown={handleKeyDown}
                       placeholder={selectedCategories.length ? "Add more..." : "Search For Scholarship"}
                       className="flex-1 min-w-[120px] h-6 bg-transparent outline-none text-gray-700 placeholder-gray-400 text-start"
@@ -476,15 +392,11 @@ function Nav() {
               {/* Search Results - Updated condition to include education levels */}
               {(searchQuery.trim() || selectedCategories.length > 0 || selectedEducationLevels.length > 0) && searchResults.length > 0 && (
                 <div className="bg-white shadow-lg border border-gray-200 rounded-xl max-h-[400px] overflow-y-auto divide-y divide-gray-100 w-full">
-                  {searchResults.map((result, index) => (
+                  {searchResults.map((result) => (
                     <Link
                       key={result.id}
                       to={`/detail/${result.id}`}
-                      className={`block px-4 py-3 transition-colors duration-200 ${
-                        index === selectedIndex 
-                        ? 'bg-blue-50 text-blue-600' 
-                        : 'hover:bg-gray-50'
-                      }`}
+                      className="block px-4 py-3 transition-colors duration-200 hover:bg-gray-50"
                     >
                       <h3 className="font-medium text-sm">{result.title}</h3>
                     </Link>
