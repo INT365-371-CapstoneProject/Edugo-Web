@@ -487,7 +487,7 @@ const Profile = () => {
                     id="avatar-upload"
                 />
             )}
-            <div className="relative flex flex-col items-center">
+            <div className="avatarsection-container">
                 <div className="relative group">
                     <img
                         src={avatarUrl || defaultAvatar}
@@ -640,7 +640,7 @@ const Profile = () => {
                                         name="first_name"
                                         value={formData.first_name || ''}
                                         onChange={handleInputChange}
-                                        className="edit-form-box"
+                                        className="w-full border rounded p-2"
                                     />
                                 </div>
                                 <div>
@@ -650,7 +650,7 @@ const Profile = () => {
                                         name="last_name"
                                         value={formData.last_name || ''}
                                         onChange={handleInputChange}
-                                        className="edit-form-box"
+                                        className="w-full border rounded p-2"
                                     />
                                 </div>
                                 <div>
@@ -660,7 +660,7 @@ const Profile = () => {
                                         name="phone_number" 
                                         value={formData.phone_number || ''} 
                                         onChange={handleInputChange}
-                                        className="edit-form-box"
+                                        className="w-full border rounded p-2"
                                     />
                                 </div>
                                 <div>
@@ -670,7 +670,7 @@ const Profile = () => {
                                         name="email"
                                         value={formData.email || ''}
                                         onChange={handleInputChange}
-                                        className="edit-form-box"
+                                        className="w-full border rounded p-2"
                                     />
                                 </div>
                             </>
