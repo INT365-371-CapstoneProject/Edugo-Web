@@ -84,7 +84,7 @@ line-height: 36px; /* 180% */
 .edit-form-box{
     width: 100%; /* w-full */
     border: 1px solid #bcbcbc; /* border (ใช้สีเทาอ่อนตาม default ของ Tailwind) */
-    border-radius: 2rem; /* rounded */
+    border-radius: 0.5rem; /* rounded */
     padding: 0.5rem; /* p-2 */
     padding-left: 20px;
 }
@@ -123,4 +123,13 @@ line-height: 36px; /* 180% */
         flex-direction: row; /* md:flex-row */
         align-items: flex-start; /* md:items-start */
     }
+}
+
+.avatarsection-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 150px;
+  height: 150px;
 }
