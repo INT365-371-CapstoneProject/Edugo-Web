@@ -412,7 +412,7 @@ function Nav() {
       <div className="h-8 w-px bg-gray-200 mx-2"></div>
 
       {/* Profile section - Adjusted width */}
-      <div className="w-[220px] pr-6 flex justify-end items-center">
+      <div className="w-[220px] pl-5 flex justify-started items-center">
         <div className="dropdown dropdown-end">
           <div 
             tabIndex={0} 
