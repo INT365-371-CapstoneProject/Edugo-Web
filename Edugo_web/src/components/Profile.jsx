@@ -388,6 +388,12 @@ const Profile = () => {
                     'Content-Type': 'application/json'
                 }
             });
+
+            // Add page refresh after successful update
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+
         } catch (error) {
             console.error('Error updating name:', error);
             // Revert changes if save fails
