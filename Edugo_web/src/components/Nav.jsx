@@ -318,7 +318,7 @@ function Nav() {
                         
                         {/* Category Dropdown - Updated positioning */}
                         {showCategoryDropdown && (
-                          <div className="absolute -right-2 top-0 translate-x-full w-72 bg-white border border-gray-200 rounded-xl shadow-lg">
+                          <div className="absolute -right-2 top-0 translate-x-full w-60 bg-white border border-gray-200 rounded-xl shadow-lg">
                             <div className="px-4 py-3 border-b border-gray-100">
                               <h3 className="font-medium text-sm text-gray-900">Select Categories</h3>
                             </div>
@@ -330,7 +330,7 @@ function Nav() {
                                 >
                                   <input
                                     type="checkbox"
-                                    className="form-checkbox h-4 w-4 text-blue-500 rounded border-gray-300 focus:ring-blue-500"
+                                    className="form-checkbox flex-shrink-0 h-4 w-5 text-blue-500 rounded border-gray-300 focus:ring-blue-500 bg-gray-100 focus:bg-gray-100"
                                     checked={selectedCategories.includes(category.category_name)}
                                     onChange={() => toggleCategory(category.category_name)}
                                   />
@@ -366,11 +366,11 @@ function Nav() {
                               {educationLevels.map(level => (
                                 <label
                                   key={level}
-                                  className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer"
+                                  className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer "
                                 >
                                   <input
                                     type="checkbox"
-                                    className="form-checkbox h-4 w-4 text-blue-500 rounded border-gray-300 focus:ring-blue-500"
+                                    className="form-checkbox h-4 w-4 text-blue-500 rounded border-gray-300 focus:ring-blue-500 bg-gray-100 focus:bg-gray-100"
                                     checked={selectedEducationLevels.includes(level)}
                                     onChange={() => toggleEducationLevel(level)}
                                   />
