@@ -4,57 +4,20 @@ import icon from '../assets/Vector.svg';
 import image2 from '../assets/bg-file-image.png';
 import { useNavigate } from 'react-router-dom';
 import { getAnnounce, getAnnounceImage } from '../composable/getAnnounce';
+import { getProvider } from '../composable/getProvider'; // เพิ่มการนำเข้า getProvider
 import image_No_Scholarship from '../assets/No_Scholarship.png';
 import '../style/style.css'; // Import CSS file
 import '../style/home.css'; // Import CSS file
 import jwt_decode from 'jwt-decode'; // Make sure to import jwt-decode
 
-const mockData = [
-    {
-        id: 1,
-        name: "Engineering Scholarship 2024",
-        appointment: "2024-03-15",
-        email: "contact@engineering.edu",
-        status: "Approved"
-    },
-    {
-        id: 2,
-        name: "Medical Studies Grant",
-        appointment: "2024-03-20",
-        email: "med.scholarship@health.org",
-        status: "Pending"
-    },
-    {
-        id: 3,
-        name: "Arts & Design Fellowship",
-        appointment: "2024-03-25",
-        email: "arts@creative.edu",
-        status: "Rejected"
-    },
-    {
-        id: 4,
-        name: "Business Excellence Award",
-        appointment: "2024-04-01",
-        email: "business@corp.edu",
-        status: "Approved"
-    },
-    {
-        id: 5,
-        name: "Science Research Grant",
-        appointment: "2024-04-05",
-        email: "science@research.org",
-        status: "Pending"
-    }
-];
-
 const statusColors = {
     Approved: "bg-green-100 text-green-800",
     Pending: "bg-yellow-100 text-yellow-800",
-    Rejected: "bg-red-100 text-red-800"
+    Rejected: "bg-red-100 text-red-800",
+    Waiting: "bg-blue-100 text-blue-800"
 };
 
 const itemsPerPage = 5;
-const totalPages = Math.ceil(mockData.length / itemsPerPage);
 
 function Homepage() {
     const [announceData, setAnnounceData] = useState({
@@ -70,8 +33,8 @@ function Homepage() {
     const [currentPage, setCurrentPage] = useState(1);
     const [announceImages, setAnnounceImages] = useState({});
     const [userRole, setUserRole] = useState(null);
-    const [displayedData] = useState(mockData);
-    const [activeTab, setActiveTab] = useState('scholarships');
+    // เปลี่ยนค่าเริ่มต้นของ activeTab เป็น 'approvals' แทน 'scholarships'
+    const [activeTab, setActiveTab] = useState('approvals');
     const [adminCurrentPage, setAdminCurrentPage] = useState(1);
     const [adminItemsPerPage] = useState(10);
     const [adminAnnounceData, setAdminAnnounceData] = useState({
@@ -81,6 +44,34 @@ function Homepage() {
         last_page: 1,
         per_page: 10
     });
+    // เพิ่ม state สำหรับเก็บข้อมูลผู้ให้บริการจาก API
+    const [providerData, setProviderData] = useState([]);
+    // เพิ่มตัวแปรสำหรับการจัดการหน้าในส่วนของ provider
+    const [providerCurrentPage, setProviderCurrentPage] = useState(1);
+    const providersPerPage = 5;
+
+    // ใช้สำหรับคำนวณจำนวนหน้าทั้งหมดของ provider
+    const totalProviderPages = Math.ceil((providerData?.length || 0) / providersPerPage);
+
+    // ฟังก์ชั่นดึงข้อมูลผู้ให้บริการ
+    const fetchProviderData = async () => {
+        try {
+            const data = await getProvider();
+            console.log(data);
+            if (data) {
+                setProviderData(data);
+            }
+        } catch (error) {
+            console.error('Error fetching provider data:', error);
+        }
+    };
+
+    // ดึงข้อมูลผู้ให้บริการเมื่อ tab เป็น approvals
+    useEffect(() => {
+        if (activeTab === 'approvals') {
+            fetchProviderData();
+        }
+    }, [activeTab]);
 
     const fetchAllAnnouncements = async (page = 1) => {
         try {
@@ -103,19 +94,30 @@ function Homepage() {
 
     useEffect(() => {
         setIsLoading(true);
-        Promise.all([
-            getAnnounce(currentPage),
-            fetchAllAnnouncements()
-        ]).then(([currentPageData]) => {
-            if (currentPageData) {
-                setAnnounceData(currentPageData);
-            }
-        }).catch((error) => {
-            console.error(error);
-        }).finally(() => {
-            setIsLoading(false);
-        });
-    }, [currentPage]);
+        // ถ้าเป็น tab approvals เราจะโหลดข้อมูลผู้ให้บริการ
+        if (activeTab === 'approvals') {
+            fetchProviderData()
+                .then(() => setIsLoading(false))
+                .catch((error) => {
+                    console.error('Error fetching provider data:', error);
+                    setIsLoading(false);
+                });
+        } else {
+            // ถ้าเป็น tab scholarships เราจะโหลดข้อมูลทุนการศึกษา (เหมือนเดิม)
+            Promise.all([
+                getAnnounce(currentPage),
+                fetchAllAnnouncements()
+            ]).then(([currentPageData]) => {
+                if (currentPageData) {
+                    setAnnounceData(currentPageData);
+                }
+            }).catch((error) => {
+                console.error(error);
+            }).finally(() => {
+                setIsLoading(false);
+            });
+        }
+    }, [currentPage, activeTab]);
 
     useEffect(() => {
         // โหลดรูปภาพสำหรับทุกประกาศ
@@ -310,9 +312,38 @@ function Homepage() {
         setAdminCurrentPage(newPage);
     };
 
+    // ฟังก์ชั่นสำหรับแสดงข้อมูลผู้ให้บริการตามหน้าปัจจุบัน
+    const getCurrentPageProviders = () => {
+        const startIndex = (providerCurrentPage - 1) * providersPerPage;
+        const endIndex = startIndex + providersPerPage;
+        return providerData?.slice(startIndex, endIndex) || [];
+    };
+
+    // เพิ่มฟังก์ชันสำหรับจัดรูปแบบวันที่
+    const formatDate = (dateString) => {
+        if (!dateString) return "Not specified";
+        
+        const date = new Date(dateString);
+        // ตรวจสอบว่าวันที่ถูกต้องหรือไม่
+        if (isNaN(date.getTime())) return "Invalid date";
+        
+        // สร้างรูปแบบวันที่เป็น "24 Jan 2025"
+        const options = { day: 'numeric', month: 'short', year: 'numeric' };
+        return date.toLocaleDateString('en-GB', options);
+    };
+
     const renderAdminView = () => {
         const tableContent = () => {
             if (activeTab === 'approvals') {
+                // กรณีที่ยังไม่มีข้อมูล - เปลี่ยนเป็นภาษาอังกฤษ
+                if (!providerData || providerData.length === 0) {
+                    return (
+                        <div className="p-8 text-center">
+                            <p className="text-gray-500">No provider information found</p>
+                        </div>
+                    );
+                }
+
                 return (
                     <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50">
@@ -320,38 +351,60 @@ function Homepage() {
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">No.</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Appointment</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Contact</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-                            {displayedData.map((item, index) => (
-                                <tr key={item.id} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {index + 1}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        {item.name}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {item.appointment}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {item.email}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className={`px-2 py-1 text-xs rounded-full ${statusColors[item.status]}`}>
-                                            {item.status}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        <button className="text-blue-600 hover:text-blue-800">
-                                            Review
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
+                            {getCurrentPageProviders().map((provider, index) => {
+                                // แปลงค่า verify เป็นสถานะที่แสดงผล
+                                let status;
+                                switch(provider.verify) {
+                                    case 'Yes':
+                                        status = "Approved";
+                                        break;
+                                    case 'No':
+                                        status = "Rejected";
+                                        break;
+                                    case 'Waiting':
+                                    default:
+                                        status = "Pending";
+                                        break;
+                                }
+                                
+                                const startIndex = (providerCurrentPage - 1) * providersPerPage;
+                                
+                                return (
+                                    <tr key={provider.id} className="hover:bg-gray-50">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {startIndex + index + 1}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            {provider.name || provider.company_name || "Not specified"}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {formatDate(provider.create_on)}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {provider.email || "Not specified"}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className={`px-2 py-1 text-xs rounded-full ${statusColors[status]}`}>
+                                                {status}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <button 
+                                                onClick={() => navigate(`/provider/detail/${provider.id}`)}
+                                                className="text-blue-600 hover:text-blue-800"
+                                            >
+                                                Detail
+                                            </button>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                 );
@@ -418,6 +471,54 @@ function Homepage() {
                         })}
                     </tbody>
                 </table>
+            );
+        };
+
+        const renderProviderPagination = () => {
+            if (!providerData || totalProviderPages <= 1) return null;
+
+            return (
+                <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                    <div className="flex-1 flex justify-center">
+                        <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                            <button
+                                onClick={() => handleProviderPageChange(providerCurrentPage - 1)}
+                                disabled={providerCurrentPage === 1}
+                                className={`px-4 py-2 mx-1 rounded ${
+                                    providerCurrentPage === 1
+                                        ? 'bg-gray-100 text-gray-400'
+                                        : 'bg-white text-gray-700 hover:bg-gray-100'
+                                } border`}
+                            >
+                                Previous
+                            </button>
+                            {[...Array(totalProviderPages)].map((_, i) => (
+                                <button
+                                    key={i + 1}
+                                    onClick={() => handleProviderPageChange(i + 1)}
+                                    className={`px-4 py-2 mx-1 rounded ${
+                                        providerCurrentPage === i + 1
+                                            ? 'bg-blue-500 text-white'
+                                            : 'bg-white text-gray-700 hover:bg-gray-100'
+                                    } border`}
+                                >
+                                    {i + 1}
+                                </button>
+                            ))}
+                            <button
+                                onClick={() => handleProviderPageChange(providerCurrentPage + 1)}
+                                disabled={providerCurrentPage === totalProviderPages}
+                                className={`px-4 py-2 mx-1 rounded ${
+                                    providerCurrentPage === totalProviderPages
+                                        ? 'bg-gray-100 text-gray-400'
+                                        : 'bg-white text-gray-700 hover:bg-gray-100'
+                                } border`}
+                            >
+                                Next
+                            </button>
+                        </nav>
+                    </div>
+                </div>
             );
         };
 
@@ -507,7 +608,7 @@ function Homepage() {
                         <div className="overflow-x-auto">
                             {tableContent()}
                         </div>
-                        {renderAdminPagination()}
+                        {activeTab === 'approvals' ? renderProviderPagination() : renderAdminPagination()}
                     </div>
                 </div>
             </div>
@@ -738,10 +839,10 @@ function Homepage() {
     }, []);
 
     useEffect(() => {
-        if (activeTab === 'scholarships') {
+        if (activeTab === 'scholarships' && !isLoading) {
             fetchAllAnnouncements(adminCurrentPage);
         }
-    }, [adminCurrentPage, activeTab]);
+    }, [adminCurrentPage, activeTab, isLoading]);
 
     return (
         <>

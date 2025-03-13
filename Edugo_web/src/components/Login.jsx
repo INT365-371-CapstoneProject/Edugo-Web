@@ -3,9 +3,10 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import axios from "axios";
 import imageLogin from "../assets/login.png";
 import Swal from 'sweetalert2';
-import { useNavigate,Link, Route } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import '../style/style.css'; // Import CSS file
 import jwt_decode from 'jwt-decode'; // Import jwt-decode
+import { checkUserStatus } from "../composable/getProfile"; // นำเข้าฟังก์ชัน checkUserStatus
 const APT_ROOT = import.meta.env.VITE_API_ROOT;
 
 function Login() {
@@ -117,7 +118,22 @@ function Login() {
           return;
         }
 
-        // If role is valid, save token and proceed
+        // ตรวจสอบสถานะผู้ใช้ก่อนที่จะให้เข้าสู่ระบบ
+        const profileData = await checkUserStatus(token);
+        
+        if (profileData && profileData.profile.status === "Suspended") {
+          // ถ้าสถานะเป็น Suspended ให้แสดงข้อความแจ้งเตือนและไม่ให้เข้าสู่ระบบ - เปลี่ยนเป็นภาษาอังกฤษ
+          Swal.fire({
+            title: 'Account Suspended',
+            text: 'Your account has been suspended. Please contact administrator.',
+            icon: 'error',
+            confirmButtonText: 'Understood',
+            confirmButtonColor: '#d33',
+          });
+          return; // ไม่ดำเนินการต่อ
+        }
+
+        // ถ้าสถานะไม่ใช่ Suspended จึงบันทึก token และแสดงข้อความยินดีต้อนรับ
         localStorage.setItem('token', token);
         
         await Swal.fire({
