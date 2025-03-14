@@ -17,15 +17,64 @@ const getDefaultConfig = () => {
   return getConfigWithToken(token);
 };
 
-const getProvider = async () => {
-    try{
-        const res = await axios.get(`${urlAdmin}/provider`, getDefaultConfig());
-        return res.data;
+// Simplify getProvider to just handle the current page
+const getProvider = async (page = 1, limit = 10) => {
+  try {
+    // Request paginated data with normal parameters
+    const res = await axios.get(`${urlAdmin}/provider?page=${page}&limit=${limit}`, getDefaultConfig());
+    
+    // Return formatted data structure
+    if (res.data && res.data.pagination && res.data.providers) {
+      return {
+        data: res.data.providers,
+        pagination: res.data.pagination
+      };
+    } else if (res.data && Array.isArray(res.data.providers)) {
+      const providers = res.data.providers;
+      return {
+        data: providers,
+        pagination: {
+          limit: limit,
+          page: page,
+          total: providers.length,
+          total_page: Math.ceil(providers.length / limit)
+        }
+      };
+    } else if (Array.isArray(res.data)) {
+      return {
+        data: res.data,
+        pagination: {
+          limit: limit,
+          page: page,
+          total: res.data.length,
+          total_page: Math.ceil(res.data.length / limit)
+        }
+      };
+    } else {
+      // Fallback for unexpected data format
+      console.warn("Unexpected API response format:", res.data);
+      return {
+        data: [],
+        pagination: {
+          limit: limit,
+          page: page,
+          total: 0,
+          total_page: 0
+        }
+      };
     }
-    catch (error) {
-        console.error("Error:", error);
-        return null;
-    }
-}
+  } catch (error) {
+    console.error("Error fetching provider data:", error);
+    return {
+      data: [],
+      pagination: {
+        limit: limit,
+        page: page,
+        total: 0,
+        total_page: 0
+      }
+    };
+  }
+};
 
 export { getProvider };

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Nav from './Nav';
 import icon from '../assets/Vector.svg';
 import image2 from '../assets/bg-file-image.png';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { getAnnounce, getAnnounceImage } from '../composable/getAnnounce';
 import { getProvider } from '../composable/getProvider'; // เพิ่มการนำเข้า getProvider
 import image_No_Scholarship from '../assets/No_Scholarship.png';
@@ -48,21 +48,192 @@ function Homepage() {
     const [providerData, setProviderData] = useState([]);
     // เพิ่มตัวแปรสำหรับการจัดการหน้าในส่วนของ provider
     const [providerCurrentPage, setProviderCurrentPage] = useState(1);
-    const providersPerPage = 5;
+    // แก้ไขค่า providersPerPage ให้เหมือนกับ limit ที่เราส่งไป API
+    const providersPerPage = 10;
 
     // ใช้สำหรับคำนวณจำนวนหน้าทั้งหมดของ provider
     const totalProviderPages = Math.ceil((providerData?.length || 0) / providersPerPage);
 
+    // เพิ่ม state สำหรับเก็บข้อมูลการแบ่งหน้า (pagination) ของ provider
+    const [providerPagination, setProviderPagination] = useState({
+        limit: 10,
+        page: 1,
+        total: 0,
+        total_page: 1
+    });
+
+    // Add state for storing all providers (across all pages)
+    const [allProviders, setAllProviders] = useState([]);
+    
+    // Add state for actual counts
+    const [approvalsCount, setApprovalsCount] = useState({
+        total: 0,
+        pending: 0,
+        approved: 0,
+        rejected: 0
+    });
+
+    // Keep a reference to the total counts separately from the regular API response
+    const [providerCounts, setProviderCounts] = useState({
+        total: 0,
+        pending: 0,
+        approved: 0,
+        rejected: 0,
+        initialized: false
+    });
+
     // ฟังก์ชั่นดึงข้อมูลผู้ให้บริการ
     const fetchProviderData = async () => {
         try {
-            const data = await getProvider();
-            console.log(data);
-            if (data) {
-                setProviderData(data);
+            const response = await getProvider(providerCurrentPage, providersPerPage);
+            
+            if (response && response.data) {
+                setProviderData(response.data);
+                
+                if (response.pagination) {
+                    setProviderPagination(response.pagination);
+                    
+                    // If we haven't calculated counts yet, do it now
+                    if (!providerCounts.initialized) {
+                        // This will trigger the fetchAllProviders effect
+                        setProviderCounts(prev => ({ ...prev, initialized: true }));
+                    }
+                }
+            } else {
+                setProviderData([]);
+                // Set default pagination values to ensure UI elements still work
+                setProviderPagination({
+                    limit: providersPerPage,
+                    page: 1,
+                    total: 0,
+                    total_page: 1,
+                    pending_count: 0,
+                    approved_count: 0,
+                    rejected_count: 0
+                });
             }
         } catch (error) {
             console.error('Error fetching provider data:', error);
+            setProviderData([]);
+            // Set default pagination values in case of error
+            setProviderPagination({
+                limit: providersPerPage,
+                page: 1, 
+                total: 0,
+                total_page: 1,
+                pending_count: 0,
+                approved_count: 0,
+                rejected_count: 0
+            });
+        }
+    };
+
+    // New effect to fetch data for counting across all pages when needed
+    useEffect(() => {
+        const fetchAllProviders = async () => {
+            try {
+                // Only proceed if we are on the approvals tab and the counts need initializing
+                if (activeTab !== 'approvals' || !providerCounts.initialized) return;
+                
+                // Get total pages from pagination
+                const totalPages = providerPagination.total_page || 1;
+                const allProviders = [];
+                
+                // Fetch data from all pages (up to reasonable limit)
+                const maxPages = Math.min(totalPages, 5); // Limit to first 5 pages
+                
+                for (let i = 1; i <= maxPages; i++) {
+                    // Skip the current page since we already have that data
+                    if (i === providerCurrentPage) {
+                        allProviders.push(...providerData);
+                        continue;
+                    }
+                    
+                    const pageResponse = await getProvider(i, providersPerPage);
+                    if (pageResponse && pageResponse.data) {
+                        allProviders.push(...pageResponse.data);
+                    }
+                }
+                
+                // Count providers by status
+                const pendingCount = allProviders.filter(p => p.verify === 'Waiting').length;
+                const approvedCount = allProviders.filter(p => p.verify === 'Yes').length;
+                const rejectedCount = allProviders.filter(p => p.verify === 'No').length;
+                const totalCount = pendingCount + approvedCount + rejectedCount;
+                
+                // Update the counts
+                setProviderCounts({
+                    total: totalCount,
+                    pending: pendingCount,
+                    approved: approvedCount,
+                    rejected: rejectedCount,
+                    initialized: true
+                });
+                
+            } catch (error) {
+                console.error("Error fetching all providers:", error);
+                // Keep initialized true to prevent infinite retries
+                setProviderCounts(prev => ({ ...prev, initialized: true }));
+            }
+        };
+        
+        fetchAllProviders();
+    }, [providerCounts.initialized, activeTab, providerPagination.total_page]);
+
+    // New function to fetch all provider pages for accurate counts
+    const fetchAllProviderPages = async (totalPages) => {
+        try {
+            const allResults = [];
+            const pagePromises = [];
+            
+            // Fetch page 1 to totalPages (with a reasonable limit)
+            const maxPagesToFetch = Math.min(totalPages, 10); // Limit to 10 pages max
+            
+            for (let i = 1; i <= maxPagesToFetch; i++) {
+                // Skip current page as we already have it
+                if (i === providerCurrentPage) continue;
+                
+                pagePromises.push(
+                    getProvider(i, providersPerPage)
+                        .then(res => {
+                            if (res && res.data) {
+                                return res.data;
+                            }
+                            return [];
+                        })
+                );
+            }
+            
+            const results = await Promise.all(pagePromises);
+            results.forEach(pageData => {
+                allResults.push(...pageData);
+            });
+            
+            // Add current page data
+            allResults.push(...providerData);
+            
+            // Remove duplicates using provider IDs
+            const uniqueProviders = Array.from(
+                new Map(allResults.map(item => [item.id, item])).values()
+            );
+            
+            setAllProviders(uniqueProviders);
+            
+            // Calculate total counts from all providers
+            const pendingCount = uniqueProviders.filter(p => p.verify === 'Waiting').length;
+            const approvedCount = uniqueProviders.filter(p => p.verify === 'Yes').length;
+            const rejectedCount = uniqueProviders.filter(p => p.verify === 'No').length;
+            const totalCount = uniqueProviders.length;
+            
+            setApprovalsCount({
+                total: totalCount,
+                pending: pendingCount,
+                approved: approvedCount,
+                rejected: rejectedCount
+            });
+            
+        } catch (error) {
+            console.error('Error fetching all provider pages:', error);
         }
     };
 
@@ -71,7 +242,109 @@ function Homepage() {
         if (activeTab === 'approvals') {
             fetchProviderData();
         }
-    }, [activeTab]);
+    }, [activeTab, providerCurrentPage]); // เพิ่ม providerCurrentPage เพื่อโหลดข้อมูลใหม่เมื่อมีการเปลี่ยนหน้า
+
+    // อัพเดทฟังก์ชันสำหรับการจัดการเปลี่ยนหน้า
+    const handleProviderPageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= providerPagination.total_page) {
+            setProviderCurrentPage(newPage);
+        }
+    };
+
+    // อัพเดทฟังก์ชัน getCurrentPageProviders
+    const getCurrentPageProviders = () => {
+        return providerData || [];
+    };
+
+    // อัปเดตฟังก์ชัน renderProviderPagination ให้ใช้ providerPagination.total_page แทน totalProviderPages
+    const renderProviderPagination = () => {
+        // Always make sure the pagination component renders
+        return (
+            <div className="bg-white px-6 py-4">
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div className="flex justify-center flex-1">
+                        <nav className="relative z-0 inline-flex -space-x-px" aria-label="Pagination">
+                            <button
+                                onClick={() => handleProviderPageChange(1)}
+                                disabled={providerCurrentPage === 1}
+                                className={`relative inline-flex items-center px-2 py-2 rounded-l-md text-sm font-medium ${
+                                    providerCurrentPage === 1 
+                                    ? 'text-gray-400 cursor-not-allowed' 
+                                    : 'text-gray-500 hover:bg-blue-50 hover:text-blue-600'
+                                }`}
+                            >
+                                <span className="sr-only">First</span>
+                                <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                                </svg>
+                            </button>
+
+                            {(() => {
+                                let pages = [];
+                                const totalPages = Math.max(1, providerPagination.total_page); // Ensure at least 1 page
+                                
+                                // Always show at least one page button
+                                if (totalPages === 1) {
+                                    pages.push(
+                                        <button
+                                            key={1}
+                                            onClick={() => handleProviderPageChange(1)}
+                                            className="relative inline-flex items-center px-4 py-2 text-sm font-medium mx-1 rounded-md bg-blue-600 text-white transition-colors duration-150"
+                                        >
+                                            1
+                                        </button>
+                                    );
+                                    return pages;
+                                }
+                                
+                                let startPage = Math.max(1, providerCurrentPage - 2);
+                                let endPage = Math.min(totalPages, startPage + 4);
+                                
+                                if (endPage - startPage < 4) {
+                                    startPage = Math.max(1, endPage - 4);
+                                }
+                                
+                                for (let i = startPage; i <= endPage; i++) {
+                                    pages.push(
+                                        <button
+                                            key={i}
+                                            onClick={() => handleProviderPageChange(i)}
+                                            className={`relative inline-flex items-center px-4 py-2 text-sm font-medium mx-1 rounded-md
+                                                ${providerCurrentPage === i 
+                                                ? 'bg-blue-600 text-white' 
+                                                : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
+                                                } transition-colors duration-150`}
+                                        >
+                                            {i}
+                                        </button>
+                                    );
+                                }
+                                return pages;
+                            })()}
+
+                            <button
+                                onClick={() => handleProviderPageChange(Math.max(1, providerPagination.total_page))}
+                                disabled={providerCurrentPage === providerPagination.total_page || providerPagination.total_page <= 1}
+                                className={`relative inline-flex items-center px-2 py-2 rounded-r-md text-sm font-medium ${
+                                    providerCurrentPage === providerPagination.total_page || providerPagination.total_page <= 1
+                                    ? 'text-gray-400 cursor-not-allowed' 
+                                    : 'text-gray-500 hover:bg-blue-50 hover:text-blue-600'
+                                }`}
+                            >
+                                <span className="sr-only">Last</span>
+                                <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M4.293 15.707a1 1 0 001.414 0l5-5a1 1 0 000-1.414l-5-5a1 1 0 00-1.414 1.414L8.586 10l-4.293 4.293a1 1 0 000 1.414z" clipRule="evenodd" />
+                                </svg>
+                            </button>
+                        </nav>
+                    </div>
+                    <div className="text-sm text-gray-700 whitespace-nowrap">
+                        Showing {providerData.length > 0 ? ((providerCurrentPage - 1) * providersPerPage) + 1 : (providerPagination.total > 0 ? 1 : 0)} to {providerData.length > 0 ? Math.min(providerCurrentPage * providersPerPage, providerPagination.total) : providerPagination.total} of {providerPagination.total || 0} results
+                    </div>
+                </div>
+            </div>
+        );
+    };
 
     const fetchAllAnnouncements = async (page = 1) => {
         try {
@@ -155,7 +428,44 @@ function Homepage() {
     }, []);
 
     const navigate = useNavigate();
+    // รับค่า state จาก location หากมี
+    const location = useLocation(); // เพิ่มการนำเข้า useLocation
+    
+    // เพิ่ม useEffect นี้เป็นตัวแรกในคอมโพเนนต์ เพื่อให้มันทำงานก่อน
+    useEffect(() => {
+        // ตั้งค่า initial state จาก localStorage เมื่อคอมโพเนนต์ถูกโหลด
+        const savedTab = localStorage.getItem('activeAdminTab');
+        if (savedTab) {
+            setActiveTab(savedTab);
+        }
+        
+        // ตรวจสอบ hash
+        if (location.hash === '#scholarships') {
+            setActiveTab('scholarships');
+        } else if (location.hash === '#approvals') {
+            setActiveTab('approvals');
+        }
+    }, []);
 
+    // แก้ไข useEffect เดิมที่ตรวจสอบ state จาก navigation
+    useEffect(() => {
+        if (location.state && location.state.activeTab) {
+            console.log("Setting active tab to:", location.state.activeTab);
+            setActiveTab(location.state.activeTab);
+            // บันทึกค่า activeTab ไว้ใน localStorage
+            localStorage.setItem('activeAdminTab', location.state.activeTab);
+            // เคลียร์ state
+            navigate(location.pathname, { replace: true, state: {} });
+        }
+    }, [location, navigate]);
+
+    // เพิ่ม useEffect ใหม่เพื่อบันทึกค่า activeTab เมื่อมีการเปลี่ยนแปลง
+    useEffect(() => {
+        // บันทึกค่า activeTab ไว้ใน localStorage ทุกครั้งที่มีการเปลี่ยนแปลง
+        if (userRole && ['admin', 'superadmin'].includes(userRole)) {
+            localStorage.setItem('activeAdminTab', activeTab);
+        }
+    }, [activeTab, userRole]);
 
     const checkOpenAnnounce = allAnnouncements.filter((announce) => {
         const localPublishedDate = new Date(announce.publish_date);
@@ -214,7 +524,6 @@ function Homepage() {
             const nowInLocalTime = new Date();
             const localPublishedDate = new Date(announce.publish_date);
             const localCloseDate = new Date(announce.close_date);
-
             switch (type) {
                 case 'Open':
                     return localPublishedDate <= nowInLocalTime && localCloseDate >= nowInLocalTime;
@@ -255,7 +564,6 @@ function Homepage() {
     const formatDateRange = (startDateString, endDateString) => {
         const startDate = new Date(startDateString);
         const endDate = new Date(endDateString);
-
         const optionsSameYear = { day: 'numeric', month: 'short' };
         const optionsDifferentYear = { day: 'numeric', month: 'short', year: 'numeric' };
 
@@ -311,14 +619,6 @@ function Homepage() {
     const handleAdminPageChange = (newPage) => {
         setAdminCurrentPage(newPage);
     };
-
-    // ฟังก์ชั่นสำหรับแสดงข้อมูลผู้ให้บริการตามหน้าปัจจุบัน
-    const getCurrentPageProviders = () => {
-        const startIndex = (providerCurrentPage - 1) * providersPerPage;
-        const endIndex = startIndex + providersPerPage;
-        return providerData?.slice(startIndex, endIndex) || [];
-    };
-
     // เพิ่มฟังก์ชันสำหรับจัดรูปแบบวันที่
     const formatDate = (dateString) => {
         if (!dateString) return "Not specified";
@@ -351,7 +651,7 @@ function Homepage() {
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">No.</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Appointment</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Contact</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                             </tr>
@@ -372,7 +672,7 @@ function Homepage() {
                                         status = "Pending";
                                         break;
                                 }
-                                
+                                // แก้การคำนวณลำดับเพื่อให้ถูกต้องกับการแบ่งหน้า
                                 const startIndex = (providerCurrentPage - 1) * providersPerPage;
                                 
                                 return (
@@ -399,7 +699,7 @@ function Homepage() {
                                                 onClick={() => navigate(`/provider/detail/${provider.id}`)}
                                                 className="text-blue-600 hover:text-blue-800"
                                             >
-                                                Detail
+                                                Review
                                             </button>
                                         </td>
                                     </tr>
@@ -474,101 +774,92 @@ function Homepage() {
             );
         };
 
-        const renderProviderPagination = () => {
-            if (!providerData || totalProviderPages <= 1) return null;
-
-            return (
-                <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-                    <div className="flex-1 flex justify-center">
-                        <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                            <button
-                                onClick={() => handleProviderPageChange(providerCurrentPage - 1)}
-                                disabled={providerCurrentPage === 1}
-                                className={`px-4 py-2 mx-1 rounded ${
-                                    providerCurrentPage === 1
-                                        ? 'bg-gray-100 text-gray-400'
-                                        : 'bg-white text-gray-700 hover:bg-gray-100'
-                                } border`}
-                            >
-                                Previous
-                            </button>
-                            {[...Array(totalProviderPages)].map((_, i) => (
-                                <button
-                                    key={i + 1}
-                                    onClick={() => handleProviderPageChange(i + 1)}
-                                    className={`px-4 py-2 mx-1 rounded ${
-                                        providerCurrentPage === i + 1
-                                            ? 'bg-blue-500 text-white'
-                                            : 'bg-white text-gray-700 hover:bg-gray-100'
-                                    } border`}
-                                >
-                                    {i + 1}
-                                </button>
-                            ))}
-                            <button
-                                onClick={() => handleProviderPageChange(providerCurrentPage + 1)}
-                                disabled={providerCurrentPage === totalProviderPages}
-                                className={`px-4 py-2 mx-1 rounded ${
-                                    providerCurrentPage === totalProviderPages
-                                        ? 'bg-gray-100 text-gray-400'
-                                        : 'bg-white text-gray-700 hover:bg-gray-100'
-                                } border`}
-                            >
-                                Next
-                            </button>
-                        </nav>
-                    </div>
-                </div>
-            );
-        };
-
         const renderAdminPagination = () => {
             if (!adminAnnounceData || adminAnnounceData.last_page <= 1) return null;
 
             return (
-                <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-                    <div className="flex-1 flex justify-center">
-                        <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                            <button
-                                onClick={() => handleAdminPageChange(adminCurrentPage - 1)}
-                                disabled={adminCurrentPage === 1}
-                                className={`px-4 py-2 mx-1 rounded ${
-                                    adminCurrentPage === 1
-                                        ? 'bg-gray-100 text-gray-400'
-                                        : 'bg-white text-gray-700 hover:bg-gray-100'
-                                } border`}
-                            >
-                                Previous
-                            </button>
-                            {[...Array(adminAnnounceData.last_page)].map((_, i) => (
+                <div className="bg-white px-6 py-4">
+                    <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div className="flex justify-center flex-1">
+                            <nav className="relative z-0 inline-flex -space-x-px" aria-label="Pagination">
+                                {/* Copy the same button structure as renderProviderPagination but use adminCurrentPage and handleAdminPageChange */}
                                 <button
-                                    key={i + 1}
-                                    onClick={() => handleAdminPageChange(i + 1)}
-                                    className={`px-4 py-2 mx-1 rounded ${
-                                        adminCurrentPage === i + 1
-                                            ? 'bg-blue-500 text-white'
-                                            : 'bg-white text-gray-700 hover:bg-gray-100'
-                                    } border`}
+                                    onClick={() => handleAdminPageChange(1)}
+                                    disabled={adminCurrentPage === 1}
+                                    className={`relative inline-flex items-center px-2 py-2 rounded-l-md text-sm font-medium ${
+                                        adminCurrentPage === 1 
+                                        ? 'text-gray-400 cursor-not-allowed' 
+                                        : 'text-gray-500 hover:bg-blue-50 hover:text-blue-600'
+                                    }`}
                                 >
-                                    {i + 1}
+                                    <span className="sr-only">First</span>
+                                    <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fillRule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                                    </svg>
                                 </button>
-                            ))}
-                            <button
-                                onClick={() => handleAdminPageChange(adminCurrentPage + 1)}
-                                disabled={adminCurrentPage === adminAnnounceData.last_page}
-                                className={`px-4 py-2 mx-1 rounded ${
-                                    adminCurrentPage === adminAnnounceData.last_page
-                                        ? 'bg-gray-100 text-gray-400'
-                                        : 'bg-white text-gray-700 hover:bg-gray-100'
-                                } border`}
-                            >
-                                Next
-                            </button>
-                        </nav>
+
+                                {/* Page numbers */}
+                                {(() => {
+                                    let pages = [];
+                                    let startPage = Math.max(1, adminCurrentPage - 2);
+                                    let endPage = Math.min(adminAnnounceData.last_page, startPage + 4);
+                                    
+                                    if (endPage - startPage < 4) {
+                                        startPage = Math.max(1, endPage - 4);
+                                    }
+                                    
+                                    for (let i = startPage; i <= endPage; i++) {
+                                        pages.push(
+                                            <button
+                                                key={i}
+                                                onClick={() => handleAdminPageChange(i)}
+                                                className={`relative inline-flex items-center px-4 py-2 text-sm font-medium mx-1 rounded-md
+                                                    ${adminCurrentPage === i 
+                                                    ? 'bg-blue-600 text-white' 
+                                                    : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
+                                                    } transition-colors duration-150`}
+                                            >
+                                                {i}
+                                            </button>
+                                        );
+                                    }
+                                    return pages;
+                                })()}
+
+                                <button
+                                    onClick={() => handleAdminPageChange(adminAnnounceData.last_page)}
+                                    disabled={adminCurrentPage === adminAnnounceData.last_page}
+                                    className={`relative inline-flex items-center px-2 py-2 rounded-r-md text-sm font-medium ${
+                                        adminCurrentPage === adminAnnounceData.last_page 
+                                        ? 'text-gray-400 cursor-not-allowed' 
+                                        : 'text-gray-500 hover:bg-blue-50 hover:text-blue-600'
+                                    }`}
+                                >
+                                    <span className="sr-only">Last</span>
+                                    <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fillRule="evenodd" d="M4.293 15.707a1 1 0 001.414 0l5-5a1 1 0 000-1.414l-5-5a1 1 0 00-1.414 1.414L8.586 10l-4.293 4.293a1 1 0 000 1.414z" clipRule="evenodd" />
+                                    </svg>
+                                </button>
+                            </nav>
+                        </div>
+                        <div className="text-sm text-gray-700 whitespace-nowrap">
+                            Showing {adminAnnounceData.data.length > 0 ? ((adminCurrentPage - 1) * adminAnnounceData.per_page) + 1 : 0} to {Math.min(adminCurrentPage * adminAnnounceData.per_page, adminAnnounceData.total)} of {adminAnnounceData.total} results
+                        </div>
                     </div>
                 </div>
             );
         };
+
+        // Compute total counts when API doesn't provide them
+        const waitingCount = providerData.filter(p => p.verify === 'Waiting').length;
+        const approvedCount = providerData.filter(p => p.verify === 'Yes').length;
+        const rejectedCount = providerData.filter(p => p.verify === 'No').length;
+        
+        // Get actual counts from providerPagination if available, otherwise use calculated values
+        const totalCount = providerCounts.total > 0 ? providerCounts.total : providerPagination.total;
+        const pendingCount = providerCounts.pending;
+        const yesCount = providerCounts.approved;
+        const noCount = providerCounts.rejected;
 
         return (
             <div className="min-h-screen bg-gray-50 py-8">
@@ -577,37 +868,110 @@ function Homepage() {
                         <h1 className="text-3xl font-bold text-gray-900">Administrator Management</h1>
                     </div>
 
+                    {/* Update the approval cards styling with left borders */}
+                    <div className="grid grid-cols-4 gap-4 mb-6">
+                        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex">
+                            <div className="w-2 bg-gray-500"></div>
+                            <div className="p-4 flex-1">
+                                <h2 className="text-sm font-medium text-gray-600">All Approval</h2>
+                                <div className="mt-2 flex items-baseline">
+                                    <p className="text-2xl font-semibold text-gray-900">
+                                        {totalCount}
+                                    </p>
+                                    <p className="ml-2 text-sm text-gray-600">Approval</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex">
+                            <div className="w-2 bg-yellow-500"></div>
+                            <div className="p-4 flex-1">
+                                <h2 className="text-sm font-medium text-gray-600">Pending Approval</h2>
+                                <div className="mt-2 flex items-baseline">
+                                    <p className="text-2xl font-semibold text-gray-900">
+                                        {pendingCount}
+                                    </p>
+                                    <p className="ml-2 text-sm text-gray-600">Approval</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex">
+                            <div className="w-2 bg-green-500"></div>
+                            <div className="p-4 flex-1">
+                                <h2 className="text-sm font-medium text-gray-600">Approved Approval</h2>
+                                <div className="mt-2 flex items-baseline">
+                                    <p className="text-2xl font-semibold text-gray-900">
+                                        {yesCount}
+                                    </p>
+                                    <p className="ml-2 text-sm text-gray-600">Approval</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex">
+                            <div className="w-2 bg-red-500"></div>
+                            <div className="p-4 flex-1">
+                                <h2 className="text-sm font-medium text-gray-600">Rejected Approval</h2>
+                                <div className="mt-2 flex items-baseline">
+                                    <p className="text-2xl font-semibold text-gray-900">
+                                        {noCount}
+                                    </p>
+                                    <p className="ml-2 text-sm text-gray-600">Approval</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Rest of the component */}
                     <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
                         <div className="border-b border-gray-200 bg-gray-50">
                             <div className="px-6 py-4">
-                                <nav className="flex space-x-4">
-                                    <button 
-                                        className={`px-4 py-2 text-sm font-medium rounded-md ${
-                                            activeTab === 'approvals' 
-                                                ? 'bg-blue-50 text-blue-700' 
-                                                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                                        }`}
-                                        onClick={() => setActiveTab('approvals')}
-                                    >
-                                        Approval Management
-                                    </button>
-                                    <button 
-                                        className={`px-4 py-2 text-sm font-medium rounded-md ${
-                                            activeTab === 'scholarships' 
-                                                ? 'bg-blue-50 text-blue-700' 
-                                                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                                        }`}
-                                        onClick={() => setActiveTab('scholarships')}
-                                    >
-                                        Scholarship Management
+                                <nav className="flex justify-between items-center">
+                                    <div className="flex space-x-4">
+                                        <button
+                                            className={`px-4 py-2 text-sm font-medium rounded-md ${activeTab === 'approvals'
+                                                ? 'bg-blue-50 text-blue-700'
+                                                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}
+                                            onClick={() => {
+                                                setActiveTab('approvals');
+                                                window.history.replaceState(null, '', '/#approvals');
+                                            }}
+                                        >
+                                            Approval Management
+                                        </button>
+                                        <button
+                                            className={`px-4 py-2 text-sm font-medium rounded-md ${activeTab === 'scholarships'
+                                                ? 'bg-blue-50 text-blue-700'
+                                                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}
+                                            onClick={() => {
+                                                setActiveTab('scholarships');
+                                                window.history.replaceState(null, '', '/#scholarships');
+                                            }}
+                                        >
+                                            Scholarship Management
+                                        </button>
+                                        <button
+                                            className={`px-4 py-2 text-sm font-medium rounded-md ${activeTab === 'users'
+                                                ? 'bg-blue-50 text-blue-700'
+                                                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}
+                                            onClick={() => {
+                                                setActiveTab('users');
+                                                window.history.replaceState(null, '', '/#users');
+                                            }}
+                                        >
+                                            User Management
+                                        </button>
+                                    </div>
+                                    <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-150">
+                                        Add New Administrator
                                     </button>
                                 </nav>
                             </div>
                         </div>
 
+                        {/* Rest of the table content */}
                         <div className="overflow-x-auto">
                             {tableContent()}
                         </div>
+
                         {activeTab === 'approvals' ? renderProviderPagination() : renderAdminPagination()}
                     </div>
                 </div>
@@ -635,15 +999,15 @@ function Homepage() {
                                 </button>
                             </div>
                         </div>
+                    </div>
 
-                        {/* Buttons for Filter */}
-                        <div className="summary-padding">
-                            <div
-
-                                className="border-lightgrey"
-                                onClick={() => handleFilterClick('All')}
-                            >
-                                <div className="summary-all-border summary-border-radius"> </div>
+                    {/* Buttons for Filter */}
+                    <div className="summary-padding">
+                        <div
+                            className="border-lightgrey"
+                            onClick={() => handleFilterClick('All')}
+                        >
+                            <div className="summary-all-border summary-border-radius">
                                 <div className="flex flex-col items-start mt-5">
                                     <h1 className="summary-text">All Scholarship</h1>
                                     <div className="flex flex-row items-center mt-2 ml-8">
@@ -652,11 +1016,12 @@ function Homepage() {
                                     </div>
                                 </div>
                             </div>
-                            <div
-                                className="border-lightgrey"
-                                onClick={() => handleFilterClick('Pending')}
-                            >
-                                <div className="summary-pending-border summary-border-radius"></div>
+                        </div>
+                        <div
+                            className="border-lightgrey"
+                            onClick={() => handleFilterClick('Pending')}
+                        >
+                            <div className="summary-pending-border summary-border-radius">
                                 <div className="flex flex-col items-start mt-5 mb-5">
                                     <h1 className="summary-text">Pending Scholarship</h1>
                                     <div className="flex flex-row items-center mt-2 ml-8">
@@ -665,11 +1030,12 @@ function Homepage() {
                                     </div>
                                 </div>
                             </div>
-                            <div
-                                className="border-lightgrey"
-                                onClick={() => handleFilterClick('Open')}
-                            >
-                                <div className="summary-open-border summary-border-radius"></div>
+                        </div>
+                        <div
+                            className="border-lightgrey"
+                            onClick={() => handleFilterClick('Open')}
+                        ></div>
+                            <div className="summary-open-border summary-border-radius">
                                 <div className="flex flex-col items-start mt-5 mb-5">
                                     <h1 className="summary-text">Opened Scholarship</h1>
                                     <div className="flex flex-row items-center mt-2 ml-8">
@@ -678,12 +1044,12 @@ function Homepage() {
                                     </div>
                                 </div>
                             </div>
-
-                            <div
-                                className="border-lightgrey"
-                                onClick={() => handleFilterClick('Close')}
-                            >
-                                <div className="summary-close-border summary-border-radius"></div>
+                        </div>
+                        <div
+                            className="border-lightgrey"
+                            onClick={() => handleFilterClick('Close')}
+                        >
+                            <div className="summary-close-border summary-border-radius">
                                 <div className="flex flex-col items-start mt-5 mb-5">
                                     <h1 className="summary-text">Closed Scholarship</h1>
                                     <div className="flex flex-row items-center mt-2 ml-8">
@@ -693,129 +1059,190 @@ function Homepage() {
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        {/* No Scholarship Filter */}
-                        <div className="mt-10 flex justify-center items-center flex-col">
-                            {(filterType === 'All' ? allAnnouncements.length === 0 : getFilteredData().length === 0) && (
-                                <>
-                                    <h1 className="noscholarship-text">This space is waiting for data</h1>
-                                    <img src={image_No_Scholarship} alt="" className="noscholarship" />
-                                </>
-                            )}
-                        </div>
+                    {/* No Scholarship Filter */}
+                    <div className="mt-10 flex justify-center items-center flex-col">
+                        {(filterType === 'All' ? allAnnouncements.length === 0 : getFilteredData().length === 0) && (
+                            <>
+                                <h1 className="noscholarship-text">This space is waiting for data</h1>
+                                <img src={image_No_Scholarship} alt="" className="noscholarship" />
+                            </>
+                        )}
+                    </div>
 
-                        {/* Scholarship List */}
-                        <div className="ScholarLayout">
-                            {filteredAnnounce().map((announce, index) => (
-                                <div
-                                    key={index}
-                                    className="border-lightgrey scholarship-card"
-                                    onClick={() => navigate(`/detail/${announce.id}`)}
-                                >
-                                    <div className="grid grid-cols-12 gap-4">
-                                        {/* รูปภาพด้านซ้าย */}
-                                        <div className="col-span-5">
-                                            <img
-                                                className='scholarship-cover'
-                                                src={announceImages[announce.id] || image2}
-                                                alt={announce.title}
-                                                onError={(e) => {
-                                                    e.target.onerror = null;
-                                                    e.target.src = image2;
-                                                }}
-                                            />
-                                        </div>
+                    {/* Scholarship List */}
+                    <div className="ScholarLayout">
+                        {filteredAnnounce().map((announce, index) => (
+                            <div
+                                key={index}
+                                className="border-lightgrey scholarship-card"
+                                onClick={() => navigate(`/detail/${announce.id}`)}
+                            >
+                                <div className="grid grid-cols-12 gap-4">
+                                    {/* รูปภาพด้านซ้าย */}
+                                    <div className="col-span-5">
+                                        <img
+                                            className='scholarship-cover'
+                                            src={announceImages[announce.id] || image2}
+                                            alt={announce.title}
+                                            onError={(e) => {
+                                                e.target.onerror = null;
+                                                e.target.src = image2;
+                                            }}
+                                        />
+                                    </div>
 
-                                        {/* ข้อมูลด้านขวา - ปรับ padding ให้สมดุลกับรูปที่กว้างขึ้น */}
-                                        <div className="col-span-7 pl-12 pr-2">
-                                            <div className="flex justify-between items-center">
-                                                <h1 className="number-layout text-sm">
-                                                    #{((currentPage - 1) * announceData.per_page + index + 1).toString().padStart(4, '0')}
-                                                </h1>
-                                                <div
-                                                    className={`rounded-md px-3 py-1 ${checkPendingAnnounce.some((item) => item.id === announce.id)
-                                                        ? 'pending-status'
+                                    {/* ข้อมูลด้านขวา - ปรับ padding ให้สมดุลกับรูปที่กว้างขึ้น */}
+                                    <div className="col-span-7 pl-12 pr-2">
+                                        <div className="flex justify-between items-center">
+                                            <h1 className="number-layout text-sm">
+                                                #{((currentPage - 1) * announceData.per_page + index + 1).toString().padStart(4, '0')}
+                                            </h1>
+                                            <div
+                                                className={`rounded-md px-3 py-1 ${checkPendingAnnounce.some((item) => item.id === announce.id)
+                                                    ? 'pending-status'
+                                                    : checkOpenAnnounce.some((item) => item.id === announce.id)
+                                                        ? 'open-status'
+                                                        : 'close-status'
+                                                    }`}
+                                            >
+                                                <h1 className={`font-medium text-sm ${checkPendingAnnounce.some((item) => item.id === announce.id)
+                                                    ? 'text-gray-400'
+                                                    : checkOpenAnnounce.some((item) => item.id === announce.id)
+                                                        ? 'text-lime-400'
+                                                        : 'text-red-400'
+                                                    }`}>
+                                                    {checkPendingAnnounce.some((item) => item.id === announce.id)
+                                                        ? 'Pending'
                                                         : checkOpenAnnounce.some((item) => item.id === announce.id)
-                                                            ? 'open-status'
-                                                            : 'close-status'
-                                                        }`}
-                                                >
-                                                    <h1 className={`font-medium text-sm ${checkPendingAnnounce.some((item) => item.id === announce.id)
-                                                        ? 'text-gray-400'
-                                                        : checkOpenAnnounce.some((item) => item.id === announce.id)
-                                                            ? 'text-lime-400'
-                                                            : 'text-red-400'
-                                                        }`}>
-                                                        {checkPendingAnnounce.some((item) => item.id === announce.id)
-                                                            ? 'Pending'
-                                                            : checkOpenAnnounce.some((item) => item.id === announce.id)
-                                                                ? 'Open'
-                                                                : 'Close'}
-                                                    </h1>
-                                                </div>
-                                            </div>
-
-                                            {/* ส่วนแสดงผล title */}
-                                            <div className="space-y-3">
-                                                <h1 className="headingclamp">
-                                                    {announce?.title || 'Untitled Scholarship'} {/* เพิ่ม fallback text */}
+                                                            ? 'Open'
+                                                            : 'Close'}
                                                 </h1>
-
-                                                <div>
-                                                    <h2 className="font-medium text-sm text-gray-700 pt-1 ">Description</h2>
-                                                    <p className="descriptionclamp">
-                                                        {announce?.description || 'No description available'}
-                                                    </p>
-                                                </div>
-
-                                                <div>
-                                                    <h2 className="font-medium text-sm text-gray-700 mb-1 mt-6">
-                                                        Scholarship period
-                                                    </h2>
-                                                        <span className="date-period-layout">
-                                                            {formatDateRange(announce.publish_date, announce.close_date)}
-                                                        </span>
-                                                        <span className="educational-level-status mt-4">
-                                                            {announce.education_level || 'Not specified'}
-                                                        </span>
-                                                    
-                                                </div>
                                             </div>
                                         </div>
+
+                                        {/* ส่วนแสดงผล title */}
+                                        <div className="space-y-3">
+                                            <h1 className="headingclamp">
+                                                {announce?.title || 'Untitled Scholarship'} {/* เพิ่ม fallback text */}
+                                            </h1>
+                                            <div>
+                                                <h2 className="font-medium text-sm text-gray-700 pt-1 ">Description</h2>
+                                                <p className="descriptionclamp">
+                                                    {announce?.description || 'No description available'}
+                                                </p>
+                                            </div>
+
+                                            <div>
+                                                <h2 className="font-medium text-sm text-gray-700 mb-1 mt-6">
+                                                    Scholarship period
+                                                </h2>
+                                                <span className="date-period-layout">
+                                                    {formatDateRange(announce.publish_date, announce.close_date)}
+                                                </span>
+                                                <span className="educational-level-status mt-4">
+                                                    {announce.education_level || 'Not specified'}
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
-                            ))}
-                        </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
 
-                        {/* Pagination */}
-                        {getFilteredData().length > announceData.per_page && (
-                            <div className="flex justify-center items-center mt-8 mb-8">
+                    {/* Pagination */}
+                    {getFilteredData().length > announceData.per_page && (
+                        <div className="flex justify-center items-center mt-8 mb-12 px-4 py-5">
+                            <nav className="relative z-0 inline-flex rounded-md shadow-lg -space-x-px" aria-label="Pagination">
+                                <button
+                                    onClick={() => handlePageChange(1)}
+                                    disabled={currentPage === 1}
+                                    className={`relative inline-flex items-center px-3 py-2 rounded-l-md border ${currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white border-gray-300 text-gray-500 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200'}`}
+                                    title="หน้าแรก"
+                                >
+                                    <span className="sr-only">หน้าแรก</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fillRule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                                    </svg>
+                                </button>
                                 <button
                                     onClick={() => handlePageChange(currentPage - 1)}
                                     disabled={currentPage === 1}
-                                    className={`px-4 py-2 mx-1 rounded ${currentPage === 1
-                                        ? 'bg-gray-100 text-gray-400'
-                                        : 'bg-white text-gray-700 hover:bg-gray-100'
-                                        } border`}
+                                    className={`relative inline-flex items-center px-3 py-2 border ${currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white border-gray-300 text-gray-500 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200'}`}
+                                    title="ก่อนหน้า"
                                 >
-                                    Previous
+                                    <span className="sr-only">ก่อนหน้า</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                                    </svg>
                                 </button>
-                                {renderPaginationButtons()}
+                                
+                                {/* แสดงปุ่มเลขหน้าแบบสมาร์ท */}
+                                {(() => {
+                                    let pages = [];
+                                    const totalPages = Math.ceil(getFilteredData().length / announceData.per_page);
+                                    let startPage = Math.max(1, currentPage - 2);
+                                    let endPage = Math.min(totalPages, startPage + 4);
+                                    
+                                    // ปรับ startPage ถ้า endPage ชนขอบด้านขวา
+                                    if (endPage - startPage < 4) {
+                                        startPage = Math.max(1, endPage - 4);
+                                    }
+                                    
+                                    for (let i = startPage; i <= endPage; i++) {
+                                        pages.push(
+                                            <button
+                                                key={i}
+                                                onClick={() => handlePageChange(i)}
+                                                className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-colors duration-200 ${
+                                                    currentPage === i 
+                                                    ? 'z-10 bg-blue-600 border-blue-600 text-white' 
+                                                    : 'bg-white border-gray-300 text-gray-700 hover:bg-blue-50 hover:text-blue-600'
+                                                }`}
+                                            >
+                                                {i}
+                                            </button>
+                                        );
+                                    }
+                                    return pages;
+                                })()}
+                                
                                 <button
                                     onClick={() => handlePageChange(currentPage + 1)}
                                     disabled={currentPage === Math.ceil(getFilteredData().length / announceData.per_page)}
-                                    className={`px-4 py-2 mx-1 rounded ${currentPage === Math.ceil(getFilteredData().length / announceData.per_page)
-                                        ? 'bg-gray-100 text-gray-400'
-                                        : 'bg-white text-gray-700 hover:bg-gray-100'
-                                        } border`}
+                                    className={`relative inline-flex items-center px-3 py-2 border ${
+                                        currentPage === Math.ceil(getFilteredData().length / announceData.per_page) 
+                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                                        : 'bg-white border-gray-300 text-gray-500 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200'
+                                    }`}
+                                    title="ถัดไป"
                                 >
-                                    Next
+                                    <span className="sr-only">ถัดไป</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                                    </svg>
                                 </button>
-                            </div>
-                        )}
-                    </div>
+                                <button
+                                    onClick={() => handlePageChange(Math.ceil(getFilteredData().length / announceData.per_page))}
+                                    disabled={currentPage === Math.ceil(getFilteredData().length / announceData.per_page)}
+                                    className={`relative inline-flex items-center px-3 py-2 rounded-r-md border ${
+                                        currentPage === Math.ceil(getFilteredData().length / announceData.per_page) 
+                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                                        : 'bg-white border-gray-300 text-gray-500 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200'
+                                    }`}
+                                    title="หน้าสุดท้าย"
+                                >
+                                    <span className="sr-only">หน้าสุดท้าย</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fillRule="evenodd" d="M4.293 15.707a1 1 0 001.414 0l5-5a1 1 0 000-1.414l-5-5a1 1 0 00-1.414 1.414L8.586 10l-4.293 4.293a1 1 0 000 1.414z" clipRule="evenodd" />
+                                    </svg>
+                                </button>
+                            </nav>
+                        </div>
+                    )}
                 </div>
-            </div>
         );
     };
 
