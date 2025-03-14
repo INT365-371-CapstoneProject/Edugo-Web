@@ -258,49 +258,57 @@ function Homepage() {
 
     // อัปเดตฟังก์ชัน renderProviderPagination ให้ใช้ providerPagination.total_page แทน totalProviderPages
     const renderProviderPagination = () => {
-        // Always make sure the pagination component renders
         return (
             <div className="bg-white px-6 py-4">
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div className="flex-1"></div>
                     <div className="flex justify-center flex-1">
-                        <nav className="relative z-0 inline-flex -space-x-px" aria-label="Pagination">
+                        <nav className="relative z-0 inline-flex space-x-2" aria-label="Pagination">
                             <button
                                 onClick={() => handleProviderPageChange(1)}
                                 disabled={providerCurrentPage === 1}
-                                className={`relative inline-flex items-center px-2 py-2 rounded-l-md text-sm font-medium ${providerCurrentPage === 1
+                                className={`relative inline-flex items-center px-3 py-2 text-sm font-medium rounded-md ${
+                                    providerCurrentPage === 1
                                         ? 'text-gray-400 cursor-not-allowed'
                                         : 'text-gray-500 hover:bg-blue-50 hover:text-blue-600'
-                                    }`}
+                                }`}
                             >
                                 <span className="sr-only">First</span>
-                                <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fillRule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-                                </svg>
+                                {'<<'}
+                            </button>
+                            <button
+                                onClick={() => handleProviderPageChange(providerCurrentPage - 1)}
+                                disabled={providerCurrentPage === 1}
+                                className={`relative inline-flex items-center px-3 py-2 text-sm font-medium rounded-md ${
+                                    providerCurrentPage === 1
+                                        ? 'text-gray-400 cursor-not-allowed'
+                                        : 'text-gray-500 hover:bg-blue-50 hover:text-blue-600'
+                                }`}
+                            >
+                                {'<'}
                             </button>
 
                             {(() => {
                                 let pages = [];
-                                const totalPages = Math.max(1, providerPagination.total_page); // Ensure at least 1 page
-
-                                // Always show at least one page button
-                                if (totalPages === 1) {
-                                    pages.push(
-                                        <button
-                                            key={1}
-                                            onClick={() => handleProviderPageChange(1)}
-                                            className="relative inline-flex items-center px-4 py-2 text-sm font-medium mx-1 rounded-md bg-blue-600 text-white transition-colors duration-150"
-                                        >
-                                            1
-                                        </button>
-                                    );
-                                    return pages;
-                                }
-
+                                const totalPages = Math.max(1, providerPagination.total_page);
                                 let startPage = Math.max(1, providerCurrentPage - 2);
                                 let endPage = Math.min(totalPages, startPage + 4);
 
-                                if (endPage - startPage < 4) {
-                                    startPage = Math.max(1, endPage - 4);
+                                // Show ellipsis if needed
+                                if (startPage > 1) {
+                                    pages.push(
+                                        <button key="1" onClick={() => handleProviderPageChange(1)} 
+                                            className="relative inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-blue-50 hover:text-blue-600">
+                                            1
+                                        </button>
+                                    );
+                                    if (startPage > 2) {
+                                        pages.push(
+                                            <span key="ellipsis1" className="relative inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700">
+                                                ...
+                                            </span>
+                                        );
+                                    }
                                 }
 
                                 for (let i = startPage; i <= endPage; i++) {
@@ -308,36 +316,66 @@ function Homepage() {
                                         <button
                                             key={i}
                                             onClick={() => handleProviderPageChange(i)}
-                                            className={`relative inline-flex items-center px-4 py-2 text-sm font-medium mx-1 rounded-md
+                                            className={`relative inline-flex items-center px-3 py-2 text-sm font-medium rounded-md
                                                 ${providerCurrentPage === i
                                                     ? 'bg-blue-600 text-white'
                                                     : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
-                                                } transition-colors duration-150`}
+                                                }`}
                                         >
                                             {i}
                                         </button>
                                     );
                                 }
+
+                                // Show ending ellipsis if needed
+                                if (endPage < totalPages) {
+                                    if (endPage < totalPages - 1) {
+                                        pages.push(
+                                            <span key="ellipsis2" className="relative inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700">
+                                                ...
+                                            </span>
+                                        );
+                                    }
+                                    pages.push(
+                                        <button
+                                            key={totalPages}
+                                            onClick={() => handleProviderPageChange(totalPages)}
+                                            className="relative inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                                        >
+                                            {totalPages}
+                                        </button>
+                                    );
+                                }
+
                                 return pages;
                             })()}
 
                             <button
-                                onClick={() => handleProviderPageChange(Math.max(1, providerPagination.total_page))}
-                                disabled={providerCurrentPage === providerPagination.total_page || providerPagination.total_page <= 1}
-                                className={`relative inline-flex items-center px-2 py-2 rounded-r-md text-sm font-medium ${providerCurrentPage === providerPagination.total_page || providerPagination.total_page <= 1
+                                onClick={() => handleProviderPageChange(providerCurrentPage + 1)}
+                                disabled={providerCurrentPage === providerPagination.total_page}
+                                className={`relative inline-flex items-center px-3 py-2 text-sm font-medium rounded-md ${
+                                    providerCurrentPage === providerPagination.total_page
                                         ? 'text-gray-400 cursor-not-allowed'
                                         : 'text-gray-500 hover:bg-blue-50 hover:text-blue-600'
-                                    }`}
+                                }`}
                             >
-                                <span className="sr-only">Last</span>
-                                <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fillRule="evenodd" d="M4.293 15.707a1 1 0 001.414 0l5-5a1 1 0 000-1.414l-5-5a1 1 0 00-1.414 1.414L8.586 10l-4.293 4.293a1 1 0 000 1.414z" clipRule="evenodd" />
-                                </svg>
+                                {'>'}
+                            </button>
+                            <button
+                                onClick={() => handleProviderPageChange(providerPagination.total_page)}
+                                disabled={providerCurrentPage === providerPagination.total_page}
+                                className={`relative inline-flex items-center px-3 py-2 text-sm font-medium rounded-md ${
+                                    providerCurrentPage === providerPagination.total_page
+                                        ? 'text-gray-400 cursor-not-allowed'
+                                        : 'text-gray-500 hover:bg-blue-50 hover:text-blue-600'
+                                }`}
+                            >
+                                {'>>'}
                             </button>
                         </nav>
                     </div>
-                    <div className="text-sm text-gray-700 whitespace-nowrap">
-                        Showing {providerData.length > 0 ? ((providerCurrentPage - 1) * providersPerPage) + 1 : (providerPagination.total > 0 ? 1 : 0)} to {providerData.length > 0 ? Math.min(providerCurrentPage * providersPerPage, providerPagination.total) : providerPagination.total} of {providerPagination.total || 0} results
+                    <div className="flex-1 text-sm text-gray-700 text-right">
+                        {`${((providerCurrentPage - 1) * providersPerPage) + 1}-${Math.min(providerCurrentPage * providersPerPage, providerPagination.total)} of ${providerPagination.total} items`}
                     </div>
                 </div>
             </div>
@@ -1377,30 +1415,55 @@ function Homepage() {
             return (
                 <div className="bg-white px-6 py-4">
                     <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div className="flex-1"></div>
                         <div className="flex justify-center flex-1">
-                            <nav className="relative z-0 inline-flex -space-x-px" aria-label="Pagination">
+                            <nav className="relative z-0 inline-flex space-x-2" aria-label="Pagination">
                                 {/* Copy the same button structure as renderProviderPagination but use adminCurrentPage and handleAdminPageChange */}
                                 <button
                                     onClick={() => handleAdminPageChange(1)}
                                     disabled={adminCurrentPage === 1}
-                                    className={`relative inline-flex items-center px-2 py-2 rounded-l-md text-sm font-medium ${adminCurrentPage === 1
+                                    className={`relative inline-flex items-center px-3 py-2 text-sm font-medium rounded-md ${
+                                        adminCurrentPage === 1
                                             ? 'text-gray-400 cursor-not-allowed'
                                             : 'text-gray-500 hover:bg-blue-50 hover:text-blue-600'
-                                        }`}
+                                    }`}
                                 >
                                     <span className="sr-only">First</span>
-                                    <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fillRule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-                                    </svg>
+                                    {'<<'}
+                                </button>
+                                <button
+                                    onClick={() => handleAdminPageChange(adminCurrentPage - 1)}
+                                    disabled={adminCurrentPage === 1}
+                                    className={`relative inline-flex items-center px-3 py-2 text-sm font-medium rounded-md ${
+                                        adminCurrentPage === 1
+                                            ? 'text-gray-400 cursor-not-allowed'
+                                            : 'text-gray-500 hover:bg-blue-50 hover:text-blue-600'
+                                    }`}
+                                >
+                                    {'<'}
                                 </button>
 
                                 {(() => {
                                     let pages = [];
+                                    const totalPages = Math.max(1, adminAnnounceData.last_page);
                                     let startPage = Math.max(1, adminCurrentPage - 2);
-                                    let endPage = Math.min(adminAnnounceData.last_page, startPage + 4);
+                                    let endPage = Math.min(totalPages, startPage + 4);
 
-                                    if (endPage - startPage < 4) {
-                                        startPage = Math.max(1, endPage - 4);
+                                    // Show ellipsis if needed
+                                    if (startPage > 1) {
+                                        pages.push(
+                                            <button key="1" onClick={() => handleAdminPageChange(1)} 
+                                                className="relative inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-blue-50 hover:text-blue-600">
+                                                1
+                                            </button>
+                                        );
+                                        if (startPage > 2) {
+                                            pages.push(
+                                                <span key="ellipsis1" className="relative inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700">
+                                                    ...
+                                                </span>
+                                            );
+                                        }
                                     }
 
                                     for (let i = startPage; i <= endPage; i++) {
@@ -1408,36 +1471,66 @@ function Homepage() {
                                             <button
                                                 key={i}
                                                 onClick={() => handleAdminPageChange(i)}
-                                                className={`relative inline-flex items-center px-4 py-2 text-sm font-medium mx-1 rounded-md
+                                                className={`relative inline-flex items-center px-3 py-2 text-sm font-medium rounded-md
                                                     ${adminCurrentPage === i
                                                         ? 'bg-blue-600 text-white'
                                                         : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
-                                                    } transition-colors duration-150`}
+                                                    }`}
                                             >
                                                 {i}
                                             </button>
                                         );
                                     }
+
+                                    // Show ending ellipsis if needed
+                                    if (endPage < totalPages) {
+                                        if (endPage < totalPages - 1) {
+                                            pages.push(
+                                                <span key="ellipsis2" className="relative inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700">
+                                                    ...
+                                                </span>
+                                            );
+                                        }
+                                        pages.push(
+                                            <button
+                                                key={totalPages}
+                                                onClick={() => handleAdminPageChange(totalPages)}
+                                                className="relative inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                                            >
+                                                {totalPages}
+                                            </button>
+                                        );
+                                    }
+
                                     return pages;
                                 })()}
 
                                 <button
-                                    onClick={() => handleAdminPageChange(adminAnnounceData.last_page)}
+                                    onClick={() => handleAdminPageChange(adminCurrentPage + 1)}
                                     disabled={adminCurrentPage === adminAnnounceData.last_page}
-                                    className={`relative inline-flex items-center px-2 py-2 rounded-r-md text-sm font-medium ${adminCurrentPage === adminAnnounceData.last_page
+                                    className={`relative inline-flex items-center px-3 py-2 text-sm font-medium rounded-md ${
+                                        adminCurrentPage === adminAnnounceData.last_page
                                             ? 'text-gray-400 cursor-not-allowed'
                                             : 'text-gray-500 hover:bg-blue-50 hover:text-blue-600'
-                                        }`}
+                                    }`}
                                 >
-                                    <span className="sr-only">Last</span>
-                                    <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fillRule="evenodd" d="M4.293 15.707a1 1 0 001.414 0l5-5a1 1 0 000-1.414l-5-5a1 1 0 00-1.414 1.414L8.586 10l-4.293 4.293a1 1 0 000 1.414z" clipRule="evenodd" />
-                                    </svg>
+                                    {'>'}
+                                </button>
+                                <button
+                                    onClick={() => handleAdminPageChange(adminAnnounceData.last_page)}
+                                    disabled={adminCurrentPage === adminAnnounceData.last_page}
+                                    className={`relative inline-flex items-center px-3 py-2 text-sm font-medium rounded-md ${
+                                        adminCurrentPage === adminAnnounceData.last_page
+                                            ? 'text-gray-400 cursor-not-allowed'
+                                            : 'text-gray-500 hover:bg-blue-50 hover:text-blue-600'
+                                    }`}
+                                >
+                                    {'>>'}
                                 </button>
                             </nav>
                         </div>
-                        <div className="text-sm text-gray-700 whitespace-nowrap">
-                            Showing {adminAnnounceData.data.length > 0 ? ((adminCurrentPage - 1) * adminAnnounceData.per_page) + 1 : 0} to {Math.min(adminCurrentPage * adminAnnounceData.per_page, adminAnnounceData.total)} of {adminAnnounceData.total} results
+                        <div className="flex-1 text-sm text-gray-700 text-right">
+                            {`${((adminCurrentPage - 1) * adminItemsPerPage) + 1}-${Math.min(adminCurrentPage * adminItemsPerPage, adminAnnounceData.total)} of ${adminAnnounceData.total} items`}
                         </div>
                     </div>
                 </div>
@@ -1449,20 +1542,31 @@ function Homepage() {
             return (
                 <div className="bg-white px-6 py-4">
                     <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div className="flex-1"></div>
                         <div className="flex justify-center flex-1">
-                            <nav className="relative z-0 inline-flex -space-x-px" aria-label="Pagination">
+                            <nav className="relative z-0 inline-flex space-x-2" aria-label="Pagination">
                                 <button
                                     onClick={() => handleUserPageChange(1)}
                                     disabled={userCurrentPage === 1}
-                                    className={`relative inline-flex items-center px-2 py-2 rounded-l-md text-sm font-medium ${userCurrentPage === 1
+                                    className={`relative inline-flex items-center px-3 py-2 text-sm font-medium rounded-md ${
+                                        userCurrentPage === 1
                                             ? 'text-gray-400 cursor-not-allowed'
                                             : 'text-gray-500 hover:bg-blue-50 hover:text-blue-600'
-                                        }`}
+                                    }`}
                                 >
                                     <span className="sr-only">First</span>
-                                    <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fillRule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-                                    </svg>
+                                    {'<<'}
+                                </button>
+                                <button
+                                    onClick={() => handleUserPageChange(userCurrentPage - 1)}
+                                    disabled={userCurrentPage === 1}
+                                    className={`relative inline-flex items-center px-3 py-2 text-sm font-medium rounded-md ${
+                                        userCurrentPage === 1
+                                            ? 'text-gray-400 cursor-not-allowed'
+                                            : 'text-gray-500 hover:bg-blue-50 hover:text-blue-600'
+                                    }`}
+                                >
+                                    {'<'}
                                 </button>
 
                                 {(() => {
@@ -1495,36 +1599,66 @@ function Homepage() {
                                             <button
                                                 key={i}
                                                 onClick={() => handleUserPageChange(i)}
-                                                className={`relative inline-flex items-center px-4 py-2 text-sm font-medium mx-1 rounded-md
+                                                className={`relative inline-flex items-center px-3 py-2 text-sm font-medium rounded-md
                                                     ${userCurrentPage === i
                                                         ? 'bg-blue-600 text-white'
                                                         : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
-                                                    } transition-colors duration-150`}
+                                                    }`}
                                             >
                                                 {i}
                                             </button>
                                         );
                                     }
+
+                                    // Show ending ellipsis if needed
+                                    if (endPage < totalPages) {
+                                        if (endPage < totalPages - 1) {
+                                            pages.push(
+                                                <span key="ellipsis2" className="relative inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700">
+                                                    ...
+                                                </span>
+                                            );
+                                        }
+                                        pages.push(
+                                            <button
+                                                key={totalPages}
+                                                onClick={() => handleUserPageChange(totalPages)}
+                                                className="relative inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                                            >
+                                                {totalPages}
+                                            </button>
+                                        );
+                                    }
+
                                     return pages;
                                 })()}
 
                                 <button
-                                    onClick={() => handleUserPageChange(Math.max(1, userData.pagination.total_page))}
+                                    onClick={() => handleUserPageChange(userCurrentPage + 1)}
                                     disabled={userCurrentPage === userData.pagination.total_page || userData.pagination.total_page <= 1}
-                                    className={`relative inline-flex items-center px-2 py-2 rounded-r-md text-sm font-medium ${userCurrentPage === userData.pagination.total_page || userData.pagination.total_page <= 1
+                                    className={`relative inline-flex items-center px-3 py-2 text-sm font-medium rounded-md ${
+                                        userCurrentPage === userData.pagination.total_page || userData.pagination.total_page <= 1
                                             ? 'text-gray-400 cursor-not-allowed'
                                             : 'text-gray-500 hover:bg-blue-50 hover:text-blue-600'
-                                        }`}
+                                    }`}
                                 >
-                                    <span className="sr-only">Last</span>
-                                    <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fillRule="evenodd" d="M4.293 15.707a1 1 0 001.414 0l5-5a1 1 0 000-1.414l-5-5a1 1 0 00-1.414 1.414L8.586 10l-4.293 4.293a1 1 0 000 1.414z" clipRule="evenodd" />
-                                    </svg>
+                                    {'>'}
+                                </button>
+                                <button
+                                    onClick={() => handleUserPageChange(Math.max(1, userData.pagination.total_page))}
+                                    disabled={userCurrentPage === userData.pagination.total_page || userData.pagination.total_page <= 1}
+                                    className={`relative inline-flex items-center px-3 py-2 text-sm font-medium rounded-md ${
+                                        userCurrentPage === userData.pagination.total_page || userData.pagination.total_page <= 1
+                                            ? 'text-gray-400 cursor-not-allowed'
+                                            : 'text-gray-500 hover:bg-blue-50 hover:text-blue-600'
+                                    }`}
+                                >
+                                    {'>>'}
                                 </button>
                             </nav>
                         </div>
-                        <div className="text-sm text-gray-700 whitespace-nowrap">
-                            Showing {userData.data.length > 0 ? ((userCurrentPage - 1) * usersPerPage) + 1 : 0} to {Math.min(userCurrentPage * usersPerPage, userData.pagination.total)} of {userData.pagination.total || 0} results
+                        <div className="flex-1 text-sm text-gray-700 text-right">
+                            {`${((userCurrentPage - 1) * usersPerPage) + 1}-${Math.min(userCurrentPage * usersPerPage, userData.pagination.total)} of ${userData.pagination.total} items`}
                         </div>
                     </div>
                 </div>
