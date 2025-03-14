@@ -124,4 +124,28 @@ const getAllUser = async (page = 1, limit = 10) => {
   }
 }
 
+// Updated manageUser function to use axios and urlAdmin
+export const manageUser = async (data) => {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('No authentication token found');
+        }
+
+        const response = await axios.post(
+            `${urlAdmin}/manage-user`, 
+            data,
+            getConfigWithToken(token)
+        );
+        
+        return response.data;
+    } catch (error) {
+        console.error('Error managing user:', error);
+        return {
+            success: false,
+            message: error.response?.data?.message || error.message || 'An error occurred while managing user'
+        };
+    }
+};
+
 export { getProvider, getAllUser };

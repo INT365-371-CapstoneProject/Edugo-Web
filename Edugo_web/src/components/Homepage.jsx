@@ -4,7 +4,7 @@ import icon from '../assets/Vector.svg';
 import image2 from '../assets/bg-file-image.png';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getAnnounce, getAnnounceImage } from '../composable/getAnnounce';
-import { getProvider, getAllUser } from '../composable/getProvider'; // Updated import
+import { getProvider, getAllUser, manageUser } from '../composable/getProvider'; // Added manageUser import
 import image_No_Scholarship from '../assets/No_Scholarship.png';
 import '../style/style.css'; // Import CSS file
 import '../style/home.css'; // Import CSS file
@@ -64,7 +64,7 @@ function Homepage() {
 
     // Add state for storing all providers (across all pages)
     const [allProviders, setAllProviders] = useState([]);
-    
+
     // Add state for actual counts
     const [approvalsCount, setApprovalsCount] = useState({
         total: 0,
@@ -86,13 +86,13 @@ function Homepage() {
     const fetchProviderData = async () => {
         try {
             const response = await getProvider(providerCurrentPage, providersPerPage);
-            
+
             if (response && response.data) {
                 setProviderData(response.data);
-                
+
                 if (response.pagination) {
                     setProviderPagination(response.pagination);
-                    
+
                     // If we haven't calculated counts yet, do it now
                     if (!providerCounts.initialized) {
                         // This will trigger the fetchAllProviders effect
@@ -118,7 +118,7 @@ function Homepage() {
             // Set default pagination values in case of error
             setProviderPagination({
                 limit: providersPerPage,
-                page: 1, 
+                page: 1,
                 total: 0,
                 total_page: 1,
                 pending_count: 0,
@@ -134,33 +134,33 @@ function Homepage() {
             try {
                 // Only proceed if we are on the approvals tab and the counts need initializing
                 if (activeTab !== 'approvals' || !providerCounts.initialized) return;
-                
+
                 // Get total pages from pagination
                 const totalPages = providerPagination.total_page || 1;
                 const allProviders = [];
-                
+
                 // Fetch data from all pages (up to reasonable limit)
                 const maxPages = Math.min(totalPages, 5); // Limit to first 5 pages
-                
+
                 for (let i = 1; i <= maxPages; i++) {
                     // Skip the current page since we already have that data
                     if (i === providerCurrentPage) {
                         allProviders.push(...providerData);
                         continue;
                     }
-                    
+
                     const pageResponse = await getProvider(i, providersPerPage);
                     if (pageResponse && pageResponse.data) {
                         allProviders.push(...pageResponse.data);
                     }
                 }
-                
+
                 // Count providers by status
                 const pendingCount = allProviders.filter(p => p.verify === 'Waiting').length;
                 const approvedCount = allProviders.filter(p => p.verify === 'Yes').length;
                 const rejectedCount = allProviders.filter(p => p.verify === 'No').length;
                 const totalCount = pendingCount + approvedCount + rejectedCount;
-                
+
                 // Update the counts
                 setProviderCounts({
                     total: totalCount,
@@ -169,14 +169,14 @@ function Homepage() {
                     rejected: rejectedCount,
                     initialized: true
                 });
-                
+
             } catch (error) {
                 console.error("Error fetching all providers:", error);
                 // Keep initialized true to prevent infinite retries
                 setProviderCounts(prev => ({ ...prev, initialized: true }));
             }
         };
-        
+
         fetchAllProviders();
     }, [providerCounts.initialized, activeTab, providerPagination.total_page]);
 
@@ -185,14 +185,14 @@ function Homepage() {
         try {
             const allResults = [];
             const pagePromises = [];
-            
+
             // Fetch page 1 to totalPages (with a reasonable limit)
             const maxPagesToFetch = Math.min(totalPages, 10); // Limit to 10 pages max
-            
+
             for (let i = 1; i <= maxPagesToFetch; i++) {
                 // Skip current page as we already have it
                 if (i === providerCurrentPage) continue;
-                
+
                 pagePromises.push(
                     getProvider(i, providersPerPage)
                         .then(res => {
@@ -203,35 +203,35 @@ function Homepage() {
                         })
                 );
             }
-            
+
             const results = await Promise.all(pagePromises);
             results.forEach(pageData => {
                 allResults.push(...pageData);
             });
-            
+
             // Add current page data
             allResults.push(...providerData);
-            
+
             // Remove duplicates using provider IDs
             const uniqueProviders = Array.from(
                 new Map(allResults.map(item => [item.id, item])).values()
             );
-            
+
             setAllProviders(uniqueProviders);
-            
+
             // Calculate total counts from all providers
             const pendingCount = uniqueProviders.filter(p => p.verify === 'Waiting').length;
             const approvedCount = uniqueProviders.filter(p => p.verify === 'Yes').length;
             const rejectedCount = uniqueProviders.filter(p => p.verify === 'No').length;
             const totalCount = uniqueProviders.length;
-            
+
             setApprovalsCount({
                 total: totalCount,
                 pending: pendingCount,
                 approved: approvedCount,
                 rejected: rejectedCount
             });
-            
+
         } catch (error) {
             console.error('Error fetching all provider pages:', error);
         }
@@ -267,11 +267,10 @@ function Homepage() {
                             <button
                                 onClick={() => handleProviderPageChange(1)}
                                 disabled={providerCurrentPage === 1}
-                                className={`relative inline-flex items-center px-2 py-2 rounded-l-md text-sm font-medium ${
-                                    providerCurrentPage === 1 
-                                    ? 'text-gray-400 cursor-not-allowed' 
-                                    : 'text-gray-500 hover:bg-blue-50 hover:text-blue-600'
-                                }`}
+                                className={`relative inline-flex items-center px-2 py-2 rounded-l-md text-sm font-medium ${providerCurrentPage === 1
+                                        ? 'text-gray-400 cursor-not-allowed'
+                                        : 'text-gray-500 hover:bg-blue-50 hover:text-blue-600'
+                                    }`}
                             >
                                 <span className="sr-only">First</span>
                                 <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -282,7 +281,7 @@ function Homepage() {
                             {(() => {
                                 let pages = [];
                                 const totalPages = Math.max(1, providerPagination.total_page); // Ensure at least 1 page
-                                
+
                                 // Always show at least one page button
                                 if (totalPages === 1) {
                                     pages.push(
@@ -296,23 +295,23 @@ function Homepage() {
                                     );
                                     return pages;
                                 }
-                                
+
                                 let startPage = Math.max(1, providerCurrentPage - 2);
                                 let endPage = Math.min(totalPages, startPage + 4);
-                                
+
                                 if (endPage - startPage < 4) {
                                     startPage = Math.max(1, endPage - 4);
                                 }
-                                
+
                                 for (let i = startPage; i <= endPage; i++) {
                                     pages.push(
                                         <button
                                             key={i}
                                             onClick={() => handleProviderPageChange(i)}
                                             className={`relative inline-flex items-center px-4 py-2 text-sm font-medium mx-1 rounded-md
-                                                ${providerCurrentPage === i 
-                                                ? 'bg-blue-600 text-white' 
-                                                : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
+                                                ${providerCurrentPage === i
+                                                    ? 'bg-blue-600 text-white'
+                                                    : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
                                                 } transition-colors duration-150`}
                                         >
                                             {i}
@@ -325,11 +324,10 @@ function Homepage() {
                             <button
                                 onClick={() => handleProviderPageChange(Math.max(1, providerPagination.total_page))}
                                 disabled={providerCurrentPage === providerPagination.total_page || providerPagination.total_page <= 1}
-                                className={`relative inline-flex items-center px-2 py-2 rounded-r-md text-sm font-medium ${
-                                    providerCurrentPage === providerPagination.total_page || providerPagination.total_page <= 1
-                                    ? 'text-gray-400 cursor-not-allowed' 
-                                    : 'text-gray-500 hover:bg-blue-50 hover:text-blue-600'
-                                }`}
+                                className={`relative inline-flex items-center px-2 py-2 rounded-r-md text-sm font-medium ${providerCurrentPage === providerPagination.total_page || providerPagination.total_page <= 1
+                                        ? 'text-gray-400 cursor-not-allowed'
+                                        : 'text-gray-500 hover:bg-blue-50 hover:text-blue-600'
+                                    }`}
                             >
                                 <span className="sr-only">Last</span>
                                 <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -430,7 +428,7 @@ function Homepage() {
     const navigate = useNavigate();
     // รับค่า state จาก location หากมี
     const location = useLocation(); // เพิ่มการนำเข้า useLocation
-    
+
     // เพิ่ม useEffect นี้เป็นตัวแรกในคอมโพเนนต์ เพื่อให้มันทำงานก่อน
     useEffect(() => {
         // ตั้งค่า initial state จาก localStorage เมื่อคอมโพเนนต์ถูกโหลด
@@ -438,7 +436,7 @@ function Homepage() {
         if (savedTab) {
             setActiveTab(savedTab);
         }
-        
+
         // ตรวจสอบ hash
         if (location.hash === '#scholarships') {
             setActiveTab('scholarships');
@@ -619,14 +617,14 @@ function Homepage() {
     const handleAdminPageChange = (newPage) => {
         setAdminCurrentPage(newPage);
     };
-    // เพิ่มฟังก์ชันสำหรับจัดรูปแบบวันที่
+    // เพิ่มฟังก์ชันสำหรับจัดการรูปแบบวันที่
     const formatDate = (dateString) => {
         if (!dateString) return "Not specified";
-        
+
         const date = new Date(dateString);
         // ตรวจสอบว่าวันที่ถูกต้องหรือไม่
         if (isNaN(date.getTime())) return "Invalid date";
-        
+
         // สร้างรูปแบบวันที่เป็น "24 Jan 2025"
         const options = { day: 'numeric', month: 'short', year: 'numeric' };
         return date.toLocaleDateString('en-GB', options);
@@ -650,7 +648,7 @@ function Homepage() {
     const fetchUserData = async () => {
         try {
             const response = await getAllUser(userCurrentPage, usersPerPage);
-            
+
             if (response && response.data) {
                 setUserData(response);
             } else {
@@ -679,20 +677,123 @@ function Homepage() {
             });
         }
     };
-    
+
     // Handle user pagination
     const handleUserPageChange = (newPage) => {
         if (newPage >= 1 && newPage <= userData.pagination.total_page) {
             setUserCurrentPage(newPage);
         }
     };
-    
+
     // Fetch user data when tab changes to 'users' or when current page changes
     useEffect(() => {
         if (activeTab === 'users') {
             fetchUserData();
         }
     }, [activeTab, userCurrentPage]);
+
+    // Add new state for user action modals
+    const [showStatusModal, setShowStatusModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [newStatus, setNewStatus] = useState("");
+    const [actionLoading, setActionLoading] = useState(false);
+    const [actionError, setActionError] = useState("");
+    const [actionSuccess, setActionSuccess] = useState("");
+
+    // Function to handle user deletion
+    const handleDeleteClick = (user) => {
+        setSelectedUser(user);
+        setShowDeleteModal(true);
+    };
+
+    // Function to confirm user deletion - Updated to avoid page refresh
+    const confirmDelete = async () => {
+        try {
+            setActionLoading(true);
+            setActionError("");
+            
+            // Store user ID before clearing anything
+            const userId = selectedUser.id;
+            const username = selectedUser.username;
+
+            const result = await manageUser({
+                account_id: userId,
+                action: "delete"
+            });
+            if (result && result.message === "ลบบัญชีผู้ใช้เรียบร้อยแล้ว") {
+                // First close the modal
+                setShowDeleteModal(false);
+
+                // Then remove the user from the data
+                setUserData(prev => ({
+                    ...prev,
+                    data: prev.data.filter(user => user.id !== userId),
+                    pagination: {
+                        ...prev.pagination,
+                        total: Math.max(0, prev.pagination.total - 1)
+                    }
+                }));
+
+                // Show success message
+                setActionSuccess(`User ${username} was deleted successfully`);
+
+                // Clear selected user after a delay
+                setTimeout(() => {
+                    setSelectedUser(null);
+                    setActionSuccess("");
+                }, 3000);
+            } else {
+                setActionError(result?.message || "Failed to delete user");
+            }
+        } catch (error) {
+            console.error("Error deleting user:", error);
+            setActionError("An unexpected error occurred while deleting user");
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    // Function to handle direct status change without modal
+    const handleDirectStatusChange = async (user, newStatus) => {
+        try {
+            // Set loading and selected user for UI updates
+            setActionLoading(true);
+            setActionError("");
+            setSelectedUser(user);
+
+            const result = await manageUser({
+                account_id: user.id,
+                action: "change_status",
+                status: newStatus
+            });
+            if (result && result.message === "เปลี่ยนสถานะบัญชีผู้ใช้เรียบร้อยแล้ว") {
+                // Update the user's status in the userData state
+                setUserData(prev => ({
+                    ...prev,
+                    data: prev.data.map(u =>
+                        u.id === user.id ? { ...u, status: newStatus } : u
+                    )
+                }));
+
+                // Show success message
+                setActionSuccess(`User status changed to ${newStatus} successfully`);
+
+                // Clear loading state but keep success message
+                setTimeout(() => {
+                    setActionSuccess("");
+                    setSelectedUser(null);
+                }, 3000);
+            } else {
+                setActionError(result?.message || "Failed to change user status");
+            }
+        } catch (error) {
+            console.error("Error changing user status:", error);
+            setActionError("An unexpected error occurred while changing status");
+        } finally {
+            setActionLoading(false);
+        }
+    };
 
     const renderAdminView = () => {
         // New function to render dashboard metrics based on active tab
@@ -816,7 +917,7 @@ function Homepage() {
 
                 // Check if current user is superadmin
                 const isSuperAdmin = userRole === 'superadmin';
-                
+
                 if (isSuperAdmin) {
                     // Show role-based metrics for superadmin
                     return (
@@ -915,7 +1016,7 @@ function Homepage() {
                     );
                 }
             }
-            
+
             // Default empty state (should not reach here)
             return null;
         };
@@ -932,68 +1033,193 @@ function Homepage() {
                 }
 
                 return (
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">No.</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Username</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Last Login</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {userData.data.map((user, index) => {
-                                const startIndex = (userCurrentPage - 1) * usersPerPage;
-                                
-                                return (
-                                    <tr key={user.id} className="hover:bg-gray-50">
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {startIndex + index + 1}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            {user.username || "No username"}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {user.email || "No email"}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800`}>
-                                                {user.role || "User"}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`px-2 py-1 text-xs rounded-full ${
-                                                user.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                                            }`}>
-                                                {user.status || "Unknown"}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {formatDate(user.last_login) || "Never"}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            <button 
-                                                onClick={() => navigate(`/admin/user/${user.id}`)}
-                                                className="text-blue-600 hover:text-blue-800 mr-3"
-                                            >
-                                                Edit
-                                            </button>
-                                            {userData.currentUser?.username !== user.username && (
-                                                <button 
-                                                    className="text-red-600 hover:text-red-800"
-                                                >
-                                                    Delete
-                                                </button>
-                                            )}
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
+                    <>
+                        {actionSuccess && (
+                            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mx-6 my-2 flex items-center justify-between">
+                                <span className="font-medium flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                    </svg>
+                                    {actionSuccess}
+                                </span>
+                                <button onClick={() => setActionSuccess("")} className="text-green-700 hover:text-green-800">
+                                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                        )}
+
+                        <table className="min-w-full divide-y divide-gray-200">
+                            <thead className="bg-gray-50">
+                                <tr>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">No.</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Username</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {userData.data.map((user, index) => {
+                                    const startIndex = (userCurrentPage - 1) * usersPerPage;
+                                    const isLoading = actionLoading && selectedUser?.id === user.id;
+
+                                    return (
+                                        <tr key={user.id} className="hover:bg-gray-50">
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {startIndex + index + 1}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                {user.username || "No username"}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {user.email || "No email"}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <span className={`px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800`}>
+                                                    {user.role || "User"}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="relative flex items-center">
+                                                    <button
+                                                        onClick={() => handleDirectStatusChange(
+                                                            user,
+                                                            user.status === 'Active' ? 'Suspended' : 'Active'
+                                                        )}
+                                                        disabled={isLoading}
+                                                        className={`relative px-3 py-1 text-xs rounded-full flex items-center justify-center transition-all duration-200 ${
+                                                            isLoading ? 'opacity-50 cursor-wait' : 'cursor-pointer hover:opacity-80'
+                                                        } ${
+                                                            user.status === 'Active'
+                                                                ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                                                                : 'bg-red-100 text-red-800 hover:bg-red-200'
+                                                        }`}
+                                                        title={`Click to change status to ${user.status === 'Active' ? 'Suspended' : 'Active'}`}
+                                                    >
+                                                        {isLoading ? (
+                                                            <>
+                                                                <svg className="animate-spin -ml-1 mr-2 h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                                </svg>
+                                                                Processing...
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <span className={`w-2 h-2 rounded-full mr-1.5 ${user.status === 'Active' ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                                                                {user.status || "Unknown"}
+                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 ml-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                                                                </svg>
+                                                            </>
+                                                        )}
+                                                    </button>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                {userData.currentUser?.username !== user.username && (
+                                                    <button
+                                                        onClick={() => handleDeleteClick(user)}
+                                                        disabled={isLoading}
+                                                        className={`inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200
+                                                            ${isLoading 
+                                                                ? 'bg-red-100 text-red-400 cursor-not-allowed'
+                                                                : 'bg-red-600 text-white hover:bg-red-700 shadow-sm'
+                                                            }`}
+                                                    >
+                                                        {isLoading ? (
+                                                            <>
+                                                                <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                                </svg>
+                                                                Deleting...
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                </svg>
+                                                                Delete
+                                                            </>
+                                                        )}
+                                                    </button>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+
+                        {/* Delete User Modal */}
+                        {showDeleteModal && selectedUser && (
+                            <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+                                <div className="bg-white rounded-lg shadow-xl p-6 m-4 max-w-md w-full">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <h3 className="text-lg font-medium text-gray-900">Delete User</h3>
+                                        <button
+                                            onClick={() => {
+                                                setShowDeleteModal(false);
+                                                setSelectedUser(null);
+                                                setActionError("");
+                                            }}
+                                            className="text-gray-400 hover:text-gray-500"
+                                        >
+                                            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    {actionError && (
+                                        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                                            <span className="font-medium">{actionError}</span>
+                                        </div>
+                                    )}
+                                    <div className="mt-2">
+                                        <svg className="h-12 w-12 text-red-600 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                        <p className="text-sm text-gray-500 text-center">
+                                            Are you sure you want to delete the user <span className="font-medium">{selectedUser.username}</span>?<br />This action cannot be undone.
+                                        </p>
+                                    </div>
+                                    <div className="mt-6 flex justify-end space-x-3">
+                                        <button
+                                            type="button"
+                                            className="px-4 py-2 bg-white border border-gray-300 rounded-md font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                            onClick={() => {
+                                                setShowDeleteModal(false);
+                                                setSelectedUser(null);
+                                                setActionError("");
+                                            }}
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                                            onClick={confirmDelete}
+                                            disabled={actionLoading}
+                                        >
+                                            {actionLoading ? (
+                                                <>
+                                                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                    </svg>
+                                                    Processing...
+                                                </>
+                                            ) : "Delete User"}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </>
                 );
             } else if (activeTab === 'approvals') {
                 // กรณีที่ยังไม่มีข้อมูล - เปลี่ยนเป็นภาษาอังกฤษ
@@ -1021,7 +1247,7 @@ function Homepage() {
                             {getCurrentPageProviders().map((provider, index) => {
                                 // แปลงค่า verify เป็นสถานะที่แสดงผล
                                 let status;
-                                switch(provider.verify) {
+                                switch (provider.verify) {
                                     case 'Yes':
                                         status = "Approved";
                                         break;
@@ -1035,7 +1261,7 @@ function Homepage() {
                                 }
                                 // แก้การคำนวณลำดับเพื่อให้ถูกต้องกับการแบ่งหน้า
                                 const startIndex = (providerCurrentPage - 1) * providersPerPage;
-                                
+
                                 return (
                                     <tr key={provider.id} className="hover:bg-gray-50">
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -1056,7 +1282,7 @@ function Homepage() {
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            <button 
+                                            <button
                                                 onClick={() => navigate(`/provider/detail/${provider.id}`)}
                                                 className="text-blue-600 hover:text-blue-800"
                                             >
@@ -1069,70 +1295,80 @@ function Homepage() {
                         </tbody>
                     </table>
                 );
+            } else if (activeTab === 'scholarships') {
+                // กรณีที่ยังไม่มีข้อมูล - เปลี่ยนเป็นภาษาอังกฤษ
+                if (!adminAnnounceData.data || adminAnnounceData.data.length === 0) {
+                    return (
+                        <div className="p-8 text-center">
+                            <p className="text-gray-500">No scholarship information found</p>
+                        </div>
+                    );
+                }
+
+                return (
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                            <tr>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">No.</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Period</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Education Level</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                            {adminAnnounceData.data.map((announce, index) => {
+                                const status = checkPendingAnnounce.some(item => item.id === announce.id)
+                                    ? 'Pending'
+                                    : checkOpenAnnounce.some(item => item.id === announce.id)
+                                        ? 'Open'
+                                        : 'Close';
+
+                                const startIndex = (adminAnnounceData.page - 1) * adminAnnounceData.per_page;
+
+                                return (
+                                    <tr key={announce.id} className="hover:bg-gray-50">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {startIndex + index + 1}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="text-sm font-medium text-gray-900">{announce.title}</div>
+                                            <div className="text-sm text-gray-500 line-clamp-1">{announce.description}</div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {formatDateRange(announce.publish_date, announce.close_date)}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className="px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded-md">
+                                                {announce.education_level || 'Not specified'}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${status === 'Open' ? 'bg-green-100 text-green-800' :
+                                                    status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
+                                                        'bg-red-100 text-red-800'
+                                                }`}>
+                                                {status}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <button
+                                                onClick={() => navigate(`/detail/${announce.id}`)}
+                                                className="text-blue-600 hover:text-blue-800"
+                                            >
+                                                View
+                                            </button>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                );
             }
 
-            return (
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">No.</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Period</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Education Level</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {adminAnnounceData.data.map((announce, index) => {
-                            const status = checkPendingAnnounce.some(item => item.id === announce.id)
-                                ? 'Pending'
-                                : checkOpenAnnounce.some(item => item.id === announce.id)
-                                    ? 'Open'
-                                    : 'Close';
-
-                            const startIndex = (adminAnnounceData.page - 1) * adminAnnounceData.per_page;
-
-                            return (
-                                <tr key={announce.id} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {startIndex + index + 1}
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <div className="text-sm font-medium text-gray-900">{announce.title}</div>
-                                        <div className="text-sm text-gray-500 line-clamp-1">{announce.description}</div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {formatDateRange(announce.publish_date, announce.close_date)}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className="px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded-md">
-                                            {announce.education_level || 'Not specified'}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                            status === 'Open' ? 'bg-green-100 text-green-800' :
-                                            status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
-                                            'bg-red-100 text-red-800'
-                                        }`}>
-                                            {status}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        <button 
-                                            onClick={() => navigate(`/detail/${announce.id}`)}
-                                            className="text-blue-600 hover:text-blue-800"
-                                        >
-                                            View
-                                        </button>
-                                    </td>
-                                </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
-            );
+            return null;
         };
 
         const renderAdminPagination = () => {
@@ -1147,11 +1383,10 @@ function Homepage() {
                                 <button
                                     onClick={() => handleAdminPageChange(1)}
                                     disabled={adminCurrentPage === 1}
-                                    className={`relative inline-flex items-center px-2 py-2 rounded-l-md text-sm font-medium ${
-                                        adminCurrentPage === 1 
-                                        ? 'text-gray-400 cursor-not-allowed' 
-                                        : 'text-gray-500 hover:bg-blue-50 hover:text-blue-600'
-                                    }`}
+                                    className={`relative inline-flex items-center px-2 py-2 rounded-l-md text-sm font-medium ${adminCurrentPage === 1
+                                            ? 'text-gray-400 cursor-not-allowed'
+                                            : 'text-gray-500 hover:bg-blue-50 hover:text-blue-600'
+                                        }`}
                                 >
                                     <span className="sr-only">First</span>
                                     <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -1159,25 +1394,24 @@ function Homepage() {
                                     </svg>
                                 </button>
 
-                                {/* Page numbers */}
                                 {(() => {
                                     let pages = [];
                                     let startPage = Math.max(1, adminCurrentPage - 2);
                                     let endPage = Math.min(adminAnnounceData.last_page, startPage + 4);
-                                    
+
                                     if (endPage - startPage < 4) {
                                         startPage = Math.max(1, endPage - 4);
                                     }
-                                    
+
                                     for (let i = startPage; i <= endPage; i++) {
                                         pages.push(
                                             <button
                                                 key={i}
                                                 onClick={() => handleAdminPageChange(i)}
                                                 className={`relative inline-flex items-center px-4 py-2 text-sm font-medium mx-1 rounded-md
-                                                    ${adminCurrentPage === i 
-                                                    ? 'bg-blue-600 text-white' 
-                                                    : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
+                                                    ${adminCurrentPage === i
+                                                        ? 'bg-blue-600 text-white'
+                                                        : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
                                                     } transition-colors duration-150`}
                                             >
                                                 {i}
@@ -1190,11 +1424,10 @@ function Homepage() {
                                 <button
                                     onClick={() => handleAdminPageChange(adminAnnounceData.last_page)}
                                     disabled={adminCurrentPage === adminAnnounceData.last_page}
-                                    className={`relative inline-flex items-center px-2 py-2 rounded-r-md text-sm font-medium ${
-                                        adminCurrentPage === adminAnnounceData.last_page 
-                                        ? 'text-gray-400 cursor-not-allowed' 
-                                        : 'text-gray-500 hover:bg-blue-50 hover:text-blue-600'
-                                    }`}
+                                    className={`relative inline-flex items-center px-2 py-2 rounded-r-md text-sm font-medium ${adminCurrentPage === adminAnnounceData.last_page
+                                            ? 'text-gray-400 cursor-not-allowed'
+                                            : 'text-gray-500 hover:bg-blue-50 hover:text-blue-600'
+                                        }`}
                                 >
                                     <span className="sr-only">Last</span>
                                     <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -1221,11 +1454,10 @@ function Homepage() {
                                 <button
                                     onClick={() => handleUserPageChange(1)}
                                     disabled={userCurrentPage === 1}
-                                    className={`relative inline-flex items-center px-2 py-2 rounded-l-md text-sm font-medium ${
-                                        userCurrentPage === 1 
-                                        ? 'text-gray-400 cursor-not-allowed' 
-                                        : 'text-gray-500 hover:bg-blue-50 hover:text-blue-600'
-                                    }`}
+                                    className={`relative inline-flex items-center px-2 py-2 rounded-l-md text-sm font-medium ${userCurrentPage === 1
+                                            ? 'text-gray-400 cursor-not-allowed'
+                                            : 'text-gray-500 hover:bg-blue-50 hover:text-blue-600'
+                                        }`}
                                 >
                                     <span className="sr-only">First</span>
                                     <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -1236,7 +1468,7 @@ function Homepage() {
                                 {(() => {
                                     let pages = [];
                                     const totalPages = Math.max(1, userData.pagination.total_page); // Ensure at least 1 page
-                                    
+
                                     // Always show at least one page button
                                     if (totalPages === 1) {
                                         pages.push(
@@ -1250,23 +1482,23 @@ function Homepage() {
                                         );
                                         return pages;
                                     }
-                                    
+
                                     let startPage = Math.max(1, userCurrentPage - 2);
                                     let endPage = Math.min(totalPages, startPage + 4);
-                                    
+
                                     if (endPage - startPage < 4) {
                                         startPage = Math.max(1, endPage - 4);
                                     }
-                                    
+
                                     for (let i = startPage; i <= endPage; i++) {
                                         pages.push(
                                             <button
                                                 key={i}
                                                 onClick={() => handleUserPageChange(i)}
                                                 className={`relative inline-flex items-center px-4 py-2 text-sm font-medium mx-1 rounded-md
-                                                    ${userCurrentPage === i 
-                                                    ? 'bg-blue-600 text-white' 
-                                                    : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
+                                                    ${userCurrentPage === i
+                                                        ? 'bg-blue-600 text-white'
+                                                        : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
                                                     } transition-colors duration-150`}
                                             >
                                                 {i}
@@ -1279,11 +1511,10 @@ function Homepage() {
                                 <button
                                     onClick={() => handleUserPageChange(Math.max(1, userData.pagination.total_page))}
                                     disabled={userCurrentPage === userData.pagination.total_page || userData.pagination.total_page <= 1}
-                                    className={`relative inline-flex items-center px-2 py-2 rounded-r-md text-sm font-medium ${
-                                        userCurrentPage === userData.pagination.total_page || userData.pagination.total_page <= 1
-                                        ? 'text-gray-400 cursor-not-allowed' 
-                                        : 'text-gray-500 hover:bg-blue-50 hover:text-blue-600'
-                                    }`}
+                                    className={`relative inline-flex items-center px-2 py-2 rounded-r-md text-sm font-medium ${userCurrentPage === userData.pagination.total_page || userData.pagination.total_page <= 1
+                                            ? 'text-gray-400 cursor-not-allowed'
+                                            : 'text-gray-500 hover:bg-blue-50 hover:text-blue-600'
+                                        }`}
                                 >
                                     <span className="sr-only">Last</span>
                                     <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -1304,7 +1535,7 @@ function Homepage() {
         const waitingCount = providerData.filter(p => p.verify === 'Waiting').length;
         const approvedCount = providerData.filter(p => p.verify === 'Yes').length;
         const rejectedCount = providerData.filter(p => p.verify === 'No').length;
-        
+
         // Get actual counts from providerPagination if available, otherwise use calculated values
         const totalCount = providerCounts.total > 0 ? providerCounts.total : providerPagination.total;
         const pendingCount = providerCounts.pending;
@@ -1362,7 +1593,7 @@ function Homepage() {
                                         </button>
                                     </div>
                                     {activeTab === 'users' && (
-                                        <button 
+                                        <button
                                             onClick={() => navigate('/admin/user/add')}
                                             className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-150"
                                         >
@@ -1379,9 +1610,9 @@ function Homepage() {
                         </div>
 
                         {/* Show the appropriate pagination based on active tab */}
-                        {activeTab === 'approvals' ? renderProviderPagination() : 
-                         activeTab === 'users' ? renderUserPagination() : 
-                         renderAdminPagination()}
+                        {activeTab === 'approvals' ? renderProviderPagination() :
+                            activeTab === 'users' ? renderUserPagination() :
+                                renderAdminPagination()}
                     </div>
                 </div>
             </div>
@@ -1443,7 +1674,7 @@ function Homepage() {
                         <div
                             className="border-lightgrey"
                             onClick={() => handleFilterClick('Open')}
-                        ></div>
+                        >
                             <div className="summary-open-border summary-border-radius">
                                 <div className="flex flex-col items-start mt-5 mb-5">
                                     <h1 className="summary-text">Opened Scholarship</h1>
@@ -1504,55 +1735,57 @@ function Homepage() {
 
                                     {/* ข้อมูลด้านขวา - ปรับ padding ให้สมดุลกับรูปที่กว้างขึ้น */}
                                     <div className="col-span-7 pl-12 pr-2">
-                                        <div className="flex justify-between items-center">
-                                            <h1 className="number-layout text-sm">
-                                                #{((currentPage - 1) * announceData.per_page + index + 1).toString().padStart(4, '0')}
-                                            </h1>
-                                            <div
-                                                className={`rounded-md px-3 py-1 ${checkPendingAnnounce.some((item) => item.id === announce.id)
-                                                    ? 'pending-status'
-                                                    : checkOpenAnnounce.some((item) => item.id === announce.id)
-                                                        ? 'open-status'
-                                                        : 'close-status'
-                                                    }`}
-                                            >
-                                                <h1 className={`font-medium text-sm ${checkPendingAnnounce.some((item) => item.id === announce.id)
-                                                    ? 'text-gray-400'
-                                                    : checkOpenAnnounce.some((item) => item.id === announce.id)
-                                                        ? 'text-lime-400'
-                                                        : 'text-red-400'
-                                                    }`}>
-                                                    {checkPendingAnnounce.some((item) => item.id === announce.id)
-                                                        ? 'Pending'
-                                                        : checkOpenAnnounce.some((item) => item.id === announce.id)
-                                                            ? 'Open'
-                                                            : 'Close'}
-                                                </h1>
-                                            </div>
-                                        </div>
-
-                                        {/* ส่วนแสดงผล title */}
                                         <div className="space-y-3">
-                                            <h1 className="headingclamp">
-                                                {announce?.title || 'Untitled Scholarship'} {/* เพิ่ม fallback text */}
-                                            </h1>
-                                            <div>
-                                                <h2 className="font-medium text-sm text-gray-700 pt-1 ">Description</h2>
-                                                <p className="descriptionclamp">
-                                                    {announce?.description || 'No description available'}
-                                                </p>
+                                            <div className="flex justify-between items-center">
+                                                <h1 className="number-layout text-sm">
+                                                    #{((currentPage - 1) * announceData.per_page + index + 1).toString().padStart(4, '0')}
+                                                </h1>
+                                                <div
+                                                    className={`rounded-md px-3 py-1 ${checkPendingAnnounce.some((item) => item.id === announce.id)
+                                                        ? 'pending-status'
+                                                        : checkOpenAnnounce.some((item) => item.id === announce.id)
+                                                            ? 'open-status'
+                                                            : 'close-status'
+                                                        }`}
+                                                >
+                                                    <h1 className={`font-medium text-sm ${checkPendingAnnounce.some((item) => item.id === announce.id)
+                                                        ? 'text-gray-400'
+                                                        : checkOpenAnnounce.some((item) => item.id === announce.id)
+                                                            ? 'text-lime-400'
+                                                            : 'text-red-400'
+                                                        }`}
+                                                    >
+                                                        {checkPendingAnnounce.some((item) => item.id === announce.id)
+                                                            ? 'Pending'
+                                                            : checkOpenAnnounce.some((item) => item.id === announce.id)
+                                                                ? 'Open'
+                                                                : 'Close'}
+                                                    </h1>
+                                                </div>
                                             </div>
 
-                                            <div>
-                                                <h2 className="font-medium text-sm text-gray-700 mb-1 mt-6">
-                                                    Scholarship period
-                                                </h2>
-                                                <span className="date-period-layout">
-                                                    {formatDateRange(announce.publish_date, announce.close_date)}
-                                                </span>
-                                                <span className="educational-level-status mt-4">
-                                                    {announce.education_level || 'Not specified'}
-                                                </span>
+                                            {/* ส่วนแสดงผล title */}
+                                            <div className="space-y-3">
+                                                <h1 className="headingclamp">
+                                                    {announce?.title || 'Untitled Scholarship'} {/* เพิ่ม fallback text */}
+                                                </h1>
+                                                <div>
+                                                    <h2 className="font-medium text-sm text-gray-700 pt-1 ">Description</h2>
+                                                    <p className="descriptionclamp">
+                                                        {announce?.description || 'No description available'}
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <h2 className="font-medium text-sm text-gray-700 mb-1 mt-6">
+                                                        Scholarship period
+                                                    </h2>
+                                                    <span className="date-period-layout">
+                                                        {formatDateRange(announce.publish_date, announce.close_date)}
+                                                    </span>
+                                                    <span className="educational-level-status mt-4">
+                                                        {announce.education_level || 'Not specified'}
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -1587,29 +1820,28 @@ function Homepage() {
                                         <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
                                     </svg>
                                 </button>
-                                
+
                                 {/* แสดงปุ่มเลขหน้าแบบสมาร์ท */}
                                 {(() => {
                                     let pages = [];
                                     const totalPages = Math.ceil(getFilteredData().length / announceData.per_page);
                                     let startPage = Math.max(1, currentPage - 2);
                                     let endPage = Math.min(totalPages, startPage + 4);
-                                    
+
                                     // ปรับ startPage ถ้า endPage ชนขอบด้านขวา
                                     if (endPage - startPage < 4) {
                                         startPage = Math.max(1, endPage - 4);
                                     }
-                                    
+
                                     for (let i = startPage; i <= endPage; i++) {
                                         pages.push(
                                             <button
                                                 key={i}
                                                 onClick={() => handlePageChange(i)}
-                                                className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-colors duration-200 ${
-                                                    currentPage === i 
-                                                    ? 'z-10 bg-blue-600 border-blue-600 text-white' 
-                                                    : 'bg-white border-gray-300 text-gray-700 hover:bg-blue-50 hover:text-blue-600'
-                                                }`}
+                                                className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-colors duration-200 ${currentPage === i
+                                                        ? 'z-10 bg-blue-600 border-blue-600 text-white'
+                                                        : 'bg-white border-gray-300 text-gray-700 hover:bg-blue-50 hover:text-blue-600'
+                                                    }`}
                                             >
                                                 {i}
                                             </button>
@@ -1617,15 +1849,14 @@ function Homepage() {
                                     }
                                     return pages;
                                 })()}
-                                
+
                                 <button
                                     onClick={() => handlePageChange(currentPage + 1)}
                                     disabled={currentPage === Math.ceil(getFilteredData().length / announceData.per_page)}
-                                    className={`relative inline-flex items-center px-3 py-2 border ${
-                                        currentPage === Math.ceil(getFilteredData().length / announceData.per_page) 
-                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                                        : 'bg-white border-gray-300 text-gray-500 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200'
-                                    }`}
+                                    className={`relative inline-flex items-center px-3 py-2 border ${currentPage === Math.ceil(getFilteredData().length / announceData.per_page)
+                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                            : 'bg-white border-gray-300 text-gray-500 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200'
+                                        }`}
                                     title="ถัดไป"
                                 >
                                     <span className="sr-only">ถัดไป</span>
@@ -1636,11 +1867,10 @@ function Homepage() {
                                 <button
                                     onClick={() => handlePageChange(Math.ceil(getFilteredData().length / announceData.per_page))}
                                     disabled={currentPage === Math.ceil(getFilteredData().length / announceData.per_page)}
-                                    className={`relative inline-flex items-center px-3 py-2 rounded-r-md border ${
-                                        currentPage === Math.ceil(getFilteredData().length / announceData.per_page) 
-                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                                        : 'bg-white border-gray-300 text-gray-500 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200'
-                                    }`}
+                                    className={`relative inline-flex items-center px-3 py-2 rounded-r-md border ${currentPage === Math.ceil(getFilteredData().length / announceData.per_page)
+                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                            : 'bg-white border-gray-300 text-gray-500 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200'
+                                        }`}
                                     title="หน้าสุดท้าย"
                                 >
                                     <span className="sr-only">หน้าสุดท้าย</span>
@@ -1652,6 +1882,7 @@ function Homepage() {
                         </div>
                     )}
                 </div>
+            </div>
         );
     };
 
@@ -1670,7 +1901,6 @@ function Homepage() {
                 setUserRole('provider'); // Default fallback
             }
         };
-
         checkUserRole();
     }, []);
 
