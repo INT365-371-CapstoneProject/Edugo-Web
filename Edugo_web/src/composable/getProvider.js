@@ -77,4 +77,51 @@ const getProvider = async (page = 1, limit = 10) => {
   }
 };
 
-export { getProvider };
+const getAllUser = async (page = 1, limit = 10) => {
+  try {
+    const res = await axios.get(`${urlAdmin}/user?page=${page}&limit=${limit}`, getDefaultConfig());
+    
+    // Return formatted data structure with pagination
+    if (res.data && res.data.users) {
+      return {
+        data: res.data.users,
+        pagination: res.data.pagination || {
+          limit: limit,
+          page: page,
+          total: res.data.count || res.data.users.length,
+          total_page: res.data.pagination?.total_page || Math.ceil((res.data.count || res.data.users.length) / limit)
+        },
+        currentUser: {
+          role: res.data.role,
+          username: res.data.username
+        }
+      };
+    } else {
+      console.warn("Unexpected API response format:", res.data);
+      return {
+        data: [],
+        pagination: {
+          limit: limit,
+          page: page,
+          total: 0,
+          total_page: 0
+        },
+        currentUser: null
+      };
+    }
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    return {
+      data: [],
+      pagination: {
+        limit: limit,
+        page: page,
+        total: 0,
+        total_page: 0
+      },
+      currentUser: null
+    };
+  }
+}
+
+export { getProvider, getAllUser };
