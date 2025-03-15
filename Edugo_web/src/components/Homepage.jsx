@@ -833,6 +833,155 @@ function Homepage() {
         }
     };
 
+    // Add new state to track complete scholarship counts
+    const [scholarshipCounts, setScholarshipCounts] = useState({
+        total: 0,
+        pending: 0,
+        open: 0,
+        closed: 0,
+        initialized: false
+    });
+
+    // New function to fetch and count all announcements across pages
+    const fetchAllAnnouncementsForCounting = async () => {
+        try {
+            // Only proceed if we are on the scholarships tab and counts need initializing
+            if (activeTab !== 'scholarships' || scholarshipCounts.initialized) return;
+
+            setScholarshipCounts(prev => ({ ...prev, initialized: true }));
+
+            // Get initial response to determine total pages
+            const initialResponse = await getAnnounce(1);
+            if (!initialResponse) return;
+
+            const totalPages = initialResponse.last_page;
+            let allAnnouncements = [...initialResponse.data];
+
+            // Fetch remaining pages (if any)
+            const pagePromises = [];
+            for (let page = 2; page <= totalPages; page++) {
+                pagePromises.push(getAnnounce(page));
+            }
+
+            const pageResults = await Promise.all(pagePromises);
+            pageResults.forEach(response => {
+                if (response && response.data) {
+                    allAnnouncements = [...allAnnouncements, ...response.data];
+                }
+            });
+
+            // Calculate counts
+            const now = new Date();
+            const pendingCount = allAnnouncements.filter(announce => {
+                const publishDate = new Date(announce.publish_date);
+                return publishDate > now;
+            }).length;
+
+            const openCount = allAnnouncements.filter(announce => {
+                const publishDate = new Date(announce.publish_date);
+                const closeDate = new Date(announce.close_date);
+                return publishDate <= now && closeDate >= now;
+            }).length;
+
+            const closedCount = allAnnouncements.filter(announce => {
+                const closeDate = new Date(announce.close_date);
+                return closeDate < now;
+            }).length;
+
+            setScholarshipCounts({
+                total: allAnnouncements.length,
+                pending: pendingCount,
+                open: openCount,
+                closed: closedCount,
+                initialized: true
+            });
+
+        } catch (error) {
+            console.error("Error fetching all announcements for counting:", error);
+            // Keep initialized true to prevent infinite retries
+            setScholarshipCounts(prev => ({ ...prev, initialized: true }));
+        }
+    };
+
+    // Call the counting function when the activeTab changes to scholarships
+    useEffect(() => {
+        if (activeTab === 'scholarships' && !scholarshipCounts.initialized) {
+            fetchAllAnnouncementsForCounting();
+        }
+    }, [activeTab, scholarshipCounts.initialized]);
+
+    // Add new state for complete user counts
+    const [userCounts, setUserCounts] = useState({
+        total: 0,
+        active: 0,
+        suspended: 0,
+        user: 0,
+        provider: 0,
+        admin: 0,
+        initialized: false
+    });
+    
+    // New function to fetch all users across pages for accurate counts
+    const fetchAllUsersForCounting = async () => {
+        try {
+            // Only proceed if we are on the users tab and counts need initializing
+            if (activeTab !== 'users' || userCounts.initialized) return;
+            
+            setUserCounts(prev => ({ ...prev, initialized: true }));
+            
+            // Get initial response to determine total pages
+            const initialResponse = await getAllUser(1, 100); // Get more users per page for efficiency
+            if (!initialResponse || !initialResponse.pagination) return;
+            
+            const totalPages = initialResponse.pagination.total_page;
+            let allUsers = [...initialResponse.data];
+            
+            // Fetch remaining pages if total users > 100
+            if (totalPages > 1) {
+                const pagePromises = [];
+                for (let page = 2; page <= totalPages; page++) {
+                    pagePromises.push(getAllUser(page, 100));
+                }
+                
+                const pageResults = await Promise.all(pagePromises);
+                pageResults.forEach(response => {
+                    if (response && response.data) {
+                        allUsers = [...allUsers, ...response.data];
+                    }
+                });
+            }
+            
+            // Calculate counts
+            const activeCount = allUsers.filter(user => user.status === 'Active').length;
+            const suspendedCount = allUsers.filter(user => user.status !== 'Active').length;
+            const userCount = allUsers.filter(user => user.role === 'user').length;
+            const providerCount = allUsers.filter(user => user.role === 'provider').length;
+            const adminCount = allUsers.filter(user => user.role === 'admin').length;
+            
+            setUserCounts({
+                total: allUsers.length,
+                active: activeCount,
+                suspended: suspendedCount,
+                user: userCount,
+                provider: providerCount,
+                admin: adminCount,
+                initialized: true
+            });
+            
+        } catch (error) {
+            console.error("Error fetching all users for counting:", error);
+            // Keep initialized true to prevent infinite retries
+            setUserCounts(prev => ({ ...prev, initialized: true }));
+        }
+    };
+    
+    // Call the counting function when the activeTab changes to users
+    useEffect(() => {
+        if (activeTab === 'users' && !userCounts.initialized) {
+            fetchAllUsersForCounting();
+        }
+    }, [activeTab, userCounts.initialized]);
+    
     const renderAdminView = () => {
         // New function to render dashboard metrics based on active tab
         const renderDashboardMetrics = () => {
@@ -891,7 +1040,7 @@ function Homepage() {
                     </div>
                 );
             } else if (activeTab === 'scholarships') {
-                // Scholarship metrics
+                // Scholarship metrics - updated to use the accurate counts
                 return (
                     <div className="grid grid-cols-4 gap-4 mb-6">
                         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex">
@@ -900,7 +1049,7 @@ function Homepage() {
                                 <h2 className="text-sm font-medium text-gray-600">All Scholarships</h2>
                                 <div className="mt-2 flex items-baseline">
                                     <p className="text-2xl font-semibold text-gray-900">
-                                        {allAnnouncements.length}
+                                        {scholarshipCounts.initialized ? scholarshipCounts.total : allAnnouncements.length}
                                     </p>
                                     <p className="ml-2 text-sm text-gray-600">Scholarships</p>
                                 </div>
@@ -912,7 +1061,7 @@ function Homepage() {
                                 <h2 className="text-sm font-medium text-gray-600">Pending Scholarships</h2>
                                 <div className="mt-2 flex items-baseline">
                                     <p className="text-2xl font-semibold text-gray-900">
-                                        {checkPendingAnnounce.length}
+                                        {scholarshipCounts.initialized ? scholarshipCounts.pending : checkPendingAnnounce.length}
                                     </p>
                                     <p className="ml-2 text-sm text-gray-600">Scholarships</p>
                                 </div>
@@ -924,7 +1073,7 @@ function Homepage() {
                                 <h2 className="text-sm font-medium text-gray-600">Open Scholarships</h2>
                                 <div className="mt-2 flex items-baseline">
                                     <p className="text-2xl font-semibold text-gray-900">
-                                        {checkOpenAnnounce.length}
+                                        {scholarshipCounts.initialized ? scholarshipCounts.open : checkOpenAnnounce.length}
                                     </p>
                                     <p className="ml-2 text-sm text-gray-600">Scholarships</p>
                                 </div>
@@ -936,7 +1085,7 @@ function Homepage() {
                                 <h2 className="text-sm font-medium text-gray-600">Closed Scholarships</h2>
                                 <div className="mt-2 flex items-baseline">
                                     <p className="text-2xl font-semibold text-gray-900">
-                                        {checkCloseAnnounce.length}
+                                        {scholarshipCounts.initialized ? scholarshipCounts.closed : checkCloseAnnounce.length}
                                     </p>
                                     <p className="ml-2 text-sm text-gray-600">Scholarships</p>
                                 </div>
@@ -945,13 +1094,13 @@ function Homepage() {
                     </div>
                 );
             } else if (activeTab === 'users') {
-                // Calculate user counts
-                const userCount = userData.data.filter(user => user.role === 'user').length;
-                const providerCount = userData.data.filter(user => user.role === 'provider').length;
-                const adminCount = userData.data.filter(user => user.role === 'admin').length;
-                const activeCount = userData.data.filter(user => user.status === 'Active').length;
-                const suspendedCount = userData.data.filter(user => user.status !== 'Active').length;
-                const totalCount = userData.pagination?.total || userData.data.length;
+                // Calculate user counts from current page or use comprehensive counts if available
+                const userCount = userCounts.initialized ? userCounts.user : userData.data.filter(user => user.role === 'user').length;
+                const providerCount = userCounts.initialized ? userCounts.provider : userData.data.filter(user => user.role === 'provider').length;
+                const adminCount = userCounts.initialized ? userCounts.admin : userData.data.filter(user => user.role === 'admin').length;
+                const activeCount = userCounts.initialized ? userCounts.active : userData.data.filter(user => user.status === 'Active').length;
+                const suspendedCount = userCounts.initialized ? userCounts.suspended : userData.data.filter(user => user.status !== 'Active').length;
+                const totalCount = userCounts.initialized ? userCounts.total : (userData.pagination?.total || userData.data.length);
 
                 // Check if current user is superadmin
                 const isSuperAdmin = userRole === 'superadmin';
@@ -1940,7 +2089,7 @@ function Homepage() {
                                 >
                                     <span className="sr-only">หน้าแรก</span>
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fillRule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                                        <path fillRule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l-4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
                                     </svg>
                                 </button>
                                 <button
