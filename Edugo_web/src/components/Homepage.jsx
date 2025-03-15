@@ -745,7 +745,7 @@ function Homepage() {
         setShowDeleteModal(true);
     };
 
-    // Function to confirm user deletion - Updated to avoid page refresh
+    // Function to confirm user deletion - Updated to refresh dashboard metrics
     const confirmDelete = async () => {
         try {
             setActionLoading(true);
@@ -754,6 +754,8 @@ function Homepage() {
             // Store user ID before clearing anything
             const userId = selectedUser.id;
             const username = selectedUser.username;
+            const userStatus = selectedUser.status;
+            const userRole = selectedUser.role;
 
             const result = await manageUser({
                 account_id: userId,
@@ -772,6 +774,34 @@ function Homepage() {
                         total: Math.max(0, prev.pagination.total - 1)
                     }
                 }));
+
+                // Update the userCounts to reflect the deletion
+                setUserCounts(prev => {
+                    const countUpdates = {
+                        total: prev.total - 1
+                    };
+                    
+                    // Update active or suspended count
+                    if (userStatus === 'Active') {
+                        countUpdates.active = prev.active - 1;
+                    } else {
+                        countUpdates.suspended = prev.suspended - 1;
+                    }
+                    
+                    // Update role-based counts
+                    if (userRole === 'user') {
+                        countUpdates.user = prev.user - 1;
+                    } else if (userRole === 'provider') {
+                        countUpdates.provider = prev.provider - 1;
+                    } else if (userRole === 'admin') {
+                        countUpdates.admin = prev.admin - 1;
+                    }
+                    
+                    return {
+                        ...prev,
+                        ...countUpdates
+                    };
+                });
 
                 // Show success message
                 setActionSuccess(`User ${username} was deleted successfully`);
@@ -813,6 +843,19 @@ function Homepage() {
                         u.id === user.id ? { ...u, status: newStatus } : u
                     )
                 }));
+
+                // Update the userCounts to reflect the status change
+                setUserCounts(prev => {
+                    // Calculate the change in counts
+                    const statusChange = user.status === 'Active' ? 
+                        { active: prev.active - 1, suspended: prev.suspended + 1 } : 
+                        { active: prev.active + 1, suspended: prev.suspended - 1 };
+                    
+                    return {
+                        ...prev,
+                        ...statusChange
+                    };
+                });
 
                 // Show success message
                 setActionSuccess(`User status changed to ${newStatus} successfully`);
