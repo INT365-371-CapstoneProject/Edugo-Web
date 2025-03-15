@@ -22,7 +22,6 @@ const getProvider = async (page = 1, limit = 10) => {
   try {
     // Request paginated data with normal parameters
     const res = await axios.get(`${urlAdmin}/provider?page=${page}&limit=${limit}`, getDefaultConfig());
-    
     // Return formatted data structure
     if (res.data && res.data.pagination && res.data.providers) {
       return {
@@ -125,7 +124,7 @@ const getAllUser = async (page = 1, limit = 10) => {
 }
 
 // Updated manageUser function to use axios and urlAdmin
-export const manageUser = async (data) => {
+const manageUser = async (data) => {
     try {
         const token = localStorage.getItem('token');
         if (!token) {
@@ -148,4 +147,4 @@ export const manageUser = async (data) => {
     }
 };
 
-export { getProvider, getAllUser };
+export { getProvider, getAllUser, manageUser };

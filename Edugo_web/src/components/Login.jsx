@@ -121,8 +121,8 @@ function Login() {
         // ตรวจสอบสถานะผู้ใช้ก่อนที่จะให้เข้าสู่ระบบ
         const profileData = await checkUserStatus(token);
         
+        // Check for suspended account
         if (profileData && profileData.profile.status === "Suspended") {
-          // ถ้าสถานะเป็น Suspended ให้แสดงข้อความแจ้งเตือนและไม่ให้เข้าสู่ระบบ - เปลี่ยนเป็นภาษาอังกฤษ
           Swal.fire({
             title: 'Account Suspended',
             text: 'Your account has been suspended. Please contact administrator.',
@@ -130,10 +130,35 @@ function Login() {
             confirmButtonText: 'Understood',
             confirmButtonColor: '#d33',
           });
-          return; // ไม่ดำเนินการต่อ
+          return;
+        }
+        
+        // Check verification status for providers
+        if (decoded.role === 'provider' && profileData && profileData.profile) {
+          const verifyStatus = profileData.profile.verify;
+          
+          if (verifyStatus === 'Waiting') {
+            Swal.fire({
+              title: 'Waiting for Approval',
+              text: 'Your account is waiting for approval. Please wait for admin verification.',
+              icon: 'info',
+              confirmButtonText: 'Understood',
+              confirmButtonColor: '#3085d6',
+            });
+            return;
+          } else if (verifyStatus === 'No') {
+            Swal.fire({
+              title: 'Verification Rejected',
+              text: 'Your account verification was rejected. Please contact administrator for assistance.',
+              icon: 'error',
+              confirmButtonText: 'Understood',
+              confirmButtonColor: '#d33',
+            });
+            return;
+          }
         }
 
-        // ถ้าสถานะไม่ใช่ Suspended จึงบันทึก token และแสดงข้อความยินดีต้อนรับ
+        // ถ้าผ่านการตรวจสอบทั้งหมด จึงบันทึก token และแสดงข้อความยินดีต้อนรับ
         localStorage.setItem('token', token);
         
         await Swal.fire({
