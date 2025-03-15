@@ -1918,7 +1918,8 @@ function Homepage() {
                                             User Management
                                         </button>
                                     </div>
-                                    {activeTab === 'users' && (
+                                    {/* Only show Add New Administrator button for superadmin */}
+                                    {activeTab === 'users' && userRole === 'superadmin' && (
                                         <button
                                             onClick={() => navigate('/admin/user/add')}
                                             className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-150"

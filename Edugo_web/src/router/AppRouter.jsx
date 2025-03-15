@@ -12,6 +12,7 @@ import { isTokenExpired } from '../utils/auth.js';
 import ForgotPass from '../components/ForgotPass';
 import Profile from '../components/Profile';
 import { checkUserStatus } from '../composable/getProfile.js';
+import AdminUserAdd from '../components/AdminUserAdd';
 
 // ฟังก์ชันตรวจสอบการเข้าสู่ระบบ สถานะ และบทบาท
 const checkAuth = async () => {
@@ -287,6 +288,44 @@ const ProviderOnlyRoute = ({ children }) => {
     : <Navigate to="/homepage" replace />;
 };
 
+// New component for superadmin-only routes
+const SuperAdminRoute = ({ children }) => {
+  const [authState, setAuthState] = useState({ isValid: null, loading: true });
+  const [hasAlerted, setHasAlerted] = useState(false);
+
+  useEffect(() => {
+    const verifyAuth = async () => {
+      const auth = await checkAuth();
+      setAuthState({ ...auth, loading: false });
+      
+      if (!auth.isValid || auth.role !== 'superadmin') {
+        if (!hasAlerted) {
+          Swal.fire({
+            title: 'Access Denied',
+            text: 'This page is only accessible to superadmins.',
+            icon: 'error',
+            confirmButtonText: 'OK',
+            customClass: {
+              popup: 'animated fadeInDown'
+            }
+          });
+          setHasAlerted(true);
+        }
+      }
+    };
+    
+    verifyAuth();
+  }, [hasAlerted]);
+
+  if (authState.loading) {
+    return <div>Loading...</div>;
+  }
+
+  return (authState.isValid && authState.role === 'superadmin') 
+    ? children 
+    : <Navigate to="/homepage" replace />;
+};
+
 // กำหนด base URL สำหรับการ routing
 const router = createBrowserRouter(
   [
@@ -359,6 +398,16 @@ const router = createBrowserRouter(
       element: (
         <PrivateRoute>
           <Profile />
+        </PrivateRoute>
+      ),
+    },
+    {
+      path: '/admin/user/add',
+      element: (
+        <PrivateRoute>
+          <SuperAdminRoute>
+            <AdminUserAdd />
+          </SuperAdminRoute>
         </PrivateRoute>
       ),
     },
