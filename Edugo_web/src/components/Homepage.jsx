@@ -382,29 +382,97 @@ function Homepage() {
         );
     };
 
-    const fetchAllAnnouncements = async (page = 1) => {
+    // Optimize fetchAllAnnouncements to handle pagination correctly
+    const fetchAllAnnouncements = async (page = 1, shouldSetLoading = true) => {
         try {
+            if (shouldSetLoading) setPageLoading(true);
+            
+            // Fetch current page data
             const response = await getAnnounce(page);
+            console.log("API Response for page", page, ":", response);
             if (response) {
-                setAdminAnnounceData(response);
-                setAllAnnouncements(prev => {
-                    // หากเป็นหน้าแรก ให้แทนที่ข้อมูลทั้งหมด
-                    if (page === 1) {
-                        return response.data;
-                    }
-                    // หากเป็นหน้าอื่นๆ ให้เพิ่มข้อมูลต่อท้าย
-                    return [...prev, ...response.data];
+                setAnnounceData({
+                    data: response.data || [],
+                    total: response.total || 0,
+                    page: response.page || page,
+                    last_page: response.last_page || 1,
+                    per_page: response.per_page || 10
                 });
+
+                // Only update allAnnouncements if we're on page 1 or it hasn't been loaded yet
+                if (page === 1 || allAnnouncements.length === 0) {
+                    // Fetch all pages for filtering
+                    const allPages = [];
+                    for (let i = 1; i <= response.last_page; i++) {
+                        if (i !== page) {
+                            const pageData = await getAnnounce(i);
+                            if (pageData && pageData.data) {
+                                allPages.push(...pageData.data);
+                            }
+                        }
+                    }
+                    // Combine current page data with all other pages
+                    setAllAnnouncements([...response.data, ...allPages]);
+                }
+
+                // Load images for current page data
+                await loadImagesForAnnouncements(response.data);
             }
         } catch (error) {
             console.error('Error fetching announcements:', error);
+        } finally {
+            if (shouldSetLoading) {
+                setPageLoading(false);
+                setIsLoading(false);
+            }
         }
     };
 
+    // Add a new helper function for loading images to avoid duplicate code
+    const loadImagesForAnnouncements = async (announcements) => {
+        if (!announcements || announcements.length === 0) return;
+        
+        const images = { ...announceImages };
+        let hasNewImages = false;
+        
+        for (const announce of announcements) {
+            if (!images[announce.id]) {
+                try {
+                    const imageUrl = await getAnnounceImage(announce.id);
+                    if (imageUrl) {
+                        images[announce.id] = imageUrl;
+                        hasNewImages = true;
+                    }
+                } catch (error) {
+                    console.error(`Error loading image for announcement ${announce.id}:`, error);
+                }
+            }
+        }
+        
+        if (hasNewImages) {
+            setAnnounceImages(images);
+        }
+    };
+
+    // แก้ไข useEffect ที่ทำให้เกิดการ fetch ซ้ำ
     useEffect(() => {
         setIsLoading(true);
+        
+        if (userRole === 'provider') {
+            // ลบ fetchAllAnnouncements ออกจากตรงนี้เพราะจะถูกเรียกจาก handlePageChange อยู่แล้ว
+            if (allAnnouncements.length === 0) {  // เพิ่มเงื่อนไขให้โหลดครั้งแรกเท่านั้น
+                fetchAllAnnouncements(currentPage)
+                    .then(() => setIsLoading(false))
+                    .catch((error) => {
+                        console.error('Error fetching announcements:', error);
+                        setIsLoading(false);
+                    });
+            } else {
+                setIsLoading(false);
+            }
+        }
         // ถ้าเป็น tab approvals เราจะโหลดข้อมูลผู้ให้บริการ
-        if (activeTab === 'approvals') {
+        else if (activeTab === 'approvals') {
             fetchProviderData()
                 .then(() => setIsLoading(false))
                 .catch((error) => {
@@ -426,7 +494,14 @@ function Homepage() {
                 setIsLoading(false);
             });
         }
-    }, [currentPage, activeTab]);
+    }, [userRole, currentPage, activeTab]);
+
+    // Add a separate effect specifically for provider initial load
+    useEffect(() => {
+        if (userRole === 'provider' && !isLoading && allAnnouncements.length === 0) {
+            fetchAllAnnouncements(currentPage);
+        }
+    }, [userRole, isLoading]);
 
     useEffect(() => {
         // โหลดรูปภาพสำหรับทุกประกาศ
@@ -453,6 +528,45 @@ function Homepage() {
             loadImages();
         }
     }, [allAnnouncements]);
+
+    // Add new effect to load images when announceData.data changes
+    useEffect(() => {
+        // Load images for the current page data
+        const loadCurrentPageImages = async () => {
+            try {
+                if (!announceData.data || announceData.data.length === 0) return;
+                
+                const images = { ...announceImages };
+                let hasNewImages = false;
+                
+                for (const announce of announceData.data) {
+                    // Only load images we haven't already loaded
+                    if (!images[announce.id]) {
+                        try {
+                            const imageUrl = await getAnnounceImage(announce.id);
+                            if (imageUrl) {
+                                images[announce.id] = imageUrl;
+                                hasNewImages = true;
+                            }
+                        } catch (error) {
+                            console.error(`Error loading image for announcement ${announce.id}:`, error);
+                        }
+                    }
+                }
+                
+                // Only update state if we actually loaded new images
+                if (hasNewImages) {
+                    setAnnounceImages(images);
+                }
+            } catch (error) {
+                console.error('Error in loadCurrentPageImages:', error);
+            }
+        };
+        
+        if (userRole === 'provider') {
+            loadCurrentPageImages();
+        }
+    }, [announceData.data, userRole]);
 
     useEffect(() => {
         // Clean up function to revoke object URLs
@@ -522,66 +636,65 @@ function Homepage() {
         return localCloseDate < nowInLocalTime;
     });
 
+    // Optimize getFilteredData to work with allAnnouncements
     const getFilteredData = () => {
-        if (filterType === 'Open') {
-            return allAnnouncements.filter(announce => {
-                const localPublishedDate = new Date(announce.publish_date);
-                const localCloseDate = new Date(announce.close_date);
-                const nowInLocalTime = new Date();
-                return localPublishedDate <= nowInLocalTime && localCloseDate >= nowInLocalTime;
-            });
-        } else if (filterType === 'Close') {
-            return allAnnouncements.filter(announce => {
-                const localCloseDate = new Date(announce.close_date);
-                const nowInLocalTime = new Date();
-                return localCloseDate < nowInLocalTime;
-            });
-        } else if (filterType === 'Pending') {
-            return allAnnouncements.filter(announce => {
-                const localPublishedDate = new Date(announce.publish_date);
-                const nowInLocalTime = new Date();
-                return localPublishedDate > nowInLocalTime;
-            });
+        const nowInLocalTime = new Date();
+        
+        if (filterType === 'All') {
+            return announceData.data;
         }
-        return allAnnouncements;
-    };
-
-    // แก้ไข filteredAnnounce function ไม่ให้มี state update
-    const filteredAnnounce = () => {
-        const filteredData = getFilteredData();
-        const startIndex = (currentPage - 1) * announceData.per_page;
-        const endIndex = startIndex + announceData.per_page;
-        return filteredData.slice(startIndex, endIndex);
-    };
-
-    // แก้ไข handleFilterClick function
-    const handleFilterClick = (type) => {
-        const filteredData = type === 'All' ? allAnnouncements : allAnnouncements.filter(announce => {
-            const nowInLocalTime = new Date();
-            const localPublishedDate = new Date(announce.publish_date);
-            const localCloseDate = new Date(announce.close_date);
-            switch (type) {
-                case 'Open':
-                    return localPublishedDate <= nowInLocalTime && localCloseDate >= nowInLocalTime;
-                case 'Close':
-                    return localCloseDate < nowInLocalTime;
+        
+        return allAnnouncements.filter(announce => {
+            const publishDate = new Date(announce.publish_date);
+            const closeDate = new Date(announce.close_date);
+            
+            switch (filterType) {
                 case 'Pending':
-                    return localPublishedDate > nowInLocalTime;
+                    return publishDate > nowInLocalTime;
+                case 'Open':
+                    return publishDate <= nowInLocalTime && closeDate >= nowInLocalTime;
+                case 'Close':
+                    return closeDate < nowInLocalTime;
                 default:
                     return true;
             }
         });
+    };
 
-        const totalPages = Math.ceil(filteredData.length / announceData.per_page);
-        setCurrentPage(1);
+    // แก้ไข filteredAnnounce function ไม่ให้มี state update
+    // Update filteredAnnounce function to use announceData directly when appropriate
+    const filteredAnnounce = () => {
+        // For non-filtered views, just return the current page data from API
+        if (filterType === 'All') {
+            return announceData.data || [];
+        }
+        
+        // For filtered views, return the appropriate slice of filtered data
+        const filteredData = getFilteredData();
+        const startIndex = (currentPage - 1) * (announceData.per_page || 10);
+        const endIndex = startIndex + (announceData.per_page || 10);
+        return filteredData.slice(startIndex, endIndex);
+    };
+
+    // แก้ไข handleFilterClick function
+    // Update handleFilterClick to work with the full dataset for accurate filtering
+    const handleFilterClick = async (type) => {
         setFilterType(type);
-        setAnnounceData(prev => ({
-            ...prev,
-            data: filteredData.slice(0, prev.per_page),
-            total: type === 'All' ? allAnnouncements.length : filteredData.length,
-            last_page: totalPages,
-            page: 1
-        }));
+        setCurrentPage(1); // Reset to first page when changing filters
+        
+        if (type === 'All') {
+            await fetchAllAnnouncements(1);
+        } else {
+            // For filtered views, we'll use the existing allAnnouncements data
+            const filteredData = getFilteredData();
+            setAnnounceData(prev => ({
+                ...prev,
+                data: filteredData.slice(0, prev.per_page),
+                total: filteredData.length,
+                page: 1,
+                last_page: Math.ceil(filteredData.length / prev.per_page)
+            }));
+        }
     };
 
     // เพิ่ม useEffect สำหรับจัดการ pagination เมื่อ currentPage เปลี่ยน
@@ -611,21 +724,56 @@ function Homepage() {
     };
 
     // แก้ไข handlePageChange function
-    const handlePageChange = (pageNumber) => {
-        const filteredData = getFilteredData();
-        const startIndex = (pageNumber - 1) * announceData.per_page;
-        const endIndex = startIndex + announceData.per_page;
-        const paginatedData = filteredData.slice(startIndex, endIndex);
-
-        if (paginatedData.length > 0 || pageNumber === 1) {
-            setCurrentPage(pageNumber);
-            setAnnounceData(prev => ({
-                ...prev,
-                data: paginatedData,
-                page: pageNumber,
-                total: filteredData.length,
-                last_page: Math.ceil(filteredData.length / prev.per_page)
-            }));
+    // Modify handlePageChange to use API pagination for "All" filter
+    const [pageLoading, setPageLoading] = useState(false); 
+    const handlePageChange = async (pageNumber) => {
+        if (pageLoading || pageNumber === currentPage) return; // Prevent redundant requests
+        
+        try {
+            setPageLoading(true); // Set loading state at the beginning
+            
+            if (filterType === 'All') {
+                // For "All" filter, fetch directly from API
+                console.log("Changing page to:", pageNumber);
+                setCurrentPage(pageNumber); // Update the page number first
+                
+                // Then fetch data for that page
+                const response = await getAnnounce(pageNumber);
+                
+                console.log("API Response for page change:", response);
+                
+                // If we got a response, update our state
+                if (response && response.data) {
+                    setAnnounceData({
+                        data: response.data,
+                        total: response.total || 0,
+                        page: response.page || pageNumber,
+                        last_page: response.last_page || 1,
+                        per_page: response.per_page || 10
+                    });
+                    
+                    // Load images for this page - use the helper function
+                    await loadImagesForAnnouncements(response.data);
+                }
+            } else {
+                // For filtered views, use client-side pagination
+                const filteredData = getFilteredData();
+                const itemsPerPage = announceData.per_page || 10;
+                const startIndex = (pageNumber - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+                
+                setCurrentPage(pageNumber);
+                setAnnounceData(prev => ({
+                    ...prev,
+                    data: filteredData.slice(startIndex, endIndex),
+                    page: pageNumber
+                }));
+            }
+        } catch (error) {
+            console.error('Error changing page:', error);
+        } finally {
+            // We don't need a delay here since pagination is a separate action
+            setPageLoading(false);
         }
     };
 
@@ -652,8 +800,10 @@ function Homepage() {
         return buttons;
     };
 
-    const handleAdminPageChange = (newPage) => {
-        setAdminCurrentPage(newPage);
+    const handleAdminPageChange = async (newPage) => {
+        if (newPage >= 1 && newPage <= adminAnnounceData.last_page) {
+            setAdminCurrentPage(newPage);
+        }
     };
     // เพิ่มฟังก์ชันสำหรับจัดการรูปแบบวันที่
     const formatDate = (dateString) => {
@@ -1268,7 +1418,7 @@ function Homepage() {
                             <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mx-6 my-2 flex items-center justify-between">
                                 <span className="font-medium flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 00-1.414 1.414l2 2a1 1 001.414 0l4-4z" clipRule="evenodd" />
                                     </svg>
                                     {actionSuccess}
                                 </span>
@@ -1371,7 +1521,7 @@ function Homepage() {
                                                         ) : (
                                                             <>
                                                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 00-1-1h-4a1 1 00-1 1v3M4 7h16" />
                                                                 </svg>
                                                                 Delete
                                                             </>
@@ -1411,7 +1561,7 @@ function Homepage() {
                                     )}
                                     <div className="mt-2">
                                         <svg className="h-12 w-12 text-red-600 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 00-1-1h-4a1 1 00-1 1v3M4 7h16" />
                                         </svg>
                                         <p className="text-sm text-gray-500 text-center">
                                             Are you sure you want to delete the user <span className="font-medium">{selectedUser.username}</span>?<br />This action cannot be undone.
@@ -1555,7 +1705,7 @@ function Homepage() {
                                         ? 'Open'
                                         : 'Close';
 
-                                const startIndex = (adminAnnounceData.page - 1) * adminAnnounceData.per_page;
+                                const startIndex = (adminCurrentPage - 1) * adminItemsPerPage;
 
                                 return (
                                     <tr key={announce.id} className="hover:bg-gray-50">
@@ -1946,7 +2096,208 @@ function Homepage() {
         );
     };
 
+    // Modify renderProviderView for better data handling - only change the filteredAnnounce call
     const renderProviderView = () => {
+        
+        // Calculate the pending, open, and closed counts based on all announcements
+        const pendingCount = allAnnouncements.filter(announce => {
+            const localPublishedDate = new Date(announce.publish_date);
+            const nowInLocalTime = new Date();
+            return localPublishedDate > nowInLocalTime;
+        }).length;
+        
+        const openCount = allAnnouncements.filter(announce => {
+            const localPublishedDate = new Date(announce.publish_date);
+            const localCloseDate = new Date(announce.close_date);
+            const nowInLocalTime = new Date();
+            return localPublishedDate <= nowInLocalTime && localCloseDate >= nowInLocalTime;
+        }).length;
+        
+        const closedCount = allAnnouncements.filter(announce => {
+            const localCloseDate = new Date(announce.close_date);
+            const nowInLocalTime = new Date();
+            return localCloseDate < nowInLocalTime;
+        }).length;
+
+        // Add an event listener to page click buttons to prevent double-click issue
+        const createPageClickHandler = (pageNumber) => {
+            return async (event) => {
+                // Disable the button immediately to prevent double clicks
+                event.currentTarget.disabled = true;
+                
+                try {
+                    await handlePageChange(pageNumber);
+                } finally {
+                    // Re-enable after a short delay to allow state updates to complete
+                    setTimeout(() => {
+                        if (event.currentTarget) {
+                            event.currentTarget.disabled = false;
+                        }
+                    }, 500);
+                }
+            };
+        };
+
+        // Update the pagination section in renderProviderView
+        const paginationSection = () => {
+            const totalItems = filterType === 'All' ? 
+                announceData.total : 
+                getFilteredData().length;
+            
+            const itemsPerPage = announceData.per_page || 10;
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            
+            if (totalPages <= 1) return null;
+            
+            const startItem = ((currentPage - 1) * itemsPerPage) + 1;
+            const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+            
+            // Simple direct handler that doesn't wrap in another function
+            const handlePageClick = (e, pageNumber) => {
+                e.preventDefault();
+                if (pageLoading || pageNumber === currentPage) return;
+                handlePageChange(pageNumber);
+            };
+            
+            return (
+                <div className="bg-white px-6 py-4 rounded-b-lg shadow-sm mt-8 mb-12">
+                    <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div className="flex-1"></div>
+                        <div className="flex justify-center flex-1">
+                            <nav className="relative z-0 inline-flex space-x-2" aria-label="Pagination">
+                                <button
+                                    onClick={(e) => handlePageClick(e, 1)}
+                                    disabled={currentPage === 1 || pageLoading}
+                                    className={`relative inline-flex items-center px-3 py-2 rounded-l-md border ${currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white border-gray-300 text-gray-500 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200'}`}
+                                    title="First page"
+                                >
+                                    <span className="sr-only">First page</span>
+                                    {'<<'}
+                                </button>
+                                
+                                <button
+                                    onClick={(e) => handlePageClick(e, currentPage - 1)}
+                                    disabled={currentPage === 1 || pageLoading}
+                                    className={`relative inline-flex items-center px-3 py-2 border ${currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white border-gray-300 text-gray-500 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200'}`}
+                                    title="Previous page"
+                                >
+                                    <span className="sr-only">Previous page</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fillRule="evenodd" d="M12.707 5.293a1 1 010 1.414L9.414 10l3.293 3.293a1 1 01-1.414 1.414l-4-4a1 1 010-1.414l4-4a1 1 011.414 0z" clipRule="evenodd" />
+                                    </svg>
+                                </button>
+
+                                {(() => {
+                                    let pages = [];
+                                    let startPage = Math.max(1, currentPage - 2);
+                                    let endPage = Math.min(totalPages, startPage + 4);
+
+                                    if (startPage > 1) {
+                                        pages.push(
+                                            <button 
+                                                key={1} 
+                                                onClick={(e) => handlePageClick(e, 1)}
+                                                disabled={pageLoading}
+                                                className="relative inline-flex items-center px-4 py-2 border text-sm font-medium bg-white border-gray-300 text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                                            >
+                                                1
+                                            </button>
+                                        );
+                                        if (startPage > 2) {
+                                            pages.push(
+                                                <span key="ellipsis1" className="relative inline-flex items-center px-4 py-2 border text-sm font-medium bg-white border-gray-300 text-gray-700">
+                                                    ...
+                                                </span>
+                                            );
+                                        }
+                                    }
+
+                                    for (let i = startPage; i <= endPage; i++) {
+                                        pages.push(
+                                            <button
+                                                key={i}
+                                                onClick={(e) => handlePageClick(e, i)}
+                                                disabled={pageLoading}
+                                                className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-colors duration-200 ${currentPage === i
+                                                        ? 'z-10 bg-blue-600 border-blue-600 text-white'
+                                                        : 'bg-white border-gray-300 text-gray-700 hover:bg-blue-50 hover:text-blue-600'
+                                                    }`}
+                                            >
+                                                {i}
+                                            </button>
+                                        );
+                                    }
+
+                                    if (endPage < totalPages) {
+                                        if (endPage < totalPages - 1) {
+                                            pages.push(
+                                                <span key="ellipsis2" className="relative inline-flex items-center px-4 py-2 border text-sm font-medium bg-white border-gray-300 text-gray-700">
+                                                    ...
+                                                </span>
+                                            );
+                                        }
+                                        pages.push(
+                                            <button 
+                                                key={totalPages} 
+                                                onClick={(e) => handlePageClick(e, totalPages)}
+                                                disabled={pageLoading}
+                                                className="relative inline-flex items-center px-4 py-2 border text-sm font-medium bg-white border-gray-300 text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                                            >
+                                                {totalPages}
+                                            </button>
+                                        );
+                                    }
+                                    
+                                    return pages;
+                                })()}
+
+                                <button
+                                    onClick={(e) => handlePageClick(e, currentPage + 1)}
+                                    disabled={currentPage >= totalPages || pageLoading}
+                                    className={`relative inline-flex items-center px-3 py-2 border ${currentPage >= totalPages
+                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                            : 'bg-white border-gray-300 text-gray-500 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200'
+                                        }`}
+                                    title="Next page"
+                                >
+                                    <span className="sr-only">Next page</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fillRule="evenodd" d="M7.293 14.707a1 1 010-1.414L10.586 10l3.293 3.293a1 1 01-1.414 1.414l-4-4a1 1 010-1.414l4-4a1 1 011.414 0z" clipRule="evenodd" />
+                                    </svg>
+                                </button>
+                                
+                                <button
+                                    onClick={(e) => handlePageClick(e, totalPages)}
+                                    disabled={currentPage >= totalPages || pageLoading}
+                                    className={`relative inline-flex items-center px-3 py-2 rounded-r-md border ${currentPage >= totalPages
+                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                            : 'bg-white border-gray-300 text-gray-500 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200'
+                                        }`}
+                                    title="Last page"
+                                >
+                                    <span className="sr-only">Last page</span>
+                                    {'>>'}
+                                </button>
+                            </nav>
+                        </div>
+                        <div className="flex-1 text-sm text-gray-700 text-right">
+                            {pageLoading ? (
+                                <span className="flex items-center justify-end">
+                                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Loading...
+                                </span>
+                            ) : (
+                                `${startItem}-${endItem} of ${totalItems} items`
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
         return (
             <div className="Background">
                 <div className="Maincontainer">
@@ -1978,7 +2329,9 @@ function Homepage() {
                                 <div className="flex flex-col items-start mt-5">
                                     <h1 className="summary-text">All Scholarship</h1>
                                     <div className="flex flex-row items-center mt-2 ml-8">
-                                        <h1 className="text-3xl font-bold">{allAnnouncements.length}</h1>
+                                        <h1 className="text-3xl font-bold">
+                                            {allAnnouncements.length > 0 ? allAnnouncements.length : announceData.total}
+                                        </h1>
                                         <h1 className="scholarshiptextsum">Scholarship</h1>
                                     </div>
                                 </div>
@@ -1992,7 +2345,7 @@ function Homepage() {
                                 <div className="flex flex-col items-start mt-5 mb-5">
                                     <h1 className="summary-text">Pending Scholarship</h1>
                                     <div className="flex flex-row items-center mt-2 ml-8">
-                                        <h1 className="text-3xl font-bold">{checkPendingAnnounce.length}</h1>
+                                        <h1 className="text-3xl font-bold">{pendingCount}</h1>
                                         <h1 className="scholarshiptextsum">Scholarship</h1>
                                     </div>
                                 </div>
@@ -2006,7 +2359,7 @@ function Homepage() {
                                 <div className="flex flex-col items-start mt-5 mb-5">
                                     <h1 className="summary-text">Opened Scholarship</h1>
                                     <div className="flex flex-row items-center mt-2 ml-8">
-                                        <h1 className="text-3xl font-bold">{checkOpenAnnounce.length}</h1>
+                                        <h1 className="text-3xl font-bold">{openCount}</h1>
                                         <h1 className="scholarshiptextsum">Scholarship</h1>
                                     </div>
                                 </div>
@@ -2020,7 +2373,7 @@ function Homepage() {
                                 <div className="flex flex-col items-start mt-5 mb-5">
                                     <h1 className="summary-text">Closed Scholarship</h1>
                                     <div className="flex flex-row items-center mt-2 ml-8">
-                                        <h1 className="text-3xl font-bold">{checkCloseAnnounce.length}</h1>
+                                        <h1 className="text-3xl font-bold">{closedCount}</h1>
                                         <h1 className="scholarshiptextsum">Scholarship</h1>
                                     </div>
                                 </div>
@@ -2030,7 +2383,7 @@ function Homepage() {
 
                     {/* No Scholarship Filter */}
                     <div className="mt-10 flex justify-center items-center flex-col">
-                        {(filterType === 'All' ? allAnnouncements.length === 0 : getFilteredData().length === 0) && (
+                        {(filterType === 'All' ? (announceData.data?.length === 0) : (getFilteredData().length === 0)) && (
                             <>
                                 <h1 className="noscholarship-text">This space is waiting for data</h1>
                                 <img src={image_No_Scholarship} alt="" className="noscholarship" />
@@ -2040,9 +2393,10 @@ function Homepage() {
 
                     {/* Scholarship List */}
                     <div className="ScholarLayout">
-                        {filteredAnnounce().map((announce, index) => (
+                        {/* When showing unfiltered data, use announceData.data directly to ensure we see the correct page */}
+                        {(filterType === 'All' ? announceData.data : filteredAnnounce()).map((announce, index) => (
                             <div
-                                key={index}
+                                key={announce.id}
                                 className="border-lightgrey scholarship-card"
                                 onClick={() => navigate(`/detail/${announce.id}`)}
                             >
@@ -2121,93 +2475,8 @@ function Homepage() {
                         ))}
                     </div>
 
-                    {/* Pagination */}
-                    {getFilteredData().length > announceData.per_page && (
-                        <div className="flex justify-center items-center mt-8 mb-12 px-4 py-5">
-                            <nav className="relative z-0 inline-flex rounded-md shadow-lg -space-x-px" aria-label="Pagination">
-                                <button
-                                    onClick={() => handlePageChange(1)}
-                                    disabled={currentPage === 1}
-                                    className={`relative inline-flex items-center px-3 py-2 rounded-l-md border ${currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white border-gray-300 text-gray-500 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200'}`}
-                                    title="หน้าแรก"
-                                >
-                                    <span className="sr-only">หน้าแรก</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fillRule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l-4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-                                    </svg>
-                                </button>
-                                <button
-                                    onClick={() => handlePageChange(currentPage - 1)}
-                                    disabled={currentPage === 1}
-                                    className={`relative inline-flex items-center px-3 py-2 border ${currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white border-gray-300 text-gray-500 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200'}`}
-                                    title="ก่อนหน้า"
-                                >
-                                    <span className="sr-only">ก่อนหน้า</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-                                    </svg>
-                                </button>
-
-                                {/* แสดงปุ่มเลขหน้าแบบสมาร์ท */}
-                                {(() => {
-                                    let pages = [];
-                                    const totalPages = Math.ceil(getFilteredData().length / announceData.per_page);
-                                    let startPage = Math.max(1, currentPage - 2);
-                                    let endPage = Math.min(totalPages, startPage + 4);
-
-                                    // ปรับ startPage ถ้า endPage ชนขอบด้านขวา
-                                    if (endPage - startPage < 4) {
-                                        startPage = Math.max(1, endPage - 4);
-                                    }
-
-                                    for (let i = startPage; i <= endPage; i++) {
-                                        pages.push(
-                                            <button
-                                                key={i}
-                                                onClick={() => handlePageChange(i)}
-                                                className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-colors duration-200 ${currentPage === i
-                                                        ? 'z-10 bg-blue-600 border-blue-600 text-white'
-                                                        : 'bg-white border-gray-300 text-gray-700 hover:bg-blue-50 hover:text-blue-600'
-                                                    }`}
-                                            >
-                                                {i}
-                                            </button>
-                                        );
-                                    }
-                                    return pages;
-                                })()}
-
-                                <button
-                                    onClick={() => handlePageChange(currentPage + 1)}
-                                    disabled={currentPage === Math.ceil(getFilteredData().length / announceData.per_page)}
-                                    className={`relative inline-flex items-center px-3 py-2 border ${currentPage === Math.ceil(getFilteredData().length / announceData.per_page)
-                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                            : 'bg-white border-gray-300 text-gray-500 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200'
-                                        }`}
-                                    title="ถัดไป"
-                                >
-                                    <span className="sr-only">ถัดไป</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-                                    </svg>
-                                </button>
-                                <button
-                                    onClick={() => handlePageChange(Math.ceil(getFilteredData().length / announceData.per_page))}
-                                    disabled={currentPage === Math.ceil(getFilteredData().length / announceData.per_page)}
-                                    className={`relative inline-flex items-center px-3 py-2 rounded-r-md border ${currentPage === Math.ceil(getFilteredData().length / announceData.per_page)
-                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                            : 'bg-white border-gray-300 text-gray-500 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200'
-                                        }`}
-                                    title="หน้าสุดท้าย"
-                                >
-                                    <span className="sr-only">หน้าสุดท้าย</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fillRule="evenodd" d="M4.293 15.707a1 1 0 001.414 0l5-5a1 1 0 000-1.414l-5-5a1 1 0 00-1.414 1.414L8.586 10l-4.293 4.293a1 1 0 000 1.414z" clipRule="evenodd" />
-                                    </svg>
-                                </button>
-                            </nav>
-                        </div>
-                    )}
+                    {/* Pagination - use total from pagination response or filtered count */}
+                    {paginationSection()}
                 </div>
             </div>
         );
@@ -2236,6 +2505,41 @@ function Homepage() {
             fetchAllAnnouncements(adminCurrentPage);
         }
     }, [adminCurrentPage, activeTab, isLoading]);
+
+    useEffect(() => {
+        if (userRole === 'provider') {
+            fetchAllAnnouncements(currentPage);
+        }
+    }, [userRole, currentPage]);
+
+    // แก้ไข useEffect สำหรับ admin scholarships
+    useEffect(() => {
+        if (activeTab === 'scholarships') {
+            const fetchScholarships = async () => {
+                try {
+                    const response = await getAnnounce(adminCurrentPage);
+                    if (response) {
+                        setAdminAnnounceData({
+                            data: response.data || [],
+                            total: response.total || 0,
+                            page: response.page || adminCurrentPage,
+                            last_page: response.last_page || 1,
+                            per_page: response.per_page || 10
+                        });
+                        
+                        // อัพเดท allAnnouncements สำหรับการคำนวณ status
+                        if (response.data) {
+                            setAllAnnouncements(response.data);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error fetching scholarships:', error);
+                }
+            };
+
+            fetchScholarships();
+        }
+    }, [activeTab, adminCurrentPage]); // เพิ่ม dependency adminCurrentPage
 
     return (
         <>
