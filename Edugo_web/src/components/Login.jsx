@@ -3,9 +3,10 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import axios from "axios";
 import imageLogin from "../assets/login.png";
 import Swal from 'sweetalert2';
-import { useNavigate,Link, Route } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import '../style/style.css'; // Import CSS file
 import jwt_decode from 'jwt-decode'; // Import jwt-decode
+import { checkUserStatus } from "../composable/getProfile"; // นำเข้าฟังก์ชัน checkUserStatus
 const APT_ROOT = import.meta.env.VITE_API_ROOT;
 
 function Login() {
@@ -117,7 +118,47 @@ function Login() {
           return;
         }
 
-        // If role is valid, save token and proceed
+        // ตรวจสอบสถานะผู้ใช้ก่อนที่จะให้เข้าสู่ระบบ
+        const profileData = await checkUserStatus(token);
+        
+        // Check for suspended account
+        if (profileData && profileData.profile.status === "Suspended") {
+          Swal.fire({
+            title: 'Account Suspended',
+            text: 'Your account has been suspended. Please contact administrator.',
+            icon: 'error',
+            confirmButtonText: 'Understood',
+            confirmButtonColor: '#d33',
+          });
+          return;
+        }
+        
+        // Check verification status for providers
+        if (decoded.role === 'provider' && profileData && profileData.profile) {
+          const verifyStatus = profileData.profile.verify;
+          
+          if (verifyStatus === 'Waiting') {
+            Swal.fire({
+              title: 'Waiting for Approval',
+              text: 'Your account is waiting for approval. Please wait for admin verification.',
+              icon: 'info',
+              confirmButtonText: 'Understood',
+              confirmButtonColor: '#3085d6',
+            });
+            return;
+          } else if (verifyStatus === 'No') {
+            Swal.fire({
+              title: 'Verification Rejected',
+              text: 'Your account verification was rejected. Please contact administrator for assistance.',
+              icon: 'error',
+              confirmButtonText: 'Understood',
+              confirmButtonColor: '#d33',
+            });
+            return;
+          }
+        }
+
+        // ถ้าผ่านการตรวจสอบทั้งหมด จึงบันทึก token และแสดงข้อความยินดีต้อนรับ
         localStorage.setItem('token', token);
         
         await Swal.fire({

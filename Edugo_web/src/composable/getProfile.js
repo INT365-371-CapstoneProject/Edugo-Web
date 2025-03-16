@@ -1,15 +1,26 @@
 const APT_ROOT = import.meta.env.VITE_API_ROOT;
 const urlProfile = `${APT_ROOT}/api/profile`;
 import axios from "axios";
-const token = localStorage.getItem("token");
-const config = {
-  headers: {
-    Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json",
-  },
+
+// สร้างฟังก์ชันที่จะรับ token เป็น parameter
+const getConfigWithToken = (token) => {
+  return {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  };
 };
+
+// ใช้ token จาก localStorage เป็นค่าเริ่มต้น
+const getDefaultConfig = () => {
+  const token = localStorage.getItem("token");
+  return getConfigWithToken(token);
+};
+
 const getAvatar = async () => {
   try {
+    const config = getDefaultConfig();
     // แก้ไข URL endpoint และแยก config สำหรับ image request
     const imageConfig = {
       ...config,
@@ -36,7 +47,7 @@ const getAvatar = async () => {
 
 const getProfile = async () => {
     try {
-        const response = await axios.get(urlProfile, config);
+        const response = await axios.get(urlProfile, getDefaultConfig());
         return response.data;
     } catch (error) {
         console.error("Error:", error);
@@ -44,4 +55,24 @@ const getProfile = async () => {
     }
 }
 
-export { getAvatar, getProfile, urlProfile };
+// เพิ่มฟังก์ชันใหม่สำหรับตรวจสอบสถานะผู้ใช้
+const checkUserStatus = async (token) => {
+    if (!token) return null;
+    
+    try {
+        const customConfig = {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        };
+        
+        const response = await axios.get(urlProfile, customConfig);
+        return response.data;
+    } catch (error) {
+        console.error("Error checking user status:", error);
+        return null;
+    }
+}
+
+export { getAvatar, getProfile, urlProfile, checkUserStatus, getConfigWithToken };

@@ -125,16 +125,34 @@ function Detail() {
         }
     }
 
+    // เพิ่มฟังก์ชันสำหรับการกลับไปยังหน้า Homepage ที่แท็บ Scholarship Management
+    const handleBackToManagement = () => {
+        console.log("Navigating back to homepage with scholarships tab");
+        // ใช้ state เพื่อกำหนดแท็บที่ต้องการให้แสดง
+        navigate('/#scholarships', {
+            replace: true // ใช้ replace เพื่อแทนที่ประวัติการเข้าถึงปัจจุบัน
+        });
+    };
+
     return (
         <>
             <Nav />
             <div className="Background">
                 <div className="Maincontainer">
-                    {/* ส่วนหัวของเนื้อห�� */}
+                    {/* ส่วนหัวของเนื้อหา */}
                     <div className='mx-8'>
                         <div className='grid grid-cols-2'>
                             <div className='mt-5 grid grid-cols-5'>
-                                <Link to='/' className='font-bold text-4xl underline underline-offset-2 hover:text-slate-800'>Home</Link>
+                                {userRole && ['admin', 'superadmin'].includes(userRole) ? (
+                                    <Link 
+                                        to="/#scholarships" 
+                                        className='font-bold text-4xl underline underline-offset-2 hover:text-slate-800'
+                                    >
+                                        Admin
+                                    </Link>
+                                ) : (
+                                    <Link to='/' className='font-bold text-4xl underline underline-offset-2 hover:text-slate-800'>Home</Link>
+                                )}
                                 {announce ? (
                                     <h1 className='col-span-4 text-4xl font-DM text-blue-600 ml-2 truncate max-w-xs'> &gt; {announce.title}</h1>
                                 ) : (
@@ -156,6 +174,16 @@ function Detail() {
                                     >
                                         Edit Scholarship
                                         <img src={icon} alt="" />
+                                    </button>
+                                )}
+                                {/* เพิ่มปุ่มกลับสำหรับ admin และ superadmin */}
+                                {userRole && ['admin', 'superadmin'].includes(userRole) && (
+                                    <button 
+                                        onClick={handleBackToManagement}
+                                        type='button' 
+                                        className='btn hover:bg-gray-700 bg-gray-500 text-white border-none mr-4'
+                                    >
+                                        Back to Management
                                     </button>
                                 )}
                             </div>
