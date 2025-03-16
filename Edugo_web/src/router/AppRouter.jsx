@@ -13,6 +13,7 @@ import ForgotPass from '../components/ForgotPass';
 import Profile from '../components/Profile';
 import { checkUserStatus } from '../composable/getProfile.js';
 import AdminUserAdd from '../components/AdminUserAdd';
+import ChangePassword from '../components/ChangePassword';
 
 // ฟังก์ชันตรวจสอบการเข้าสู่ระบบ สถานะ และบทบาท
 const checkAuth = async () => {
@@ -408,6 +409,14 @@ const router = createBrowserRouter(
           <SuperAdminRoute>
             <AdminUserAdd />
           </SuperAdminRoute>
+        </PrivateRoute>
+      ),
+    },
+    {
+      path: '/change-password',
+      element: (
+        <PrivateRoute>
+          <ChangePassword />
         </PrivateRoute>
       ),
     },
