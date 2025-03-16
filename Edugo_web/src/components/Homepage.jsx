@@ -1500,34 +1500,50 @@ function Homepage() {
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                {userData.currentUser?.username !== user.username && (
+                                                <div className="flex space-x-2">
                                                     <button
-                                                        onClick={() => handleDeleteClick(user)}
-                                                        disabled={isLoading}
-                                                        className={`inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200
-                                                            ${isLoading 
-                                                                ? 'bg-red-100 text-red-400 cursor-not-allowed'
-                                                                : 'bg-red-600 text-white hover:bg-red-700 shadow-sm'
-                                                            }`}
+                                                        onClick={() => navigate(`/admin/user/edit/${user.id}`)}
+                                                        className="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded 
+                                                            bg-blue-50 text-blue-500 hover:bg-blue-100 transition-colors duration-150"
                                                     >
-                                                        {isLoading ? (
-                                                            <>
-                                                                <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                                </svg>
-                                                                Deleting...
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 00-1-1h-4a1 1 00-1 1v3M4 7h16" />
-                                                                </svg>
-                                                                Delete
-                                                            </>
-                                                        )}
+                                                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                        </svg>
+                                                        Edit
                                                     </button>
-                                                )}
+                                                    {userData.currentUser?.username !== user.username && (
+                                                        <button
+                                                            onClick={() => handleDeleteClick(user)}
+                                                            disabled={isLoading}
+                                                            className={`inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded 
+                                                                ${isLoading 
+                                                                    ? 'bg-red-100 text-red-400 cursor-not-allowed'
+                                                                    : 'bg-red-50 text-red-500 hover:bg-red-100 transition-colors duration-150'
+                                                                }`}
+                                                        >
+                                                            {isLoading ? (
+                                                                <>
+                                                                    <svg className="animate-spin -ml-0.5 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                                    </svg>
+                                                                    Deleting...
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                        <path d="M19 7L18.1327 19.1425C18.0579 20.1891 17.187 21 16.1378 21H7.86224C6.81296 21 5.94208 20.1891 5.86732 19.1425L5 7M10 11V17M14 11V17M15 7V4C15 3.44772 14.5523 3 14 3H10C9.44772 3 9 3.44772 9 4V7M4 7H20" 
+                                                                            stroke="currentColor" 
+                                                                            strokeWidth="2" 
+                                                                            strokeLinecap="round" 
+                                                                            strokeLinejoin="round"/>
+                                                                    </svg>
+                                                                    Delete
+                                                                </>
+                                                            )}
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </td>
                                         </tr>
                                     );
@@ -1999,11 +2015,10 @@ function Homepage() {
                                 </button>
                             </nav>
                         </div>
-                        <div className="flex-1 text-sm text-gray-700 text-right">
+                        <div className="flex-1 text-sm text-gray-700 text-right"></div>
                             {`${((userCurrentPage - 1) * usersPerPage) + 1}-${Math.min(userCurrentPage * usersPerPage, userData.pagination.total)} of ${userData.pagination.total} items`}
                         </div>
                     </div>
-                </div>
             );
         };
 

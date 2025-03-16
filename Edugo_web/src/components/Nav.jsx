@@ -445,6 +445,14 @@ function Nav() {
             </li>
             <li>
               <a 
+                onClick={() => navigate('/change-password')}
+                className="px-4 py-2 hover:bg-blue-50 text-gray-700 hover:text-blue-600 rounded-lg transition-colors duration-200"
+              >
+                Change Password
+              </a>
+            </li>
+            <li>
+              <a 
                 onClick={handleLogout}
                 className="px-4 py-2 hover:bg-red-50 text-gray-700 hover:text-red-600 rounded-lg transition-colors duration-200"
               >

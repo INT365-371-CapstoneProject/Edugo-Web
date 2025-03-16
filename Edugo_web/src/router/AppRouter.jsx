@@ -13,6 +13,8 @@ import ForgotPass from '../components/ForgotPass';
 import Profile from '../components/Profile';
 import { checkUserStatus } from '../composable/getProfile.js';
 import AdminUserAdd from '../components/AdminUserAdd';
+import ChangePassword from '../components/ChangePassword';
+import EditUser from '../components/EditUser';
 
 // ฟังก์ชันตรวจสอบการเข้าสู่ระบบ สถานะ และบทบาท
 const checkAuth = async () => {
@@ -326,6 +328,44 @@ const SuperAdminRoute = ({ children }) => {
     : <Navigate to="/homepage" replace />;
 };
 
+// เพิ่ม component ใหม่สำหรับเส้นทางที่ admin และ superadmin เข้าถึงได้
+const AdminAndSuperadminRoute = ({ children }) => {
+  const [authState, setAuthState] = useState({ isValid: null, loading: true });
+  const [hasAlerted, setHasAlerted] = useState(false);
+
+  useEffect(() => {
+    const verifyAuth = async () => {
+      const auth = await checkAuth();
+      setAuthState({ ...auth, loading: false });
+      
+      if (!auth.isValid || !['admin', 'superadmin'].includes(auth.role)) {
+        if (!hasAlerted) {
+          Swal.fire({
+            title: 'Access Denied',
+            text: 'This page is only accessible to administrators.',
+            icon: 'error',
+            confirmButtonText: 'OK',
+            customClass: {
+              popup: 'animated fadeInDown'
+            }
+          });
+          setHasAlerted(true);
+        }
+      }
+    };
+    
+    verifyAuth();
+  }, [hasAlerted]);
+
+  if (authState.loading) {
+    return <div>Loading...</div>;
+  }
+
+  return (authState.isValid && ['admin', 'superadmin'].includes(authState.role)) 
+    ? children 
+    : <Navigate to="/homepage" replace />;
+};
+
 // กำหนด base URL สำหรับการ routing
 const router = createBrowserRouter(
   [
@@ -408,6 +448,24 @@ const router = createBrowserRouter(
           <SuperAdminRoute>
             <AdminUserAdd />
           </SuperAdminRoute>
+        </PrivateRoute>
+      ),
+    },
+    {
+      path: '/admin/user/edit/:id',
+      element: (
+        <PrivateRoute>
+          <AdminAndSuperadminRoute>
+            <EditUser />
+          </AdminAndSuperadminRoute>
+        </PrivateRoute>
+      ),
+    },
+    {
+      path: '/change-password',
+      element: (
+        <PrivateRoute>
+          <ChangePassword />
         </PrivateRoute>
       ),
     },
