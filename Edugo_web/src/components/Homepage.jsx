@@ -2040,7 +2040,7 @@ function Homepage() {
                                                 : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}
                                             onClick={() => {
                                                 setActiveTab('approvals');
-                                                window.history.replaceState(null, '', '/#approvals');
+                                                window.history.replaceState(null, '', '/un2/#approvals');
                                             }}
                                         >
                                             Approval Management
@@ -2051,7 +2051,7 @@ function Homepage() {
                                                 : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}
                                             onClick={() => {
                                                 setActiveTab('scholarships');
-                                                window.history.replaceState(null, '', '/#scholarships');
+                                                window.history.replaceState(null, '', '/un2/#scholarships');
                                             }}
                                         >
                                             Scholarship Management
@@ -2062,7 +2062,7 @@ function Homepage() {
                                                 : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}
                                             onClick={() => {
                                                 setActiveTab('users');
-                                                window.history.replaceState(null, '', '/#users');
+                                                window.history.replaceState(null, '', '/un2/#users');
                                             }}
                                         >
                                             User Management
