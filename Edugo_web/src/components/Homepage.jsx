@@ -2151,131 +2151,138 @@ function Homepage() {
             
             const startItem = ((currentPage - 1) * itemsPerPage) + 1;
             const endItem = Math.min(currentPage * itemsPerPage, totalItems);
-            
-            // Simple direct handler that doesn't wrap in another function
-            const handlePageClick = (e, pageNumber) => {
-                e.preventDefault();
-                if (pageLoading || pageNumber === currentPage) return;
-                handlePageChange(pageNumber);
-            };
-            
+        
             return (
                 <div className="bg-white px-6 py-4 rounded-b-lg shadow-sm mt-8 mb-12">
                     <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                         <div className="flex-1"></div>
                         <div className="flex justify-center flex-1">
                             <nav className="relative z-0 inline-flex space-x-2" aria-label="Pagination">
+                                {/* First page button */}
                                 <button
-                                    onClick={(e) => handlePageClick(e, 1)}
+                                    onClick={() => handlePageChange(1)}
                                     disabled={currentPage === 1 || pageLoading}
-                                    className={`relative inline-flex items-center px-3 py-2 rounded-l-md border ${currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white border-gray-300 text-gray-500 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200'}`}
-                                    title="First page"
+                                    className={`relative inline-flex items-center px-3 py-2 text-sm font-medium rounded-md ${
+                                        currentPage === 1 || pageLoading
+                                            ? 'text-gray-400 cursor-not-allowed'
+                                            : 'text-gray-500 hover:bg-blue-50 hover:text-blue-600'
+                                    }`}
                                 >
                                     <span className="sr-only">First page</span>
                                     {'<<'}
                                 </button>
-                                
+        
+                                {/* Previous page button */}
                                 <button
-                                    onClick={(e) => handlePageClick(e, currentPage - 1)}
+                                    onClick={() => handlePageChange(currentPage - 1)}
                                     disabled={currentPage === 1 || pageLoading}
-                                    className={`relative inline-flex items-center px-3 py-2 border ${currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white border-gray-300 text-gray-500 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200'}`}
-                                    title="Previous page"
+                                    className={`relative inline-flex items-center px-3 py-2 text-sm font-medium rounded-md ${
+                                        currentPage === 1 || pageLoading
+                                            ? 'text-gray-400 cursor-not-allowed'
+                                            : 'text-gray-500 hover:bg-blue-50 hover:text-blue-600'
+                                    }`}
                                 >
-                                    <span className="sr-only">Previous page</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fillRule="evenodd" d="M12.707 5.293a1 1 010 1.414L9.414 10l3.293 3.293a1 1 01-1.414 1.414l-4-4a1 1 010-1.414l4-4a1 1 011.414 0z" clipRule="evenodd" />
-                                    </svg>
+                                    {'<'}
                                 </button>
-
+        
+                                {/* Page numbers */}
                                 {(() => {
                                     let pages = [];
+                                    const maxPages = 5; // Show max 5 page numbers
                                     let startPage = Math.max(1, currentPage - 2);
                                     let endPage = Math.min(totalPages, startPage + 4);
-
+        
+                                    // Adjust start page if we're near the end
+                                    if (endPage - startPage < maxPages - 1) {
+                                        startPage = Math.max(1, endPage - 4);
+                                    }
+        
+                                    // First page
                                     if (startPage > 1) {
                                         pages.push(
-                                            <button 
-                                                key={1} 
-                                                onClick={(e) => handlePageClick(e, 1)}
+                                            <button
+                                                key={1}
+                                                onClick={() => handlePageChange(1)}
                                                 disabled={pageLoading}
-                                                className="relative inline-flex items-center px-4 py-2 border text-sm font-medium bg-white border-gray-300 text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                                                className="relative inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-blue-50 hover:text-blue-600"
                                             >
                                                 1
                                             </button>
                                         );
                                         if (startPage > 2) {
                                             pages.push(
-                                                <span key="ellipsis1" className="relative inline-flex items-center px-4 py-2 border text-sm font-medium bg-white border-gray-300 text-gray-700">
+                                                <span key="ellipsis1" className="relative inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700">
                                                     ...
                                                 </span>
                                             );
                                         }
                                     }
-
+        
+                                    // Page numbers
                                     for (let i = startPage; i <= endPage; i++) {
                                         pages.push(
                                             <button
                                                 key={i}
-                                                onClick={(e) => handlePageClick(e, i)}
+                                                onClick={() => handlePageChange(i)}
                                                 disabled={pageLoading}
-                                                className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-colors duration-200 ${currentPage === i
-                                                        ? 'z-10 bg-blue-600 border-blue-600 text-white'
-                                                        : 'bg-white border-gray-300 text-gray-700 hover:bg-blue-50 hover:text-blue-600'
+                                                className={`relative inline-flex items-center px-3 py-2 text-sm font-medium rounded-md
+                                                    ${currentPage === i
+                                                        ? 'bg-blue-600 text-white'
+                                                        : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
                                                     }`}
                                             >
                                                 {i}
                                             </button>
                                         );
                                     }
-
+        
+                                    // Last page
                                     if (endPage < totalPages) {
                                         if (endPage < totalPages - 1) {
                                             pages.push(
-                                                <span key="ellipsis2" className="relative inline-flex items-center px-4 py-2 border text-sm font-medium bg-white border-gray-300 text-gray-700">
+                                                <span key="ellipsis2" className="relative inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700">
                                                     ...
                                                 </span>
                                             );
                                         }
                                         pages.push(
-                                            <button 
-                                                key={totalPages} 
-                                                onClick={(e) => handlePageClick(e, totalPages)}
+                                            <button
+                                                key={totalPages}
+                                                onClick={() => handlePageChange(totalPages)}
                                                 disabled={pageLoading}
-                                                className="relative inline-flex items-center px-4 py-2 border text-sm font-medium bg-white border-gray-300 text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                                                className="relative inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-blue-50 hover:text-blue-600"
                                             >
                                                 {totalPages}
                                             </button>
                                         );
                                     }
-                                    
+        
                                     return pages;
                                 })()}
-
+        
+                                {/* Next page button */}
                                 <button
-                                    onClick={(e) => handlePageClick(e, currentPage + 1)}
+                                    onClick={() => handlePageChange(currentPage + 1)}
                                     disabled={currentPage >= totalPages || pageLoading}
-                                    className={`relative inline-flex items-center px-3 py-2 border ${currentPage >= totalPages
-                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                            : 'bg-white border-gray-300 text-gray-500 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200'
-                                        }`}
-                                    title="Next page"
+                                    className={`relative inline-flex items-center px-3 py-2 text-sm font-medium rounded-md ${
+                                        currentPage >= totalPages || pageLoading
+                                            ? 'text-gray-400 cursor-not-allowed'
+                                            : 'text-gray-500 hover:bg-blue-50 hover:text-blue-600'
+                                    }`}
                                 >
-                                    <span className="sr-only">Next page</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fillRule="evenodd" d="M7.293 14.707a1 1 010-1.414L10.586 10l3.293 3.293a1 1 01-1.414 1.414l-4-4a1 1 010-1.414l4-4a1 1 011.414 0z" clipRule="evenodd" />
-                                    </svg>
+                                    {'>'}
                                 </button>
-                                
+        
+                                {/* Last page button */}
                                 <button
-                                    onClick={(e) => handlePageClick(e, totalPages)}
+                                    onClick={() => handlePageChange(totalPages)}
                                     disabled={currentPage >= totalPages || pageLoading}
-                                    className={`relative inline-flex items-center px-3 py-2 rounded-r-md border ${currentPage >= totalPages
-                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                            : 'bg-white border-gray-300 text-gray-500 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200'
-                                        }`}
-                                    title="Last page"
+                                    className={`relative inline-flex items-center px-3 py-2 text-sm font-medium rounded-md ${
+                                        currentPage >= totalPages || pageLoading
+                                            ? 'text-gray-400 cursor-not-allowed'
+                                            : 'text-gray-500 hover:bg-blue-50 hover:text-blue-600'
+                                    }`}
                                 >
-                                    <span className="sr-only">Last page</span>
                                     {'>>'}
                                 </button>
                             </nav>
