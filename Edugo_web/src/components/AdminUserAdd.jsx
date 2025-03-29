@@ -200,9 +200,10 @@ function AdminUserAdd() {
     <>
       <Nav />
       <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">Add New Administrator</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mt-2">Add New Administrator
+            </h1>
             <p className="mt-2 text-sm text-gray-600">
               Create a new administrator account for the platform
             </p>
@@ -222,7 +223,8 @@ function AdminUserAdd() {
                     name="first_name"
                     value={formData.first_name}
                     onChange={handleChange}
-                    className={`block w-full px-4 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
+                    className={`block w-full px-4 py-2 border rounded-md shadow-smr 
+                    focus:outline-none focus:border-[#C0CDFF] focus:ring-4 focus:ring-[#6C63FF]/15 ${
                       errors.first_name ? 'border-red-300 bg-red-50' : 'border-gray-300'
                     }`}
                   />
@@ -242,7 +244,8 @@ function AdminUserAdd() {
                     name="last_name"
                     value={formData.last_name}
                     onChange={handleChange}
-                    className={`block w-full px-4 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
+                     className={`block w-full px-4 py-2 border rounded-md shadow-smr 
+                    focus:outline-none focus:border-[#C0CDFF] focus:ring-4 focus:ring-[#6C63FF]/15 ${
                       errors.last_name ? 'border-red-300 bg-red-50' : 'border-gray-300'
                     }`}
                   />
@@ -264,7 +267,8 @@ function AdminUserAdd() {
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    className={`block w-full px-4 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
+                    className={`block w-full px-4 py-2 border rounded-md shadow-smr 
+                      focus:outline-none focus:border-[#C0CDFF] focus:ring-4 focus:ring-[#6C63FF]/15 ${
                       errors.phone ? 'border-red-300 bg-red-50' : 'border-gray-300'
                     }`}
                     placeholder="0812345678"
@@ -285,7 +289,8 @@ function AdminUserAdd() {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className={`block w-full px-4 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
+                    className={`block w-full px-4 py-2 border rounded-md shadow-smr 
+                      focus:outline-none focus:border-[#C0CDFF] focus:ring-4 focus:ring-[#6C63FF]/15 ${
                       errors.email ? 'border-red-300 bg-red-50' : 'border-gray-300'
                     }`}
                     placeholder="admin@example.com"
@@ -308,7 +313,8 @@ function AdminUserAdd() {
                     name="username"
                     value={formData.username}
                     onChange={handleChange}
-                    className={`block w-full px-4 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
+                    className={`block w-full px-4 py-2 border rounded-md shadow-smr 
+                      focus:outline-none focus:border-[#C0CDFF] focus:ring-4 focus:ring-[#6C63FF]/15 ${
                       errors.username ? 'border-red-300 bg-red-50' : 'border-gray-300'
                     }`}
                   />
@@ -331,7 +337,8 @@ function AdminUserAdd() {
                       name="password"
                       value={formData.password}
                       onChange={handleChange}
-                      className={`block w-full px-4 py-2 pr-10 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
+                      className={`block w-full px-4 py-2 border rounded-md shadow-smr 
+                        focus:outline-none focus:border-[#C0CDFF] focus:ring-4 focus:ring-[#6C63FF]/15 ${
                         errors.password ? 'border-red-300 bg-red-50' : 'border-gray-300'
                       }`}
                     />
@@ -372,7 +379,8 @@ function AdminUserAdd() {
                       name="confirm_password"
                       value={formData.confirm_password}
                       onChange={handleChange}
-                      className={`block w-full px-4 py-2 pr-10 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
+                      className={`block w-full px-4 py-2 border rounded-md shadow-smr 
+                        focus:outline-none focus:border-[#C0CDFF] focus:ring-4 focus:ring-[#6C63FF]/15 ${
                         errors.confirm_password ? 'border-red-300 bg-red-50' : 'border-gray-300'
                       }`}
                     />
