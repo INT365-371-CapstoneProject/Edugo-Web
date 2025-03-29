@@ -669,7 +669,7 @@ function Add() {
                                                 <input
                                                     type="text"
                                                     id='title'
-                                                    className='-mt-2 h-full border-section placeholder:text-slate-300 p-3 font-sans bg-white'
+                                                    className='-mt-2 h-full border-section p-3'
                                                     placeholder={isEditMode ? editPost.title || '' : "Fill your scholarship's name"}
                                                     value={addPost.title || ''}
                                                     onChange={(e) => setAddPost(prev => ({ ...prev, title: e.target.value }))}
@@ -682,7 +682,7 @@ function Add() {
                                                 <label className='heading-text'>Website (URL)</label>
                                                 <input
                                                     type="url"
-                                                    className='-mt-2 h-full border-section placeholder:text-slate-300 p-3 font-sans bg-white'
+                                                    className='-mt-2 h-full border-section p-3'
                                                     placeholder={isEditMode ? (editPost.url || "No Website") : "Fill your scholarship's website"}
                                                     value={addPost.url || ''}
                                                     onChange={(e) => setAddPost(prev => ({ ...prev, url: e.target.value }))}
@@ -697,7 +697,7 @@ function Add() {
                                                     </label>
                                                     <select
                                                         id='category'
-                                                        className={`w-full -mt-1 border-section p-3 font-sans text-sm bg-white`}
+                                                        className={`w-full -mt-1 border-section p-3 font-sans text-sm bg-white text-slate-300`}
                                                         value={isEditMode && !selectedValue ? 
                                                             category.find(item => item.category === editPost.category)?.id || '' 
                                                             : selectedValue || ''}
@@ -705,9 +705,9 @@ function Add() {
                                                             handleChangeSelected(e);
                                                             setAddPost(prev => ({ ...prev, category_id: e.target.value || '' }));
                                                         }}
-                                                        style={{ color: selectedValue || editPost.category ? 'black' : '#94a3b8' }}
+                                                        style={{ color: selectedValue || editPost.category ? 'text-slate-300' : 'text-slate-300' }}
                                                     >
-                                                        <option value="" disabled style={{ color: '#94a3b8' }}>
+                                                        <option value="" disabled style={{ color: 'text-slate-300' }}>
                                                             {isEditMode ? editPost.category : 'Select category'}
                                                         </option>
                                                         {category.map((item, index) => (

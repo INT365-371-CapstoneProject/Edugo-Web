@@ -4,6 +4,9 @@ import Nav from './Nav';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import '../style/style.css';
+import xicon from '../assets/xicon.svg';
+import vicon from '../assets/vicon.svg';
+
 
 const APT_ROOT = import.meta.env.VITE_API_ROOT;
 
@@ -153,30 +156,37 @@ function ProviderDetail() {
     <>
       <Nav />
       <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+          <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 w-full">
             {/* Header */}
-            <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-              <h1 className="text-2xl font-bold text-gray-900">Approval #{provider.id.toString().padStart(4, '0')}</h1>
+            <div className="px-8 py-4 flex justify-between items-center mt-4 w-full">
+              <h1 className="ml-3 text-2xl font-bold text-gray-900">Approval #{provider.id.toString().padStart(4, '0')}</h1>
               <button
                 onClick={() => navigate(-1)}
-                className="text-blue-600 hover:text-blue-800"
+                className="text-blue-600 hover:text-blue-800 mr-2"
               >
                 Back
               </button>
             </div>
             
             {/* Content */}
-            <div className="p-6">
+            <div className="p-8 -mt-3">
+
               {/* Provider Status */}
-              <div className="mb-6 flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-gray-800">Provider Name</h2>
+              <div className="border rounded-lg mx-auto p-4 border-gray-200 w-full ">
+
+              <div className="mb-2 flex items-center justify-between ">
+                <h2 className="text-lg font-semibold text-gray-400">Provider Name</h2>
+
                 <span className={`px-2 py-1 text-xs rounded-full ${statusColors[provider.verify] || "bg-gray-100 text-gray-800"}`}>
                   {statusLabels[provider.verify] || "Unknown"}
                 </span>
               </div>
               <p className="text-xl font-bold text-gray-900 mb-6">{provider.name || provider.company_name || "Not specified"}</p>
               
+              {/* Add a horizontal line under Provider Name */}
+              <div className="border-b border-gray-300 mb-6"></div>
+
               {/* Basic Information */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
@@ -191,32 +201,42 @@ function ProviderDetail() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500">Address</p>
-                  <p className="mt-1 break-words">{provider.address || "Not specified"}</p>
+                  <p className="mt-1 break-words text-gray-700">{provider.address || "Not specified"}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Phone</p>
-                  <p className="mt-1 break-words">{provider.phone || "Not specified"}</p>
+                  <p className="text-sm font-medium text-gray-500 mt-4">Phone</p>
+                  <p className="mt-1 break-words text-gray-700">{provider.phone || "Not specified"}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Email</p>
-                  <p className="mt-1 break-words">{provider.email || "Not specified"}</p>
+                  <p className="text-sm font-medium text-gray-500 mt-4">Email</p>
+                  <p className="mt-1 break-words text-gray-700">{provider.email || "Not specified"}</p>
                 </div>
+              </div>
+
               </div>
               
               {/* Buttons */}
-              <div className="flex justify-between">
+              <div className="flex justify-between space-x-2 mt-6">
                 <button 
                   onClick={() => updateProviderStatus('No')} 
-                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
+                  className="text-white px-4 py-2 bg-[#94A2B8] text-gray-700 rounded-md hover:bg-[#64738B] w-full"
                 >
                   Decline
+                   <span className="ml-2">
+                   <img src={xicon} alt="Add Admin Icon" className="w-5 h-5 inline" />
+                   </span>
                 </button>
+
                 <button 
                   onClick={() => updateProviderStatus('Yes')} 
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  className="text-white px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 w-full"
                 >
                   Approve
+                  <span className="ml-2">
+                   <img src={vicon} alt="Add Admin Icon" className="w-5 h-5 inline" />
+                   </span>
                 </button>
+
               </div>
             </div>
           </div>

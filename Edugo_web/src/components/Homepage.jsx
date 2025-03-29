@@ -9,6 +9,7 @@ import image_No_Scholarship from '../assets/No_Scholarship.png';
 import '../style/style.css'; // Import CSS file
 import '../style/home.css'; // Import CSS file
 import jwt_decode from 'jwt-decode'; // Make sure to import jwt-decode
+import Addadminicon from '../assets/addnewadminicon.png';
 
 const statusColors = {
     Approved: "bg-green-100 text-green-800",
@@ -1303,7 +1304,7 @@ function Homepage() {
                     return (
                         <div className="grid grid-cols-4 gap-4 mb-6">
                             <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex">
-                                <div className="w-2 bg-gray-500"></div>
+                                <div className="w-2 bg-blue-500"></div>
                                 <div className="p-4 flex-1">
                                     <h2 className="text-sm font-medium text-gray-600">All Users</h2>
                                     <div className="mt-2 flex items-baseline">
@@ -1315,7 +1316,7 @@ function Homepage() {
                                 </div>
                             </div>
                             <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex">
-                                <div className="w-2 bg-blue-500"></div>
+                                <div className="w-2 bg-yellow-500"></div>
                                 <div className="p-4 flex-1">
                                     <h2 className="text-sm font-medium text-gray-600">Normal Users</h2>
                                     <div className="mt-2 flex items-baseline">
@@ -1339,7 +1340,7 @@ function Homepage() {
                                 </div>
                             </div>
                             <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex">
-                                <div className="w-2 bg-purple-500"></div>
+                                <div className="w-2 bg-red-500"></div>
                                 <div className="p-4 flex-1">
                                     <h2 className="text-sm font-medium text-gray-600">Admin Users</h2>
                                     <div className="mt-2 flex items-baseline">
@@ -2087,9 +2088,12 @@ function Homepage() {
                                     {activeTab === 'users' && userRole === 'superadmin' && (
                                         <button
                                             onClick={() => navigate('/admin/user/add')}
-                                            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-150"
+                                            className=" bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-150"
                                         >
                                             Add New Administrator
+                                            <span className="ml-2">
+                                            <img src={Addadminicon} alt="Add Admin Icon" className="w-5 h-5 inline" />
+                                        </span>
                                         </button>
                                     )}
                                 </nav>

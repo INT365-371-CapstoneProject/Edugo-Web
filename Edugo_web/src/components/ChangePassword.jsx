@@ -115,9 +115,9 @@ function ChangePassword() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 items-center justify-center">
       <Nav />
-      <div className="max-w-md mx-auto mt-10 bg-white p-8 rounded-xl shadow-md">
+      <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-md mx-auto mt-10">
         <h2 className="text-2xl font-bold text-gray-800 mb-6">Change Password</h2>
         
         {/* Show API Error Message */}
@@ -138,14 +138,15 @@ function ChangePassword() {
                 name="current_password"
                 value={formData.current_password}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 pr-10 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.current_password ? 'border-red-500' : 'border-gray-300'
+                className={`w-full mt-2 p-3 font-sans text-sm bg-white text-gray-500 border border-[#C0CDFF] rounded-[10px] 
+             focus:outline-none focus:border-[#C0CDFF] focus:ring-4 focus:ring-[#6C63FF]/15 ${
+                  errors.current_password ? 'border-red-500 focus:border-red-500' : 'border-gray-300'
                 }`}
               />
               <button
                 type="button"
                 onClick={() => togglePasswordVisibility('current')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 mt-1 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
               >
                 {showPasswords.current ? (
                   <EyeOff className="w-5 h-5" />
@@ -169,14 +170,15 @@ function ChangePassword() {
                 name="new_password"
                 value={formData.new_password}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 pr-10 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.new_password ? 'border-red-500' : 'border-gray-300'
+                className={`w-full mt-2 p-3 font-sans text-sm bg-white text-gray-500 border border-[#C0CDFF] rounded-[10px] 
+             focus:outline-none focus:border-[#C0CDFF] focus:ring-4 focus:ring-[#6C63FF]/15 ${
+                  errors.new_password ? 'border-red-500 focus:border-red-500' : 'border-gray-300'
                 }`}
               />
               <button
                 type="button"
                 onClick={() => togglePasswordVisibility('new')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 mt-1 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
               >
                 {showPasswords.new ? (
                   <EyeOff className="w-5 h-5" />
@@ -200,14 +202,15 @@ function ChangePassword() {
                 name="confirm_password"
                 value={formData.confirm_password}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 pr-10 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.confirm_password ? 'border-red-500' : 'border-gray-300'
+                className={`w-full mt-2 p-3 font-sans text-sm bg-white text-gray-500 border border-[#C0CDFF] rounded-[10px] 
+             focus:outline-none focus:border-[#C0CDFF] focus:ring-4 focus:ring-[#6C63FF]/15 ${
+                  errors.confirm_password ? 'border-red-500 focus:border-red-500' : 'border-gray-300'
                 }`}
               />
               <button
                 type="button"
                 onClick={() => togglePasswordVisibility('confirm')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 mt-1 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
               >
                 {showPasswords.confirm ? (
                   <EyeOff className="w-5 h-5" />

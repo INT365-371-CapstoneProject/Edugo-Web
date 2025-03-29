@@ -727,14 +727,14 @@ const Profile = () => {
                                     value={nameFormData.company_name}
                                     onChange={handleNameChange}
                                     placeholder="Company Name"
-                                    className="name-font"
+                                    className="name-font rounded focus:outline-none focus:border-[#C0CDFF] focus:ring-4 focus:ring-[#6C63FF]/15"
                                 />
                             ) : (
                                 <h2 className="name-font">
                                     {userData.company_name} (Company name)
                                 </h2>
                             )}
-                            <p className="text-sm text-gray-500">Provider</p>
+                            <p className="text-sm text-gray-500 mt-2">Provider</p>
                         </div>
                     </div>
                     {renderEditButtons(
@@ -781,7 +781,7 @@ const Profile = () => {
                                         name="address"
                                         value={formData.address || ''}
                                         onChange={handleInputChange}
-                                        className="w-full border rounded p-2"
+                                        className="w-full mt-2 border rounded p-2 focus:outline-none focus:border-[#C0CDFF] focus:ring-4 focus:ring-[#6C63FF]/15"
                                     />
                                 </div>
                                 {/* แทนที่ input ของ Country และ City ด้วย Select components */}
@@ -791,15 +791,27 @@ const Profile = () => {
                                         value={selectedCountry}
                                         onChange={handleCountryChange}
                                         options={countryOptions}
-                                        className="w-full"
+                                        className="w-full rounded p-2 focus:outline-none focus:border-[#C0CDFF] focus:ring-4 focus:ring-[#6C63FF]/15"
                                         placeholder="Select Country"
                                         isClearable
-                                        styles={{
-                                            control: (base) => ({
+                                         styles={{
+                                            control: (base, state) => ({
                                                 ...base,
                                                 minHeight: '42px',
-                                                border: '1px solid #e2e8f0'
-                                            })
+                                                border: state.isFocused ? '1px solid #C0CDFF' : '1px solid #e2e8f0',  // สีขอบเมื่อ focus
+                                                boxShadow: state.isFocused ? '0px 0px 0px 4px rgba(108, 99, 255, 0.15)' : 'none', // เงาฟ้าเมื่อ focus
+                                                '&:hover': {
+                                                    borderColor: state.isFocused ? '#C0CDFF' : '#e2e8f0',  // สีขอบเมื่อ hover
+                                                }
+                                            }),
+                                            placeholder: (base) => ({
+                                                ...base,
+                                                color: '#94a3b8', // สีของ placeholder
+                                            }),
+                                            singleValue: (base) => ({
+                                                ...base,
+                                                color: 'black', // สีของตัวเลือกที่ถูกเลือก
+                                            }),
                                         }}
                                     />
                                 </div>
@@ -809,16 +821,28 @@ const Profile = () => {
                                         value={selectedCity}
                                         onChange={handleCityChange}
                                         options={cities}
-                                        className="w-full"
+                                        className="w-full mt-2"
                                         placeholder="Select City"
                                         isDisabled={!selectedCountry}
                                         isClearable
                                         styles={{
-                                            control: (base) => ({
+                                            control: (base, state) => ({
                                                 ...base,
                                                 minHeight: '42px',
-                                                border: '1px solid #e2e8f0'
-                                            })
+                                                border: state.isFocused ? '1px solid #C0CDFF' : '1px solid #e2e8f0',  // สีขอบเมื่อ focus
+                                                boxShadow: state.isFocused ? '0px 0px 0px 4px rgba(108, 99, 255, 0.15)' : 'none', // เงาฟ้าเมื่อ focus
+                                                '&:hover': {
+                                                    borderColor: state.isFocused ? '#C0CDFF' : '#e2e8f0',  // สีขอบเมื่อ hover
+                                                }
+                                            }),
+                                            placeholder: (base) => ({
+                                                ...base,
+                                                color: '#94a3b8', // สีของ placeholder
+                                            }),
+                                            singleValue: (base) => ({
+                                                ...base,
+                                                color: 'black', // สีของตัวเลือกที่ถูกเลือก
+                                            }),
                                         }}
                                     />
                                 </div>
@@ -829,7 +853,7 @@ const Profile = () => {
                                         name="postal_code"
                                         value={formData.postal_code || ''}
                                         onChange={handleInputChange}
-                                        className="w-full border rounded p-2"
+                                        className="w-full mt-2 border rounded p-2 focus:outline-none focus:border-[#C0CDFF] focus:ring-4 focus:ring-[#6C63FF]/15"
                                     />
                                 </div>
                                 <div>
@@ -839,31 +863,31 @@ const Profile = () => {
                                         name="phone"
                                         value={formData.phone || ''}
                                         onChange={handleInputChange}
-                                        className="w-full border rounded p-2"
+                                        className="w-full mt-2 border rounded p-2 focus:outline-none focus:border-[#C0CDFF] focus:ring-4 focus:ring-[#6C63FF]/15"
                                     />
                                 </div>
                             </>
                         ) : (
                             <>
                                 <div>
-                                    <p className="text-sm text-gray-500">Address</p>
-                                    <p className="text-base">{userData.address}</p>
+                                    <p className="text-sm text-gray-500 mt-1">Address</p>
+                                    <p className="text-base mt-5 mb-4">{userData.address}</p>
                                 </div>
                                 <div>
-                                    <p className="text-sm text-gray-500">Country</p>
-                                    <p className="text-base">{userData.country}</p>
+                                    <p className="text-sm text-gray-500 mt-1">Country</p>
+                                    <p className="text-base mt-5 mb-4">{userData.country}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-500">City</p>
-                                    <p className="text-base">{userData.city}</p>
+                                    <p className="text-base mt-5">{userData.city}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-500">Postal code</p>
-                                    <p className="text-base">{userData.postal_code}</p>
+                                    <p className="text-base mt-5">{userData.postal_code}</p>
                                 </div>
                                 <div>
-                                    <p className="text-sm text-gray-500">Phone</p>
-                                    <p className="text-base">{userData.phone}</p>
+                                    <p className="text-sm text-gray-500 mt-3">Phone</p>
+                                    <p className="text-base mt-5">{userData.phone}</p>
                                 </div>
                             </>
                         )}
@@ -909,7 +933,7 @@ const Profile = () => {
                                         name="first_name"
                                         value={formData.first_name || ''}
                                         onChange={handleInputChange}
-                                        className="w-full border rounded p-2"
+                                        className="w-full mt-2 border rounded p-2 focus:outline-none focus:border-[#C0CDFF] focus:ring-4 focus:ring-[#6C63FF]/15"
                                     />
                                 </div>
                                 <div>
@@ -919,7 +943,7 @@ const Profile = () => {
                                         name="last_name"
                                         value={formData.last_name || ''}
                                         onChange={handleInputChange}
-                                        className="w-full border rounded p-2"
+                                        className="w-full mt-2 border rounded p-2 focus:outline-none focus:border-[#C0CDFF] focus:ring-4 focus:ring-[#6C63FF]/15"
                                     />
                                 </div>
                                 <div>
@@ -929,7 +953,7 @@ const Profile = () => {
                                         name="phone_person"
                                         value={formData.phone_person || ''}
                                         onChange={handleInputChange}
-                                        className="w-full border rounded p-2"
+                                        className="w-full mt-2 border rounded p-2 focus:outline-none focus:border-[#C0CDFF] focus:ring-4 focus:ring-[#6C63FF]/15"
                                     />
                                 </div>
                                 <div>
@@ -939,7 +963,7 @@ const Profile = () => {
                                         name="email"
                                         value={formData.email || ''}
                                         onChange={handleInputChange}
-                                        className="w-full border rounded p-2"
+                                        className="w-full mt-2 border rounded p-2 focus:outline-none focus:border-[#C0CDFF] focus:ring-4 focus:ring-[#6C63FF]/15"
                                     />
                                 </div>
                             </>
