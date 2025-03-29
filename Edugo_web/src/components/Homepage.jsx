@@ -1183,7 +1183,7 @@ function Homepage() {
                 return (
                     <div className="grid grid-cols-4 gap-4 mb-6">
                         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex">
-                            <div className="w-2 bg-gray-500"></div>
+                            <div className="w-2 bg-blue-500"></div>
                             <div className="p-4 flex-1">
                                 <h2 className="text-sm font-medium text-gray-600">All Approvals</h2>
                                 <div className="mt-2 flex items-baseline">
@@ -1237,7 +1237,7 @@ function Homepage() {
                 return (
                     <div className="grid grid-cols-4 gap-4 mb-6">
                         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex">
-                            <div className="w-2 bg-gray-500"></div>
+                            <div className="w-2 bg-blue-500"></div>
                             <div className="p-4 flex-1">
                                 <h2 className="text-sm font-medium text-gray-600">All Scholarships</h2>
                                 <div className="mt-2 flex items-baseline">
@@ -1357,7 +1357,7 @@ function Homepage() {
                     return (
                         <div className="grid grid-cols-3 gap-4 mb-6">
                             <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex">
-                                <div className="w-2 bg-gray-500"></div>
+                                <div className="w-2 bg-blue-500"></div>
                                 <div className="p-4 flex-1">
                                     <h2 className="text-sm font-medium text-gray-600">All Users</h2>
                                     <div className="mt-2 flex items-baseline">
@@ -2342,65 +2342,59 @@ function Homepage() {
                     </div>
 
                     {/* Buttons for Filter */}
-                    <div className="summary-padding">
-                        <div
-                            className="border-lightgrey"
-                            onClick={() => handleFilterClick('All')}
-                        >
-                            <div className="summary-all-border summary-border-radius">
-                                <div className="flex flex-col items-start mt-5">
-                                    <h1 className="summary-text">All Scholarship</h1>
-                                    <div className="flex flex-row items-center mt-2 ml-8">
-                                        <h1 className="text-3xl font-bold">
-                                            {allAnnouncements.length > 0 ? allAnnouncements.length : announceData.total}
-                                        </h1>
-                                        <h1 className="scholarshiptextsum">Scholarship</h1>
-                                    </div>
+                    <div className="grid grid-cols-4 gap-6 mb-6 ml-4">
+                        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex cursor-pointer w-56" 
+                            onClick={() => handleFilterClick('All')}>
+                            <div className="w-2 bg-blue-500"></div> {/* เปลี่ยนสีได้ตามต้องการ */}
+                            <div className="p-4 flex-1">
+                                <h2 className="text-sm font-medium text-gray-600">All Scholarship</h2>
+                                <div className="mt-2 flex items-baseline">
+                                    <p className="text-2xl font-semibold text-gray-900">
+                                        {allAnnouncements.length > 0 ? allAnnouncements.length : announceData.total}
+                                    </p>
+                                    <p className="ml-2 text-sm text-gray-600">Scholarships</p>
                                 </div>
                             </div>
                         </div>
-                        <div
-                            className="border-lightgrey"
+                                                <div 
+                            className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex cursor-pointer w-56" 
                             onClick={() => handleFilterClick('Pending')}
                         >
-                            <div className="summary-pending-border summary-border-radius">
-                                <div className="flex flex-col items-start mt-5 mb-5">
-                                    <h1 className="summary-text">Pending Scholarship</h1>
-                                    <div className="flex flex-row items-center mt-2 ml-8">
-                                        <h1 className="text-3xl font-bold">{pendingCount}</h1>
-                                        <h1 className="scholarshiptextsum">Scholarship</h1>
-                                    </div>
+                            <div className="w-2 bg-yellow-500"></div> {/* เปลี่ยนสีให้เหมาะกับ Pending */}
+                            <div className="p-4 flex-1">
+                                <h2 className="text-sm font-medium text-gray-600">Pending Scholarship</h2>
+                                <div className="mt-2 flex items-baseline">
+                                    <p className="text-2xl font-semibold text-gray-900">{pendingCount}</p>
+                                    <p className="ml-2 text-sm text-gray-600">Scholarships</p>
                                 </div>
                             </div>
                         </div>
-                        <div
-                            className="border-lightgrey"
+                                                <div 
+                            className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex cursor-pointer w-56" 
                             onClick={() => handleFilterClick('Open')}
                         >
-                            <div className="summary-open-border summary-border-radius">
-                                <div className="flex flex-col items-start mt-5 mb-5">
-                                    <h1 className="summary-text">Opened Scholarship</h1>
-                                    <div className="flex flex-row items-center mt-2 ml-8">
-                                        <h1 className="text-3xl font-bold">{openCount}</h1>
-                                        <h1 className="scholarshiptextsum">Scholarship</h1>
-                                    </div>
+                            <div className="w-2 bg-green-500"></div> {/* เปลี่ยนสีให้เหมาะกับ Opened */}
+                            <div className="p-4 flex-1">
+                                <h2 className="text-sm font-medium text-gray-600">Opened Scholarship</h2>
+                                <div className="mt-2 flex items-baseline">
+                                    <p className="text-2xl font-semibold text-gray-900">{openCount}</p>
+                                    <p className="ml-2 text-sm text-gray-600">Scholarships</p>
                                 </div>
                             </div>
                         </div>
-                        <div
-                            className="border-lightgrey"
-                            onClick={() => handleFilterClick('Close')}
-                        >
-                            <div className="summary-close-border summary-border-radius">
-                                <div className="flex flex-col items-start mt-5 mb-5">
-                                    <h1 className="summary-text">Closed Scholarship</h1>
-                                    <div className="flex flex-row items-center mt-2 ml-8">
-                                        <h1 className="text-3xl font-bold">{closedCount}</h1>
-                                        <h1 className="scholarshiptextsum">Scholarship</h1>
-                                    </div>
-                                </div>
+                                            <div 
+                        className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex cursor-pointer w-56" 
+                        onClick={() => handleFilterClick('Close')}
+                    >
+                        <div className="w-2 bg-red-500"></div> {/* เปลี่ยนสีให้เหมาะกับ Closed */}
+                        <div className="p-4 flex-1">
+                            <h2 className="text-sm font-medium text-gray-600">Closed Scholarship</h2>
+                            <div className="mt-2 flex items-baseline">
+                                <p className="text-2xl font-semibold text-gray-900">{closedCount}</p>
+                                <p className="ml-2 text-sm text-gray-600">Scholarships</p>
                             </div>
                         </div>
+                    </div>
                     </div>
 
                     {/* No Scholarship Filter */}

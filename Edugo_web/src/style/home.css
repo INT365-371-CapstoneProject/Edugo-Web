@@ -1,5 +1,6 @@
 .border-lightgrey {
     display: flex;
+    justify-content: start;
     border-radius: 10px;
     border: 1.5px solid var(--Border-Card, #E0E0E0);
     background: var(--White, #FFF);
@@ -35,7 +36,6 @@
     font-style: normal;
     font-weight: 400;
     line-height: 28px; 
-    
 }
 .summary-padding{
     display: grid; 
