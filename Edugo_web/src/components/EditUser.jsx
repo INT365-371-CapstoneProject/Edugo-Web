@@ -155,7 +155,7 @@ function EditUser() {
                             </div>
 
                             {/* คำอธิบายอยู่แยกบรรทัด */}
-                            <p className="mt-3 text-sm text-gray-700 ml-2">
+                            <p className="mt-3 text-sm text-gray-400 ml-2">
                                 "Admins can easily edit user details such as email, password, or username. Please ensure the accuracy of the new information. Any changes to critical data will require confirmation."
                             </p>
                         </div>
