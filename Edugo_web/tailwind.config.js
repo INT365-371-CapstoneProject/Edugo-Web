@@ -12,6 +12,7 @@ export default {
         redcolor: '#BE3C7E',
       },
       fontFamily: {
+        sans: ['DM Sans', 'sans-serif'],
         'DM': ['DM Sans', 'sans-serif'],
         dmSans: ['DM Sans', 'sans-serif'],
       },

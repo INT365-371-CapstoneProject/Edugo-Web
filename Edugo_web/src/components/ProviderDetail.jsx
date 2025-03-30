@@ -82,8 +82,8 @@ function ProviderDetail() {
       </p>`,
         icon: 'question',
         showCancelButton: true,
-        confirmButtonText: `<span class=" px-10 py-2 bg-[#355FFF] text-white rounded-lg shadow-md hover:bg-[#2A4CCC] mr-10">Confirm</span>`,
-        cancelButtonText: `<span class=" px-10 py-2 bg-[#D5448E] text-white rounded-lg shadow-md hover:bg-[#8E2D5F]">Cancel</span>`,
+        confirmButtonText: `<span class=" px-10 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 mr-10">Confirm</span>`,
+        cancelButtonText: `<span class=" px-10 py-2 bg-[#94A2B8] text-white rounded-lg shadow-md hover:bg-[#64738B]">Cancel</span>`,
         customClass: {
           confirmButton: 'swal2-confirm',
           cancelButton: 'swal2-cancel',
