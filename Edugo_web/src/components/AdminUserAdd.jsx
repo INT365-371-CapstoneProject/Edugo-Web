@@ -199,7 +199,7 @@ function AdminUserAdd() {
   return (
     <>
       <Nav />
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="min-h-screen bg-[#F9FAFF] py-8">
         <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mt-2">Add New Administrator
@@ -209,7 +209,7 @@ function AdminUserAdd() {
             </p>
           </div>
 
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+          <div className="bg-white rounded-lg overflow-hidden border border-gray-200">
             <form onSubmit={handleSubmit} className="px-6 py-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 {/* First Name */}

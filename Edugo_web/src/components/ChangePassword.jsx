@@ -115,9 +115,9 @@ function ChangePassword() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 items-center justify-center">
+    <div className="min-h-screen bg-[#F9FAFF] items-center justify-center">
       <Nav />
-      <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-md mx-auto mt-10">
+      <div className="w-full max-w-md bg-white p-8 rounded-lg border mx-auto mt-10">
         <h2 className="text-2xl font-bold text-gray-800 mb-6">Change Password</h2>
         
         {/* Show API Error Message */}

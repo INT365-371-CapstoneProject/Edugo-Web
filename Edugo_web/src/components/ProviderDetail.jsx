@@ -74,13 +74,21 @@ function ProviderDetail() {
     try {
       await Swal.fire({
         title: 'Confirm Action',
-        text: `Are you sure you want to ${newStatus === 'Yes' ? 'approve' : 'reject'} this provider?`,
+        html: `<p class="text-gray-700 text-lg pb-4">
+        Are you sure you want to 
+        <strong class="${newStatus === 'Yes' ? 'text-green-600' : 'text-red-600'} text-xl">
+          ${newStatus === 'Yes' ? 'approve' : 'reject'}
+        </strong> this provider?
+      </p>`,
         icon: 'question',
         showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes',
-        cancelButtonText: 'No'
+        confirmButtonText: `<span class=" px-10 py-2 bg-[#355FFF] text-white rounded-lg shadow-md hover:bg-[#2A4CCC] mr-10">Confirm</span>`,
+        cancelButtonText: `<span class=" px-10 py-2 bg-[#D5448E] text-white rounded-lg shadow-md hover:bg-[#8E2D5F]">Cancel</span>`,
+        customClass: {
+          confirmButton: 'swal2-confirm',
+          cancelButton: 'swal2-cancel',
+          popup: 'rounded-xl pb-10'
+        },buttonsStyling: false
       }).then(async (result) => {
         if (result.isConfirmed) {
           // แก้ไข endpoint และรูปแบบข้อมูลที่ส่งไป
@@ -155,9 +163,9 @@ function ProviderDetail() {
   return (
     <>
       <Nav />
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="min-h-screen bg-[#F9FAFF] mt-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
-          <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 w-full">
+          <div className="bg-white rounded-lg overflow-hidden border border-gray-200 w-full">
             {/* Header */}
             <div className="px-8 py-4 flex justify-between items-center mt-4 w-full">
               <h1 className="ml-3 text-2xl font-bold text-gray-900">Approval #{provider.id.toString().padStart(4, '0')}</h1>

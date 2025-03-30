@@ -146,7 +146,7 @@ function Detail() {
                                 {userRole && ['admin', 'superadmin'].includes(userRole) ? (
                                     <Link 
                                         to="/#scholarships" 
-                                        className='font-bold text-4xl underline underline-offset-2 hover:text-slate-800'
+                                        className='font-bold text-4xl underline underline-offset-2 hover:text-slate-400'
                                     >
                                         Admin
                                     </Link>
@@ -154,7 +154,7 @@ function Detail() {
                                     <Link to='/' className='font-bold text-4xl underline underline-offset-2 hover:text-slate-800'>Home</Link>
                                 )}
                                 {announce ? (
-                                    <h1 className='col-span-4 text-4xl font-DM text-blue-600 ml-2 truncate max-w-xs'> &gt; {announce.title}</h1>
+                                    <h1 className='ml-5 mt-1 col-span-4 text-4xl font-medium font-DM text-blue-600 ml-2 truncate max-w-xs'> &gt; {announce.title}</h1>
                                 ) : (
                                     <p>Loading...</p>
                                 )}
@@ -181,7 +181,7 @@ function Detail() {
                                     <button 
                                         onClick={handleBackToManagement}
                                         type='button' 
-                                        className='btn hover:bg-gray-700 bg-gray-500 text-white border-none mr-4'
+                                        className='btn hover:bg-[#2A4CCC] bg-[#355FFF] text-white border-none w-2/5'
                                     >
                                         Back to Management
                                     </button>

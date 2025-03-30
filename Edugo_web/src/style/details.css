@@ -8,8 +8,6 @@
     border-radius: 10px;
     border: 1px solid var(--foundation-blue-light-active, #C0CDFF);
     background: var(--White, #FFF);
-/* Status/Fill Shadow */
-box-shadow: 0px 0px 0px 4px rgba(108, 99, 255, 0.15);
 }
 .border-section::placeholder {
     color: #8f97a2; 
