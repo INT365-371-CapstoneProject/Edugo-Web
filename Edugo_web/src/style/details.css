@@ -14,13 +14,13 @@
 }
 .heading-text{
     color: #000;
-    font-size: 24px;
+    font-size: 22px;
     font-style: normal;
     font-weight: 500;    line-height: 32px; 
 }
 .detail-information-text {
     color: var(--foundation-grey-normal-active, #8f97a2);
-    font-size: 22px;
+    font-size: 18px;
     font-style: normal;
     font-weight: 500;
     line-height: 32px; 
@@ -60,8 +60,8 @@
 
 .date-text {
     color: var(--foundation-grey-normal-active, #8f97a2);
-    font-size: 20px;
-    font-style: normal;
+    font-size: 18px;
+    font-weight: 500;
     line-height: 28px; 
 }
 

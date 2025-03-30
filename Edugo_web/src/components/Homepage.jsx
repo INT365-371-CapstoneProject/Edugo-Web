@@ -10,6 +10,7 @@ import '../style/style.css'; // Import CSS file
 import '../style/home.css'; // Import CSS file
 import jwt_decode from 'jwt-decode'; // Make sure to import jwt-decode
 import Addadminicon from '../assets/addnewadminicon.png';
+import DeleteAccount from '../assets/delete-account.png';
 
 const statusColors = {
     Approved: "bg-green-100 text-green-800",
@@ -1577,9 +1578,7 @@ function Homepage() {
                                         </div>
                                     )}
                                     <div className="mt-2">
-                                        <svg className="h-12 w-12 text-red-600 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 00-1-1h-4a1 1 00-1 1v3M4 7h16" />
-                                        </svg>
+                                    <img src={DeleteAccount} className="h-20 w-20 text-red-600 mx-auto mb-4"/>
                                         <p className="text-sm text-gray-500 text-center">
                                             Are you sure you want to delete the user <span className="font-medium">{selectedUser.username}</span>?<br />This action cannot be undone.
                                         </p>
@@ -1598,7 +1597,7 @@ function Homepage() {
                                         </button>
                                         <button
                                             type="button"
-                                            className="inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                                            className="inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm font-medium text-white bg-red-500 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                                             onClick={confirmDelete}
                                             disabled={actionLoading}
                                         >
@@ -2047,7 +2046,7 @@ function Homepage() {
                     {/* Rest of the component */}
                     <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
                         <div className="border-b border-gray-200 bg-gray-50">
-                            <div className="px-6 py-4">
+                            <div className="px-6 py-4 bg-white">
                                 <nav className="flex justify-between items-center">
                                     <div className="flex space-x-4">
                                         <button
