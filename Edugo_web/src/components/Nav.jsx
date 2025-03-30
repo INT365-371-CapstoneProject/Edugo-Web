@@ -318,7 +318,7 @@ function Nav() {
                         
                         {/* Category Dropdown - Updated positioning */}
                         {showCategoryDropdown && (
-                          <div className="absolute -right-2 top-0 translate-x-full w-72 bg-white border border-gray-200 rounded-xl shadow-lg">
+                          <div className="absolute -right-2 top-0 translate-x-full w-60 bg-white border border-gray-200 rounded-xl shadow-lg">
                             <div className="px-4 py-3 border-b border-gray-100">
                               <h3 className="font-medium text-sm text-gray-900">Select Categories</h3>
                             </div>
@@ -366,7 +366,7 @@ function Nav() {
                               {educationLevels.map(level => (
                                 <label
                                   key={level}
-                                  className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer"
+                                  className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer "
                                 >
                                   <input
                                     type="checkbox"
@@ -412,7 +412,7 @@ function Nav() {
       <div className="h-8 w-px bg-gray-200 mx-2"></div>
 
       {/* Profile section - Adjusted width */}
-      <div className="w-[220px] pr-6 flex justify-end items-center">
+      <div className="w-[220px] pl-5 flex justify-started items-center">
         <div className="dropdown dropdown-end">
           <div 
             tabIndex={0} 

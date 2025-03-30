@@ -245,7 +245,7 @@ function Login() {
                   value={formData.email || formData.username}
                   onChange={handleChange}
                   placeholder="Enter your email address or username"
-                  className={`input transition-colors
+                  className={`input transition-colors border rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-100
                     ${inputErrors.email_username 
                       ? 'bg-red-50 border-red-500 focus:border-red-500' 
                       : 'bg-gray-100 focus:bg-gray-100'}`}
@@ -268,7 +268,7 @@ function Login() {
                     value={formData.password}
                     onChange={handleChange}
                     placeholder="Enter your password"
-                    className={`input w-full transition-colors
+                    className={`input w-full transition-colors border rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-100
                       ${inputErrors.password 
                         ? 'bg-red-50 border-red-500 focus:border-red-500' 
                         : 'bg-gray-100 focus:bg-gray-100'}`}
