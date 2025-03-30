@@ -138,22 +138,26 @@ function EditUser() {
             <div className="min-h-screen bg-[#F9FAFF] py-8">
                 <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="bg-white rounded-lg border p-4">
-                        <div className="flex items-center justify-between mb-6">
+                    <div className="mb-6">
+                    {/* ส่วนหัวข้อ Edit User และ Changes detected */}
+                    <div className="flex items-center justify-between w-full">
+                        <h2 className="text-2xl font-bold text-gray-900 p-3">Edit User</h2>
 
-                            <div>
-                            <h2 className="text-2xl font-bold text-gray-900 p-3">Edit User</h2>
-                            <p className="ml-3 mt-3 text-sm">"Admins can easily edit user details such as email, password, or username. Please ensure the accuracy of the new information. Any changes to critical data will require confirmation."</p>
-                            {/* Add success message if there are changes */}
+                                {/* Changes detected */}
+                                {checkDataChanged() && (
+                                    <span className="text-green-600 text-sm flex items-center mr-3">
+                                        <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
+                                        </svg>
+                                        Changes detected
+                                    </span>
+                                )}
                             </div>
 
-                            {checkDataChanged() && (
-                                <span className="text-green-600 text-sm flex items-center">
-                                    <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
-                                    </svg>
-                                    Changes detected
-                                </span>
-                            )}
+                            {/* คำอธิบายอยู่แยกบรรทัด */}
+                            <p className="mt-3 text-sm text-gray-700 ml-2">
+                                "Admins can easily edit user details such as email, password, or username. Please ensure the accuracy of the new information. Any changes to critical data will require confirmation."
+                            </p>
                         </div>
                         
                         {error && (
