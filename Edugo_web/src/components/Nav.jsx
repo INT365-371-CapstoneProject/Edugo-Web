@@ -330,7 +330,7 @@ function Nav() {
                                 >
                                   <input
                                     type="checkbox"
-                                    className="form-checkbox h-4 w-4 text-blue-500 rounded border-gray-300 focus:ring-blue-500"
+                                    className="form-checkbox h-3 w-3 text-blue-500 rounded border-gray-300 focus:ring-blue-500"
                                     checked={selectedCategories.includes(category.category_name)}
                                     onChange={() => toggleCategory(category.category_name)}
                                   />
@@ -370,7 +370,7 @@ function Nav() {
                                 >
                                   <input
                                     type="checkbox"
-                                    className="form-checkbox h-4 w-4 text-blue-500 rounded border-gray-300 focus:ring-blue-500"
+                                    className="form-checkbox h-3 w-3 text-blue-500 rounded border-gray-300 focus:ring-blue-500"
                                     checked={selectedEducationLevels.includes(level)}
                                     onChange={() => toggleEducationLevel(level)}
                                   />

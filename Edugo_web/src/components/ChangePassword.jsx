@@ -118,7 +118,8 @@ function ChangePassword() {
     <div className="min-h-screen bg-[#F9FAFF] items-center justify-center">
       <Nav />
       <div className="w-full max-w-md bg-white p-8 rounded-lg border mx-auto mt-10">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">Change Password</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">Change Password</h2>
+        <p className="text-xs pb-6">To change your password, please enter your current password, then set and confirm your new password.</p>
         
         {/* Show API Error Message */}
         {apiError && (
