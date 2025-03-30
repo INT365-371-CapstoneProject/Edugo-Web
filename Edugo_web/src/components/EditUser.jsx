@@ -135,9 +135,9 @@ function EditUser() {
     return (
         <>
             <Nav />
-            <div className="min-h-screen bg-gray-50 py-8">
+            <div className="min-h-screen bg-[#F9FAFF] py-8">
                 <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="bg-white rounded-lg shadow-lg p-6">
+                    <div className="bg-white rounded-lg border p-4">
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-2xl font-bold text-gray-900">Edit User</h2>
                             {/* Add success message if there are changes */}
@@ -178,7 +178,7 @@ function EditUser() {
                                     name="username"
                                     value={formData.username}
                                     onChange={handleChange}
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                    className="w-full mt-2 border rounded-[6px] p-2 focus:outline-none focus:border-[#C0CDFF] focus:ring-4 focus:ring-[#6C63FF]/15"
                                     minLength={4}
                                     maxLength={20}
                                 />
@@ -193,7 +193,7 @@ function EditUser() {
                                     name="email"
                                     value={formData.email}
                                     onChange={handleChange}
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                    className="w-full mt-2 border rounded-[6px] p-2 focus:outline-none focus:border-[#C0CDFF] focus:ring-4 focus:ring-[#6C63FF]/15"
                                 />
                             </div>
 
@@ -206,10 +206,10 @@ function EditUser() {
                                     name="password"
                                     value={formData.password}
                                     onChange={handleChange}
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                    className="w-full mt-2 border rounded-[6px] p-2 focus:outline-none focus:border-[#C0CDFF] focus:ring-4 focus:ring-[#6C63FF]/15"
                                     minLength={6}
                                 />
-                                <p className="mt-1 text-sm text-gray-500">
+                                <p className="mt-2 text-sm text-gray-500">
                                     Leave blank to keep current password
                                 </p>
                             </div>

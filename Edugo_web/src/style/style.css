@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
 
 .Maincontainer {
-    @apply container mx-auto bg-white rounded-lg shadow-md mt-8 mb-8;
+    @apply container mx-auto bg-white rounded-lg mt-8 mb-8;
     display: fixed;
     justify-content: center;
     align-items: center;
