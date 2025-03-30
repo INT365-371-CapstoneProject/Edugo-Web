@@ -139,8 +139,13 @@ function EditUser() {
                 <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="bg-white rounded-lg border p-4">
                         <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-2xl font-bold text-gray-900">Edit User</h2>
+
+                            <div>
+                            <h2 className="text-2xl font-bold text-gray-900 p-3">Edit User</h2>
+                            <p className="ml-3 mt-3 text-sm">"Admins can easily edit user details such as email, password, or username. Please ensure the accuracy of the new information. Any changes to critical data will require confirmation."</p>
                             {/* Add success message if there are changes */}
+                            </div>
+
                             {checkDataChanged() && (
                                 <span className="text-green-600 text-sm flex items-center">
                                     <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -168,7 +173,7 @@ function EditUser() {
                             </div>
                         )}
 
-                        <form onSubmit={handleSubmit} className="space-y-6">
+                        <form onSubmit={handleSubmit} className="space-y-6 p-3">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700">
                                     Username
@@ -209,8 +214,8 @@ function EditUser() {
                                     className="w-full mt-2 border rounded-[6px] p-2 focus:outline-none focus:border-[#C0CDFF] focus:ring-4 focus:ring-[#6C63FF]/15"
                                     minLength={6}
                                 />
-                                <p className="mt-2 text-sm text-gray-500">
-                                    Leave blank to keep current password
+                                <p className="mt-2 text-sm text-gray-400">
+                                    Leave blank to keep current password*
                                 </p>
                             </div>
 

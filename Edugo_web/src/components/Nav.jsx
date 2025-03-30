@@ -330,7 +330,7 @@ function Nav() {
                                 >
                                   <input
                                     type="checkbox"
-                                    className="form-checkbox h-3 w-3 text-blue-500 rounded border-gray-300 focus:ring-blue-500"
+                                    className="bg-white h-3 w-3 text-blue-500 rounded border-gray-300 focus:ring-blue-500"
                                     checked={selectedCategories.includes(category.category_name)}
                                     onChange={() => toggleCategory(category.category_name)}
                                   />
@@ -370,7 +370,7 @@ function Nav() {
                                 >
                                   <input
                                     type="checkbox"
-                                    className="form-checkbox h-3 w-3 text-blue-500 rounded border-gray-300 focus:ring-blue-500"
+                                    className="bg-white h-3 w-3 text-blue-500 rounded border-gray-300 focus:ring-blue-500"
                                     checked={selectedEducationLevels.includes(level)}
                                     onChange={() => toggleEducationLevel(level)}
                                   />
@@ -438,7 +438,7 @@ function Nav() {
             <li>
               <a 
                 onClick={handleProfile}
-                className="px-4 py-2 hover:bg-blue-50 text-gray-700 hover:text-blue-600 rounded-lg transition-colors duration-200"
+                className="px-4 py-2 bg-white hover:bg-blue-50 text-gray-700 hover:text-blue-600 rounded-lg transition-colors duration-200 focus:outline-none"
               >
                 Profile
               </a>
@@ -446,7 +446,7 @@ function Nav() {
             <li>
               <a 
                 onClick={() => navigate('/change-password')}
-                className="px-4 py-2 hover:bg-blue-50 text-gray-700 hover:text-blue-600 rounded-lg transition-colors duration-200"
+                className="px-4 py-2 bg-white hover:bg-blue-50 text-gray-700 hover:text-blue-600 rounded-lg transition-colors duration-200  active:bg-blue-400 focus:outline-none "
               >
                 Change Password
               </a>
@@ -454,7 +454,7 @@ function Nav() {
             <li>
               <a 
                 onClick={handleLogout}
-                className="px-4 py-2 hover:bg-red-50 text-gray-700 hover:text-red-600 rounded-lg transition-colors duration-200"
+                className="px-4 py-2 bg-white hover:bg-red-50 text-gray-700 hover:text-red-600 rounded-lg transition-colors duration-200  focus:outline-none"
               >
                 Logout
               </a>
