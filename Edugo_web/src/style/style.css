@@ -98,8 +98,3 @@ input::selection, textarea::selection {
   border: 1px solid var(--Foundation-Grey-Normal, #CBD5E0);
   background: var(--White, #FFF);
 }
-
-/* สำหรับการปรับแต่ง Autofill */
-input:autofill {
-  background-color: #fce4e4;  /* สีพื้นหลังแดง */
-}

@@ -438,7 +438,7 @@ function Nav() {
             <li>
               <a 
                 onClick={handleProfile}
-                className="px-4 py-2 bg-white hover:bg-blue-50 text-gray-700 hover:text-blue-600 rounded-lg transition-colors duration-200 focus:outline-none"
+                className="px-4 py-2 bg-white hover:bg-blue-50 text-gray-700 hover:text-blue-600 rounded-lg transition-colors duration-200 focus:outline-none "
               >
                 Profile
               </a>
