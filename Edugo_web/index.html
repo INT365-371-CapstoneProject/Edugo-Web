@@ -24,6 +24,11 @@
         border: 1px solid #D1D5DB; /* สีกรอบเทาอ่อน */
         }
       }
+      /* ปิดไอคอน Show/Hide Password ใน Chrome และ Edge */
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-ms-clear {
+          display: none;
+        }
       </style>
   </head>
   <body>
