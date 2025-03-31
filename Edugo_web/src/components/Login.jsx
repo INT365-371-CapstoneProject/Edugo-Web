@@ -245,7 +245,7 @@ function Login() {
                   value={formData.email || formData.username}
                   onChange={handleChange}
                   placeholder="Enter your email address or username"
-                  className={`input input-bordered w-full transition-colors border rounded-md
+                  className={`input w-full transition-colors rounded-md
                      focus:outline-none focus:border-[#C0CDFF] focus:ring-4 focus:ring-[#6C63FF]/15
                     ${inputErrors.email_username 
                       ? 'bg-red-50 border-red-500 focus:border-red-500' 
@@ -288,15 +288,15 @@ function Login() {
                     <span className="label-text-alt text-red-500">{inputErrors.password}</span>
                   </label>
                 )}
-                <div className="flex items-center justify-between mt-2">
+                <div className="flex items-center justify-between">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
                       name="remember_me"
                       checked={formData.remember_me}
                       onChange={handleChange}
-                      className="checkbox checkbox-sm checkbox-primary"
-                    />
+                      className="checkbox checkbox-sm checkbox-info"
+                      />
                     <span className="label-text text-gray-600">Remember me</span>
                   </label>
                   <Link 
