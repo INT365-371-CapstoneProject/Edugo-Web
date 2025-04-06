@@ -15,7 +15,7 @@ import { checkUserStatus } from '../composable/getProfile.js';
 import AdminUserAdd from '../components/AdminUserAdd';
 import ChangePassword from '../components/ChangePassword';
 import EditUser from '../components/EditUser';
-import Officailwebpage from '../components/Officailwebpage';
+import Officialwebpage from '../components/Officialwebpage.jsx';
 
 // ฟังก์ชันตรวจสอบการเข้าสู่ระบบ สถานะ และบทบาท
 const checkAuth = async () => {
@@ -372,11 +372,11 @@ const router = createBrowserRouter(
   [
     {
       path: '/',
-      element: <Navigate to="/Officailwebpage" replace />,
+      element: <Navigate to="/Officialwebpage" replace />,
     },
     {
       path: '/un2',
-      element: <Navigate to="/Officailwebpage" replace />,
+      element: <Navigate to="/Officialwebpage" replace />,
     },
     {
       path: '/homepage',
@@ -431,10 +431,10 @@ const router = createBrowserRouter(
       ),
     },
     {
-      path: '/Officailwebpage',
+      path: '/Officialwebpage',
       element: (
         <PublicRoute>
-          <Officailwebpage />
+          <Officialwebpage />
         </PublicRoute>
       )
     },
