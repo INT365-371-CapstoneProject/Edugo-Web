@@ -1,0 +1,210 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
+
+
+/* เพิ่มการจัดหน้าให้ตรง */
+body {
+    font-family: 'DM Sans', sans-serif; 
+  }
+
+/* สไตล์ของ home-container */
+.home-container {
+    background-color: #F9FAFF; /* สีแบ็คกราวน์น้ำเงิน */
+    color: white;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    /* ตั้งค่ารูปพื้นหลัง */
+    background-image: url('../assets/world.png'); /* ใส่พาธรูปภาพ */
+    background-size: 70%; /* ปรับขนาดรูปเป็น 50% ของพื้นที่ */
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: 650px 100px; /* ปรับตำแหน่งของรูป */
+}
+
+/* Navbar */
+.navbar {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: white; /* สีพื้นหลังของ navbar */
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* เพิ่มเงาให้ navbar */
+  z-index: 10;
+}
+
+/* โลโก้ */
+.logo {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333; /* เปลี่ยนสีโลโก้ให้เป็นสีเทา */
+}
+
+/* ปุ่มล็อกอิน */
+.login-btn {
+    padding: 12px 24px;
+    background-color: #007BFF; /* สีฟ้าสดใส (น้ำเงิน) */
+    color: white;
+    border: none;
+    border-radius: 8px; /* มุมโค้งนุ่ม */
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold; /* เพิ่มความหนาของฟอนต์ */
+    transition: all 0.3s ease; /* เพิ่มการเปลี่ยนแปลงอย่างนุ่มนวล */
+  }
+  
+  /* เอฟเฟกต์เมื่อ hover */
+  .login-btn:hover {
+    background-color: #0056b3; /* เปลี่ยนเป็นสีน้ำเงินเข้มเมื่อ hover */
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.5); /* เพิ่มเงาให้ดูลอยขึ้น */
+    transform: translateY(-2px); /* ทำให้ปุ่มลอยขึ้นเล็กน้อย */
+  }
+  
+  /* เอฟเฟกต์เมื่อกด */
+  .login-btn:active {
+    transform: translateY(2px); /* เมื่อกดปุ่มจะทำให้ปุ่มดูเหมือนกดลง */
+  }
+
+/* Main Content */
+.content {
+    color: rgb(0, 0, 0);
+  display: flex;
+  justify-content: space-between;
+  width: 80%;
+  align-items: center;
+  padding: 20px;
+  margin-top: 70px; /* เพิ่มช่องว่างระหว่าง navbar และเนื้อหาหลัก */
+}
+
+/* Text Container */
+.text-container {
+  max-width: 50%;
+}
+
+.headline {
+  font-size: 30px;
+  font-weight: bold;
+  margin-top: 25px;
+  margin-bottom: 20px;
+}
+
+.subtext {
+  font-size: 16px;
+  margin-bottom: 30px;
+  margin-top: 25px;
+}
+
+.download-btn {
+  padding: 18px 80px;
+  background-color: #007BFF;
+  color: rgb(255, 255, 255);
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+  /* เอฟเฟกต์เมื่อ hover */
+  .download-btn:hover {
+    background-color: #007BFF; /* เปลี่ยนเป็นสีน้ำเงินเข้มเมื่อ hover */
+    box-shadow: 0 4px 15px rgba(74, 161, 255, 0.5); /* เพิ่มเงาให้ดูลอยขึ้น */
+    transform: translateY(-2px); /* ทำให้ปุ่มลอยขึ้นเล็กน้อย */
+  }
+  
+  /* เอฟเฟกต์เมื่อกด */
+  .download-btn:active {
+    transform: translateY(2px); /* เมื่อกดปุ่มจะทำให้ปุ่มดูเหมือนกดลง */
+  }
+
+/* Image Container */
+.image-container {
+  max-width: 90%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.image {
+  width: 100%;
+  max-width: 400px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* รูปภาพโลโก้ใน Navbar */
+.logo-img {
+    width: 200px;  /* กำหนดขนาดความกว้างของโลโก้ */
+    height: auto;  /* ให้ความสูงปรับอัตโนมัติตามสัดส่วน */
+  }
+.logowhite-img{
+    width: 450px;  /* กำหนดขนาดความกว้างของโลโก้ */
+    height: auto;  /* ให้ความสูงปรับอัตโนมัติตามสัดส่วน */
+}
+
+/* Media Queries สำหรับทำให้ Navbar และ Layout Responsive */
+@media (max-width: 768px) {
+  /* Navbar */
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 15px;
+  }
+
+  .login-btn {
+    display: none; /* ซ่อนปุ่มล็อกอินเมื่อหน้าจอเล็กกว่า 768px */
+  }
+
+  .logo {
+    font-size: 20px;
+  }
+
+  /* ปรับขนาดและตำแหน่งพื้นหลัง */
+  .home-container {
+    margin: 0;
+    padding: 0px;
+  }
+
+  /* Main Content */
+  .content {
+    margin: 0px;
+    width: 90%;
+  }
+
+  /* Text Container */
+  .text-container {
+    max-width: 100%;
+    text-align: center;
+  }
+
+  .headline {
+    font-size: 24px;
+  }
+
+  .subtext {
+    font-size: 16px;
+  }
+
+  /* ปรับขนาดปุ่มดาวน์โหลด */
+  .download-btn {
+    padding: 10px 30px;
+  }
+
+  /* ปรับขนาดของรูปภาพ */
+  .image-container {
+    max-width: 80%;
+    margin-top: 20px;
+  }
+
+  .image {
+    max-width: 100%;
+    border-radius: 10px;
+  }
+}
+
