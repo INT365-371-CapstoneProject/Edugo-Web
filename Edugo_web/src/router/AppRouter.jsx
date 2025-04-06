@@ -15,7 +15,7 @@ import { checkUserStatus } from '../composable/getProfile.js';
 import AdminUserAdd from '../components/AdminUserAdd';
 import ChangePassword from '../components/ChangePassword';
 import EditUser from '../components/EditUser';
-
+import Unknown from '../components/Unknown';
 // ฟังก์ชันตรวจสอบการเข้าสู่ระบบ สถานะ และบทบาท
 const checkAuth = async () => {
   const token = localStorage.getItem('token');
@@ -371,11 +371,11 @@ const router = createBrowserRouter(
   [
     {
       path: '/',
-      element: <Navigate to="/login" replace />,
+      element: <Navigate to="/unknown" replace />,
     },
     {
       path: '/un2',
-      element: <Navigate to="/login" replace />,
+      element: <Navigate to="/unknown" replace />,
     },
     {
       path: '/homepage',
@@ -428,6 +428,14 @@ const router = createBrowserRouter(
           <Login />
         </PublicRoute>
       ),
+    },
+    {
+      path: '/unknown',
+      element: (
+        <PublicRoute>
+          <Unknown />
+        </PublicRoute>
+      )
     },
     {
       path: '/forgot-password',
