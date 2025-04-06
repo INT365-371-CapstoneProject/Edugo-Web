@@ -3,11 +3,12 @@
   <head>
     <meta charset="UTF-8" />
 
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <!-- แก้ไขการตั้งค่า viewport ให้มีความเฉพาะเจาะจงมากขึ้น -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <link rel="icon" type="image/svg+xml" href="./src/assets/logo.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>EDUGO - Scholarship Management</title>
     <style>
       html, body {
@@ -15,21 +16,54 @@
         padding: 0;
         height: 100%;
         background-color: #F9FAFF !important;
+        /* เพิ่มกำหนด color เพื่อป้องกันปัญหาใน dark mode */
+        color: #333 !important;
       }      
       input[type="checkbox"]{
         background-color: #F9FAFF !important;
       }
+      
+      /* แก้ไข media query โดยทำให้รองรับ iOS มากขึ้น */
       @media (prefers-color-scheme: dark) {
-      html, body {
-        background-color: #F9FAFF !important;
-        color: black; /* ป้องกันข้อความหายไป */
+        html, body {
+          background-color: #F9FAFF !important;
+          color: #333 !important; /* ป้องกันข้อความหายไป */
         }
-      input[type="checkbox"]{
-        background-color: #F9FAFF !important;
-        border: 1px solid #D1D5DB; /* สีกรอบเทาอ่อน */
+        
+        /* แก้ไขการแสดงผลใน dark mode สำหรับ iOS */
+        input, textarea, select, button {
+          background-color: #F9FAFF !important;
+          color: #333 !important;
+        }
+        
+        input[type="checkbox"]{
+          background-color: #F9FAFF !important;
+          border: 1px solid #D1D5DB; /* สีกรอบเทาอ่อน */
+        }
+        
+        /* เพิ่มการบังคับสีสำหรับองค์ประกอบอื่นๆ */
+        .navbar-shadow, .Maincontainer, .Background {
+          background-color: #F9FAFF !important;
+          color: #333 !important;
         }
       }
 
+      /* เพิ่ม CSS เฉพาะสำหรับ iOS */
+      @supports (-webkit-touch-callout: none) {
+        html, body {
+          background-color: #F9FAFF !important;
+          color: #333 !important;
+        }
+        
+        input, textarea, select, button {
+          background-color: #FFFFFF !important;
+          color: #333 !important;
+        }
+        
+        .content, .Background, .Maincontainer {
+          background-color: #F9FAFF !important;
+        }
+      }
       </style>
   </head>
   <body>

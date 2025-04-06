@@ -290,5 +290,42 @@ body {
 
   }
 
-
+  @media (prefers-color-scheme: dark) {
+    /* กำหนดสีพื้นหลังสำหรับโหมดมืด */
+    html, body {
+      background-color: #F9FAFF !important;
+      color: #333 !important;
+    }
+    
+    .navbar {
+      padding: 15px;
+      background-color: #ffffff !important;
+      color: #333 !important;
+    }
+    
+    input, textarea, select, button {
+      background-color: #FFFFFF !important;
+      color: #333 !important;
+    }
+  }
+  
+  /* เพิ่ม CSS เฉพาะสำหรับ iOS */
+  @supports (-webkit-touch-callout: none) {
+    .home-container {
+      background-color: #F9FAFF !important;
+      color: #333 !important;
+    }
+    
+    .navbar {
+      background-color: #FFFFFF !important;
+    }
+    
+    .content {
+      color: #000000 !important;
+    }
+    
+    .headline, .subtext {
+      color: inherit !important;
+    }
+  }
 }
