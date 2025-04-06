@@ -174,9 +174,12 @@ body {
 @media (max-width: 768px) {
   /* Navbar */
   .navbar {
-    flex-direction: column;
-    align-items: flex-start;
     padding: 15px;
+    position: fixed; /* ทำให้ navbar อยู่ข้างบนตลอด */
+    top: 0; /* กำหนดให้ navbar อยู่ที่ด้านบน */
+    left: 0; /* กำหนดให้ navbar อยู่ที่ด้านซ้าย */
+    width: 100%; /* กำหนดความกว้างของ navbar ให้เต็มหน้าจอ */
+    z-index: 1000; /* ทำให้ navbar อยู่เหนือส่วนอื่นๆ */
   }
 
   .login-btn {
@@ -187,22 +190,18 @@ body {
     font-size: 20px;
   }
 
-  /* ปรับขนาดและตำแหน่งพื้นหลัง */
   .home-container {
-    margin: 0 auto;
-    padding: 0px;
-    /* เพิ่ม padding-top เพื่อลดช่องว่างระหว่าง Navbar และเนื้อหา */
-    padding-top: 20px;
-  }
+    background-size: 110%; /* ปรับขนาดรูปเป็น 50% ของพื้นที่ */
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: -15px 620px; /* ปรับตำแหน่งของรูป */
+}
 
   /* Main Content */
   .content {
-    margin-top: 0px; /* เอา margin-top ออกเพื่อให้ content ชิดกับ navbar */
+    margin-top: -120px; /* เอา margin-top ออกเพื่อให้ content ชิดกับ navbar */
     width: 90%;
-    flex-direction: column;
-    align-items: flex-start; /* ชิดด้านซ้าย */
   }
-
   /* Text Container */
   .text-container {
     max-width: 100%;
