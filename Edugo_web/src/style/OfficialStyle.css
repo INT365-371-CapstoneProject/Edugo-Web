@@ -238,25 +238,26 @@ body {
 @media (min-width: 1920px) {
   /* ปรับความกว้างของ .home-container */
     .home-container {
-      background-image: none; /* ทำให้ภาพพื้นหลังหายไป */
-      background-size: 60%; /* ปรับขนาดพื้นหลัง */
-      background-position: 800px 30px; /* ปรับตำแหน่งของพื้นหลัง */
+      background-size: 45%; /* ปรับขนาดพื้นหลัง */
+      background-position: right; /* ปรับตำแหน่งของพื้นหลัง */
+      padding-top: 30px;
     }
 
   /* ปรับความกว้างของ .content */
   .content {
-    width: 50%; /* กำหนดความกว้างของเนื้อหาหลัก */
-    justify-content: center; /* จัดให้อยู่กลาง */
+    width: 80%; /* กำหนดความกว้างของเนื้อหาหลัก */
+    justify-content: start;
   }
 
   /* ปรับขนาดของ headline */
   .headline {
-    font-size: 40px; /* เพิ่มขนาดตัวอักษรให้ใหญ่ขึ้น */
+    font-size: 48px; /* เพิ่มขนาดตัวอักษรให้ใหญ่ขึ้น */
   }
 
   /* ปรับขนาดของ subtext */
   .subtext {
-    font-size: 18px; /* เพิ่มขนาดข้อความ */
+    font-size: 24px; /* เพิ่มขนาดข้อความ */
+    width: 100%;
   }
 
   /* ปรับขนาดปุ่มดาวน์โหลด */
