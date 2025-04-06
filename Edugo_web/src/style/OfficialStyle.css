@@ -4,7 +4,6 @@
 /* เพิ่มการจัดหน้าให้ตรง */
 body {
     font-family: 'DM Sans', sans-serif; 
-    overflow: hidden;
   }
 
 /* สไตล์ของ home-container */
@@ -94,6 +93,7 @@ body {
   font-size: 16px;
   margin-bottom: 30px;
   margin-top: 20px;
+  width: 80%;
 }
 
 .download-btn {
@@ -231,5 +231,50 @@ body {
   .image {
     max-width: 100%;
     border-radius: 10px;
+  }
+}
+
+/* Media Queries สำหรับจอที่ใหญ่กว่า Desktop (เช่น 1200px ขึ้นไป) */
+@media (min-width: 1920px) {
+  /* ปรับความกว้างของ .home-container */
+    .home-container {
+      background-image: none; /* ทำให้ภาพพื้นหลังหายไป */
+      background-size: 60%; /* ปรับขนาดพื้นหลัง */
+      background-position: 800px 30px; /* ปรับตำแหน่งของพื้นหลัง */
+    }
+
+  /* ปรับความกว้างของ .content */
+  .content {
+    width: 50%; /* กำหนดความกว้างของเนื้อหาหลัก */
+    justify-content: center; /* จัดให้อยู่กลาง */
+  }
+
+  /* ปรับขนาดของ headline */
+  .headline {
+    font-size: 40px; /* เพิ่มขนาดตัวอักษรให้ใหญ่ขึ้น */
+  }
+
+  /* ปรับขนาดของ subtext */
+  .subtext {
+    font-size: 18px; /* เพิ่มขนาดข้อความ */
+  }
+
+  /* ปรับขนาดปุ่มดาวน์โหลด */
+  .download-btn {
+    padding: 20px 100px; /* ปรับขนาดปุ่มดาวน์โหลด */
+  }
+
+  /* ปรับขนาดโลโก้ */
+  .logo-img {
+    width: 250px;  /* เพิ่มขนาดโลโก้ */
+  }
+
+  /* ปรับขนาดของรูปภาพ */
+  .image-container {
+    max-width: 60%; /* ปรับขนาดรูปภาพ */
+  }
+
+  .image {
+    max-width: 450px; /* เพิ่มขนาดสูงสุดของรูปภาพ */
   }
 }
