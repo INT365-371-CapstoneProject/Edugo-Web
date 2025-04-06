@@ -277,4 +277,18 @@ body {
   .image {
     max-width: 450px; /* เพิ่มขนาดสูงสุดของรูปภาพ */
   }
+
+  @media (prefers-color-scheme: dark) {
+    /* กำหนดสีพื้นหลังสำหรับโหมดมืด */
+    html, body {
+      background-color: #F9FAFF !important; /* เปลี่ยนเป็นสีพื้นหลังมืด */
+    }
+    .navbar {
+      padding: 15px;
+      background-color: #ffffff !important; /* เปลี่ยนเป็นสีพื้นหลังมืด */
+    }
+
+  }
+
+
 }
