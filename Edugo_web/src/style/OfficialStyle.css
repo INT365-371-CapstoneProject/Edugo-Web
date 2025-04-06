@@ -4,6 +4,7 @@
 /* เพิ่มการจัดหน้าให้ตรง */
 body {
     font-family: 'DM Sans', sans-serif; 
+    overflow: hidden;
   }
 
 /* สไตล์ของ home-container */
@@ -17,11 +18,11 @@ body {
     justify-content: center;
 
     /* ตั้งค่ารูปพื้นหลัง */
-    background-image: url('../assets/world.png'); /* ใส่พาธรูปภาพ */
-    background-size: 70%; /* ปรับขนาดรูปเป็น 50% ของพื้นที่ */
+    background-image: url('../assets/world.gif'); /* ใส่พาธรูปภาพ */
+    background-size: 65%; /* ปรับขนาดรูปเป็น 50% ของพื้นที่ */
     background-repeat: no-repeat;
     background-attachment: fixed;
-    background-position: 650px 100px; /* ปรับตำแหน่งของรูป */
+    background-position: 700px 30px; /* ปรับตำแหน่งของรูป */
 }
 
 /* Navbar */
@@ -38,13 +39,6 @@ body {
   background-color: white; /* สีพื้นหลังของ navbar */
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* เพิ่มเงาให้ navbar */
   z-index: 10;
-}
-
-/* โลโก้ */
-.logo {
-  font-size: 24px;
-  font-weight: bold;
-  color: #333; /* เปลี่ยนสีโลโก้ให้เป็นสีเทา */
 }
 
 /* ปุ่มล็อกอิน */
@@ -90,15 +84,16 @@ body {
 
 .headline {
   font-size: 30px;
-  font-weight: bold;
+  font-weight: 600;
   margin-top: 25px;
   margin-bottom: 20px;
 }
 
 .subtext {
+  color: dimgray;
   font-size: 16px;
   margin-bottom: 30px;
-  margin-top: 25px;
+  margin-top: 20px;
 }
 
 .download-btn {
@@ -140,13 +135,40 @@ body {
 
 /* รูปภาพโลโก้ใน Navbar */
 .logo-img {
-    width: 200px;  /* กำหนดขนาดความกว้างของโลโก้ */
+    width: 220px;  /* กำหนดขนาดความกว้างของโลโก้ */
     height: auto;  /* ให้ความสูงปรับอัตโนมัติตามสัดส่วน */
   }
 .logowhite-img{
     width: 450px;  /* กำหนดขนาดความกว้างของโลโก้ */
     height: auto;  /* ให้ความสูงปรับอัตโนมัติตามสัดส่วน */
 }
+
+/* แอนิเมชัน Fade In และ Slide Up */
+@keyframes fadeInSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ตั้งค่าให้ทุกส่วนที่ต้องการ */
+.home-container, .navbar, .logo, .headline, .subtext, .download-btn {
+  opacity: 0; 
+  animation: fadeInSlideUp 0.3s ease-out forwards;
+  overflow: hidden;
+}
+
+/* เริ่มแอนิเมชันทีละส่วน */
+.home-container { animation-delay: 0.1s; } /* Background */
+.navbar { animation-delay: 0.2s; }
+.logo { animation-delay: 0.6s; }
+.headline { animation-delay: 0.9s; }
+.subtext { animation-delay: 1.2s; }
+.download-btn { animation-delay: 1.5s; }
 
 /* Media Queries สำหรับทำให้ Navbar และ Layout Responsive */
 @media (max-width: 768px) {
@@ -167,20 +189,24 @@ body {
 
   /* ปรับขนาดและตำแหน่งพื้นหลัง */
   .home-container {
-    margin: 0;
+    margin: 0 auto;
     padding: 0px;
+    /* เพิ่ม padding-top เพื่อลดช่องว่างระหว่าง Navbar และเนื้อหา */
+    padding-top: 20px;
   }
 
   /* Main Content */
   .content {
-    margin: 0px;
+    margin-top: 0px; /* เอา margin-top ออกเพื่อให้ content ชิดกับ navbar */
     width: 90%;
+    flex-direction: column;
+    align-items: flex-start; /* ชิดด้านซ้าย */
   }
 
   /* Text Container */
   .text-container {
     max-width: 100%;
-    text-align: center;
+    text-align: left; /* จัดข้อความให้ชิดซ้าย */
   }
 
   .headline {
@@ -207,4 +233,3 @@ body {
     border-radius: 10px;
   }
 }
-

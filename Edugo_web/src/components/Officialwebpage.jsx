@@ -5,7 +5,7 @@ import Logo from '../assets/logo.png';
 import Logocolor from '../assets/Edugocolor.png';
 
 
-const Officailwebpage = () => {
+const Officialwebpage = () => {
   const navigate = useNavigate();
 
   const handleGoToLogin = () => {
@@ -35,4 +35,4 @@ const Officailwebpage = () => {
   );
 };
 
-export default Officailwebpage;
+export default Officialwebpage;
