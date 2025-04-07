@@ -113,7 +113,7 @@ const ForgotPass = () => {
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             {step === 1 ? 'Forgot Password' : 'Verify OTP'}
           </h2>
-          <p className="mt-4 text-center text-sm text-gray-400">
+          <p className="mt-2 text-center text-sm text-gray-600">
             {step === 1 
               ? 'Enter your email address and we\'ll send you a reset link'
               : 'Enter the OTP sent to your email and your new password'}
@@ -134,8 +134,7 @@ const ForgotPass = () => {
                 id="email-address"
                 type="email"
                 required
-                className="appearance-none  relative block w-full px-3 py-2 border-gray-300 placeholder-gray-500 border rounded-[8px]
-                     focus:outline-none focus:border-[#C0CDFF] focus:ring-4 focus:ring-[#6C63FF]/15"
+                className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}

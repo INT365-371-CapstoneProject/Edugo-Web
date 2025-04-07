@@ -9,8 +9,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: '#F9FAFF',
-        redcolor: '#BE3C7E'
+        redcolor: '#BE3C7E',
       },
       fontFamily: {
         sans: ['DM Sans', 'sans-serif'],
@@ -33,15 +32,5 @@ export default {
   ],
   corePlugins: {
     // ...existing corePlugins
-  },
-  daisyui: {
-    themes: [
-      {
-        // ตั้งค่า theme ของ DaisyUI ให้เป็นสีขาว
-        light: {
-          "base-100": "#ffffff", // สีพื้นหลัง
-        }
-      },
-    ],
   },
 }
