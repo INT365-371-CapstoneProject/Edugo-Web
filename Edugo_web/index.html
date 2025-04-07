@@ -44,10 +44,9 @@
   <body>
     <script>
       function isOuMobilekrTablet() {
-        return (
-          /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-            navigator.userAgent
-          ) || window.innerWidth <= 1024
+        // ตรวจสอบเฉพาะจาก user agent ไม่ใช้ขนาดหน้าจอ
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+          navigator.userAgent
         );
       }
 
