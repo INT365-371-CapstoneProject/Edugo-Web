@@ -17,14 +17,8 @@ import ChangePassword from '../components/ChangePassword';
 import EditUser from '../components/EditUser';
 import Officialwebpage from '../components/Officialwebpage.jsx';
 
-let isCheckingAuth = false;
-
 // ฟังก์ชันตรวจสอบการเข้าสู่ระบบ สถานะ และบทบาท
 const checkAuth = async () => {
-  // เพิ่มเงื่อนไขป้องกันการเรียกซ้ำ
-  if (isCheckingAuth) return { isValid: false, loading: true };
-  isCheckingAuth = true;
-  
   const token = localStorage.getItem('token');
   const validRoles = ['provider', 'admin', 'superadmin'];
   
@@ -84,8 +78,6 @@ const checkAuth = async () => {
     console.error('Token decode error:', error);
     localStorage.removeItem('token');
     return { isValid: false };
-  } finally {
-    isCheckingAuth = false;
   }
 };
 
@@ -172,55 +164,47 @@ const PublicRoute = ({ children }) => {
   const [hasAlerted, setHasAlerted] = useState(false);
 
   useEffect(() => {
-    let isMounted = true;
-    
     const verifyAuth = async () => {
       const auth = await checkAuth();
-      if (isMounted) {
-        setAuthState({ ...auth, loading: false });
-        
-        // แสดงแจ้งเตือนตามสถานะต่างๆ
-        if (!auth.isValid) {
-          if (auth.status === "Suspended" && !hasAlerted) {
-            Swal.fire({
-              title: 'Account Suspended',
-              text: auth.message || 'Your account has been suspended. Please contact administrator.',
-              icon: 'error',
-              confirmButtonText: 'Understood',
-              confirmButtonColor: '#3085d6',
-            });
-            localStorage.removeItem('token');
-            setHasAlerted(true);
-          } else if (auth.role === 'provider' && auth.verifyStatus === "Waiting" && !hasAlerted) {
-            Swal.fire({
-              title: 'Waiting for Approval',
-              text: auth.message || 'Your account is waiting for approval. Please wait for admin verification.',
-              icon: 'info',
-              confirmButtonText: 'Understood',
-              confirmButtonColor: '#3085d6',
-            });
-            localStorage.removeItem('token');
-            setHasAlerted(true);
-          } else if (auth.role === 'provider' && auth.verifyStatus === "Rejected" && !hasAlerted) {
-            Swal.fire({
-              title: 'Verification Rejected',
-              text: auth.message || 'Your account verification was rejected. Please contact administrator for assistance.',
-              icon: 'error',
-              confirmButtonText: 'Understood',
-              confirmButtonColor: '#3085d6',
-            });
-            localStorage.removeItem('token');
-            setHasAlerted(true);
-          }
+      setAuthState({ ...auth, loading: false });
+      
+      // แสดงแจ้งเตือนตามสถานะต่างๆ
+      if (!auth.isValid) {
+        if (auth.status === "Suspended" && !hasAlerted) {
+          Swal.fire({
+            title: 'Account Suspended',
+            text: auth.message || 'Your account has been suspended. Please contact administrator.',
+            icon: 'error',
+            confirmButtonText: 'Understood',
+            confirmButtonColor: '#3085d6',
+          });
+          localStorage.removeItem('token');
+          setHasAlerted(true);
+        } else if (auth.role === 'provider' && auth.verifyStatus === "Waiting" && !hasAlerted) {
+          Swal.fire({
+            title: 'Waiting for Approval',
+            text: auth.message || 'Your account is waiting for approval. Please wait for admin verification.',
+            icon: 'info',
+            confirmButtonText: 'Understood',
+            confirmButtonColor: '#3085d6',
+          });
+          localStorage.removeItem('token');
+          setHasAlerted(true);
+        } else if (auth.role === 'provider' && auth.verifyStatus === "Rejected" && !hasAlerted) {
+          Swal.fire({
+            title: 'Verification Rejected',
+            text: auth.message || 'Your account verification was rejected. Please contact administrator for assistance.',
+            icon: 'error',
+            confirmButtonText: 'Understood',
+            confirmButtonColor: '#3085d6',
+          });
+          localStorage.removeItem('token');
+          setHasAlerted(true);
         }
       }
     };
     
     verifyAuth();
-    
-    return () => {
-      isMounted = false;
-    };
   }, [hasAlerted]);
 
   if (authState.loading) {
@@ -381,19 +365,6 @@ const AdminAndSuperadminRoute = ({ children }) => {
   return (authState.isValid && ['admin', 'superadmin'].includes(authState.role)) 
     ? children 
     : <Navigate to="/homepage" replace />;
-};
-
-// ป้องกันการ redirect ซ้ำซ้อน
-const handleNavigate = (location) => {
-  try {
-    // โค้ดที่อาจมีปัญหา
-  } catch (error) {
-    console.error('Navigation error:', error);
-    // ทำการจัดการข้อผิดพลาดที่เหมาะสม
-  }
-  if (location !== window.location.pathname) {
-    navigate(location);
-  }
 };
 
 // กำหนด base URL สำหรับการ routing
