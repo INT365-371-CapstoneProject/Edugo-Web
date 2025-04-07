@@ -1,6 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
 
-
 /* เพิ่มการจัดหน้าให้ตรง */
 body {
     font-family: 'DM Sans', sans-serif; 
@@ -290,42 +289,30 @@ body {
 
   }
 
-  @media (prefers-color-scheme: dark) {
-    /* กำหนดสีพื้นหลังสำหรับโหมดมืด */
-    html, body {
-      background-color: #F9FAFF !important;
-      color: #333 !important;
-    }
-    
-    .navbar {
-      padding: 15px;
-      background-color: #ffffff !important;
-      color: #333 !important;
-    }
-    
-    input, textarea, select, button {
-      background-color: #FFFFFF !important;
-      color: #333 !important;
-    }
+  /* บังคับให้พื้นหลังเป็นสีขาวและตัวอักษรเป็นสีดำเสมอ */
+:root {
+  color-scheme: light !important;
+}
+
+html, body {
+  background-color: #F9FAFF !important;
+  color: #000000 !important;
+}
+
+/* แก้ไขสำหรับอุปกรณ์ที่รองรับ dark mode */
+@media (prefers-color-scheme: dark) {
+  html, body {
+    background-color: #F9FAFF !important;
+    color: #000000 !important;
   }
-  
-  /* เพิ่ม CSS เฉพาะสำหรับ iOS */
-  @supports (-webkit-touch-callout: none) {
-    .home-container {
-      background-color: #F9FAFF !important;
-      color: #333 !important;
-    }
-    
-    .navbar {
-      background-color: #FFFFFF !important;
-    }
-    
-    .content {
-      color: #000000 !important;
-    }
-    
-    .headline, .subtext {
-      color: inherit !important;
-    }
+}
+
+/* ป้องกัน Dark Mode บนอุปกรณ์ iOS */
+@supports (-webkit-touch-callout: none) {
+  html, body {
+    background-color: #F9FAFF !important;
+    color: #000000 !important;
   }
+}
+
 }
