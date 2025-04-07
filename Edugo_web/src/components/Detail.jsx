@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { getAnnounceById, getAnnounceImage, getAnnounceAttach } from '../composable/getAnnounce'
 import icon1 from '../assets/deleteicon.svg';
@@ -8,25 +8,20 @@ import Nav from './Nav'
 import axios from 'axios';
 import image3 from '../assets/Trashillustration.png';
 import { url } from '../composable/getAnnounce';
-import '../style/style.css';
-import '../style/details.css';
+import '../style/style.css'; // Import CSS file
+import '../style/details.css'; // Import CSS file
 import jwt_decode from 'jwt-decode';
 
 function Detail() {
     const navigate = useNavigate();
     const { id } = useParams()
-    const [announce, setAnnounce] = useState({})
-    const [imageUrl, setImageUrl] = useState(null);
-    const [attachUrl, setAttachUrl] = useState(null);
-    const [userRole, setUserRole] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [isDeleting, setIsDeleting] = useState(false); // ป้องกันการกดปุ่ม delete ซ้ำ
-    const [mediaFetched, setMediaFetched] = useState(false); // ป้องกันการเรียก media API ซ้ำ
-    const modalRef = useRef(null);
-    const navigatingRef = useRef(false); // ป้องกันการเรียก navigate ซ้ำ
+    const [announce, setAnnounce] = React.useState({})
+    const [imageUrl, setImageUrl] = React.useState(null);
+    const [attachUrl, setAttachUrl] = React.useState(null);
+    const [userRole, setUserRole] = React.useState(null);
 
-    // ใช้ useEffect แยกสำหรับการโหลดข้อมูล token และ userRole
     useEffect(() => {
+        // Get role from JWT token
         const token = localStorage.getItem('token');
         if (token) {
             try {
@@ -39,62 +34,40 @@ function Detail() {
         }
     }, []);
 
-    // แยก useEffect สำหรับการโหลดข้อมูลประกาศ
+    // แยก useEffect สำหรับการโหลดข้อมูลและรูปภาพ
     useEffect(() => {
-        let isMounted = true;
         window.scrollTo(0, 0);
-        
         const fetchAnnounceData = async () => {
-            if (!id) return;
-            
             try {
                 const announceData = await getAnnounceById(id);
-                if (announceData && isMounted) {
+                if (announceData) {
                     setAnnounce(announceData);
                 }
             } catch (error) {
                 console.error('Error fetching announce data:', error);
-            } finally {
-                if (isMounted) {
-                    setIsLoading(false);
-                }
             }
         };
-
         fetchAnnounceData();
-        
-        return () => {
-            isMounted = false;
-        };
     }, [id]);
 
-    // แยก useEffect สำหรับโหลดรูปภาพและไฟล์แนบ
+    // แก้ไข useEffect สำหรับการโหลดรูปภาพและไฟล์แนบ
     useEffect(() => {
-        let isMounted = true;
-        
-        // ถ้าเคยโหลด media แล้ว หรือยังไม่มี id หรือ announce ให้ return
-        if (mediaFetched || !id || !announce || isLoading) {
-            return;
-        }
-        
         const fetchMediaData = async () => {
             try {
-                // โหลดรูปภาพ
-                const imgUrl = await getAnnounceImage(id);
-                if (imgUrl && isMounted) {
-                    setImageUrl(imgUrl);
-                }
+                if (id) {
+                    // โหลดรูปภาพ
+                    const imgUrl = await getAnnounceImage(id);
+                    if (imgUrl) {
+                        setImageUrl(imgUrl);
+                    }
 
-                // โหลดไฟล์แนบ
-                if (announce?.attach_file || announce?.attach_name) {
+                    // โหลดไฟล์แนบ - เช็คจาก attach_file แทน
+
                     const attUrl = await getAnnounceAttach(id);
-                    if (attUrl && isMounted) {
+                    if (attUrl) {
                         setAttachUrl(attUrl);
                     }
-                }
-                
-                if (isMounted) {
-                    setMediaFetched(true);
+
                 }
             } catch (error) {
                 console.error('Error fetching media:', error);
@@ -102,50 +75,29 @@ function Detail() {
         };
 
         fetchMediaData();
-        
-        return () => {
-            isMounted = false;
-        };
-    }, [id, announce, isLoading, mediaFetched]);
+    }, [id, announce?.attach_file]); // ลบ imageUrl ออกจาก dependencies
 
-    // แยก useEffect สำหรับ cleanup เมื่อ component unmount
+    // แยก useEffect สำหรับ cleanup
     useEffect(() => {
         return () => {
-            if (imageUrl && imageUrl.startsWith('blob:')) {
+            if (imageUrl) {
                 URL.revokeObjectURL(imageUrl);
             }
-            if (attachUrl && attachUrl.startsWith('blob:')) {
+            if (attachUrl) {
                 URL.revokeObjectURL(attachUrl);
             }
         };
-    }, []);
+    }, []); // ทำ cleanup เฉพาะตอน unmount
 
-    // สร้างฟังก์ชัน format date แบบอ้างอิงข้อมูลจริง
-    const formatDate = (dateString) => {
-        if (!dateString) return { dateStr: "Loading...", timeStr: "Loading..." };
-        
-        try {
-            const date = new Date(dateString);
-            if (isNaN(date.getTime())) {
-                return { dateStr: "Invalid date", timeStr: "Invalid time" };
-            }
-            
-            const optionsDate = { day: 'numeric', month: 'long', year: 'numeric' };
-            const optionsTime = { hour: 'numeric', minute: 'numeric', hour12: true };
-            
-            return {
-                dateStr: date.toLocaleDateString('en-GB', optionsDate),
-                timeStr: date.toLocaleTimeString('en-GB', optionsTime)
-            };
-        } catch (error) {
-            console.error('Error formatting date:', error);
-            return { dateStr: "Error", timeStr: "Error" };
-        }
-    };
-    
-    // ใช้ useMemo เพื่อลด render
-    const publishedDateFormatted = React.useMemo(() => formatDate(announce?.publish_date), [announce?.publish_date]);
-    const closeDateFormatted = React.useMemo(() => formatDate(announce?.close_date), [announce?.close_date]);
+    // เอา published_date มาแปลงเป็นวันที่และเวลาเพื่อเอามา show
+    const publishedDate = new Date(announce?.publish_date)
+    const closeDate = new Date(announce?.close_date)
+    const optionsDate = { day: 'numeric', month: 'long', year: 'numeric' };
+    const optionsTime = { hour: 'numeric', minute: 'numeric', hour12: true };
+    const publishedDateStr = publishedDate.toLocaleDateString('en-GB', optionsDate)
+    const publishedTimeStr = publishedDate.toLocaleTimeString('en-GB', optionsTime)
+    const closeDateStr = closeDate.toLocaleDateString('en-GB', optionsDate)
+    const closeTimeStr = closeDate.toLocaleTimeString('en-GB', optionsTime)
 
     // ดูไฟล์ที่อัพโหลด
     const watchFile = () => {
@@ -154,11 +106,9 @@ function Detail() {
         }
     }
 
+
     // func ลบข้อมูล
     const deleteData = async () => {
-        if (isDeleting) return; // ป้องกันการกดซ้ำ
-        setIsDeleting(true);
-        
         try {
             const token = localStorage.getItem('token');
             const res = await axios.delete(`${url}/${id}`, {
@@ -167,42 +117,22 @@ function Detail() {
                 }
             });
             if (res.status === 200) {
-                // ป้องกันการ navigate ซ้ำ
-                if (!navigatingRef.current) {
-                    navigatingRef.current = true;
-                    navigate('/', { replace: true });
-                }
+                navigate('/');
             }
         }
         catch (error) {
             console.error(error);
-            setIsDeleting(false); // เปลี่ยนสถานะกลับเมื่อมีข้อผิดพลาด
         }
     }
 
     // เพิ่มฟังก์ชันสำหรับการกลับไปยังหน้า Homepage ที่แท็บ Scholarship Management
     const handleBackToManagement = () => {
-        // ป้องกันการ navigate ซ้ำ
-        if (!navigatingRef.current) {
-            navigatingRef.current = true;
-            navigate('/#scholarships', { replace: true });
-        }
+        console.log("Navigating back to homepage with scholarships tab");
+        // ใช้ state เพื่อกำหนดแท็บที่ต้องการให้แสดง
+        navigate('/#scholarships', {
+            replace: true // ใช้ replace เพื่อแทนที่ประวัติการเข้าถึงปัจจุบัน
+        });
     };
-
-    // ถ้ากำลังโหลดข้อมูล จะแสดง loading screen
-    if (isLoading) {
-        return (
-            <>
-                <Nav />
-                <div className="flex items-center justify-center min-h-screen bg-gray-50">
-                    <div className="text-center">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-                        <p className="mt-4 text-gray-600">Loading scholarship details...</p>
-                    </div>
-                </div>
-            </>
-        );
-    }
 
     return (
         <>
@@ -223,25 +153,22 @@ function Detail() {
                                 ) : (
                                     <Link to='/' className='font-bold text-4xl underline underline-offset-2 hover:text-slate-800'>Home</Link>
                                 )}
-                                <h1 className='ml-5 mt-1 col-span-4 text-4xl font-medium font-DM text-blue-600 ml-2 truncate max-w-xs'>
-                                    &gt; {announce?.title || 'Loading...'}
-                                </h1>
+                                {announce ? (
+                                    <h1 className='ml-5 mt-1 col-span-4 text-4xl font-medium font-DM text-blue-600 ml-2 truncate max-w-xs'> &gt; {announce.title}</h1>
+                                ) : (
+                                    <p>Loading...</p>
+                                )}
                             </div>
                             <div className='mt-5 flex justify-end'>
                                 {userRole && userRole !== 'admin' && userRole !== 'superadmin' && (
                                     <button 
-                                        onClick={() => {
-                                            if (!navigatingRef.current) {
-                                                navigatingRef.current = true;
-                                                navigate(`/edit/${id}`, { 
-                                                    state: { 
-                                                        imageUrl: imageUrl,
-                                                        attachUrl: attachUrl,
-                                                        attachName: announce.attach_name 
-                                                    }
-                                                });
+                                        onClick={() => navigate(`/edit/${id}`, { 
+                                            state: { 
+                                                imageUrl: imageUrl,
+                                                attachUrl: attachUrl,
+                                                attachName: announce.attach_name 
                                             }
-                                        }} 
+                                        })} 
                                         type='button' 
                                         className='btn hover:bg-blue-700 bg-blue-500 text-white border-none w-2/5'
                                     >
@@ -265,15 +192,7 @@ function Detail() {
                         <div className='grid grid-rows-3 mt-10 gap-10'>
                             <div className='grid grid-cols-3 gap-4'>
                                 <div className='bg-no-repeat bg-cover rounded-lg'>
-                                    <img 
-                                        src={imageUrl || image2} 
-                                        alt="" 
-                                        className='w-full h-full object-cover rounded-lg'
-                                        onError={(e) => {
-                                            // ถ้าโหลดภาพไม่สำเร็จ ให้ใช้ภาพตัวอย่าง
-                                            e.target.src = image2;
-                                        }} 
-                                    />
+                                    <img src={imageUrl || image2} alt="" className='w-full h-full object-cover rounded-lg' />
                                 </div>
                                 {/* พวกเนื้อหา */}
                                 <div className='border-section col-span-2 '>
@@ -347,8 +266,8 @@ function Detail() {
                                             <span className="text-red-500">*</span>
                                         </label>
                                         <div className='grid grid-cols-2'>
-                                            <h1 className='date-text'>{publishedDateFormatted.dateStr}</h1>
-                                            <h1 className='date-text'>{publishedDateFormatted.timeStr}</h1>
+                                            <h1 className='date-text'>{publishedDateStr ? (publishedDateStr) : (<p>Loading...</p>)}</h1>
+                                            <h1 className='date-text'>{publishedTimeStr ? (publishedTimeStr) : (<p>Loading...</p>)}</h1>
                                         </div>
                                     </div>
                                     <div className='grid grid-rows-2 my-4 mx-8 pt-4'>
@@ -356,8 +275,8 @@ function Detail() {
                                             <span className="text-red-500">*</span>
                                         </label>
                                         <div className='grid grid-cols-2'>
-                                            <h1 className='date-text'>{closeDateFormatted.dateStr}</h1>
-                                            <h1 className='date-text'>{closeDateFormatted.timeStr}</h1>
+                                            <h1 className='date-text'>{closeDateStr ? (closeDateStr) : (<p>Loading...</p>)}</h1>
+                                            <h1 className='date-text'>{closeTimeStr ? (closeTimeStr) : (<p>Loading...</p>)}</h1>
                                         </div>
                                     </div>
                                 </div>
@@ -394,52 +313,29 @@ function Detail() {
                             </div>
                         </div>
                         <div className='-mt-32 flex justify-end mb-5'>
-                            <button 
-                                type='button' 
-                                disabled={isDeleting}
-                                onClick={() => {
-                                    if (modalRef.current) {
-                                        modalRef.current.showModal();
-                                    } else if (document.getElementById('my_modal_5')) {
-                                        document.getElementById('my_modal_5').showModal();
-                                    }
-                                }} 
-                                className='btn hover:bg-rose-800 bg-redcolor text-white border-none w-1/5'
-                            >
-                                Delete Scholarship
+                            <button type='button' onClick={() => document.getElementById('my_modal_5').showModal()} className='btn hover:bg-rose-800 bg-redcolor text-white border-none w-1/5'>Delete Scholarship
                                 <img src={icon1} alt="" />
                             </button>
                         </div>
-                        <dialog id="my_modal_5" ref={modalRef} className="modal modal-bottom sm:modal-middle justify-center items-center">
+                        <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle justify-center items-center">
                             <div className="modal-box bg-white">
                                 <img src={image3} alt="" className='mb-4 justify-center items-center ml-8 mt-7 w-5/6' />
                                 <p className="heading-text text-center">Are you sure you want to
                                     <span className="block">delete this scholarship ?</span></p>
-                                <p className="delete-title-modal">{announce?.title || 'Loading...'}</p>
+                                {announce ? (<p className="delete-title-modal">{announce.title}</p>) : (<p>Loading...</p>)}
                                 <div className="modal-action flex flex-col justify-center items-center">
                                     <div className='button-gap'>
                                         <button
                                             type='button'
                                             className="cancel-button"
-                                            onClick={() => {
-                                                if (modalRef.current) {
-                                                    modalRef.current.close();
-                                                } else if (document.getElementById('my_modal_5')) {
-                                                    document.getElementById('my_modal_5').close();
-                                                }
-                                            }}
+                                            onClick={() => document.getElementById('my_modal_5').close()}
                                         >
                                             Cancel
                                         </button>
                                         <button
                                             className="discardbutton"
-                                            disabled={isDeleting}
                                             onClick={() => {
-                                                if (modalRef.current) {
-                                                    modalRef.current.close();
-                                                } else if (document.getElementById('my_modal_5')) {
-                                                    document.getElementById('my_modal_5').close();
-                                                }
+                                                document.getElementById('my_modal_5').close();
                                                 deleteData();
                                             }}
                                         >
@@ -456,4 +352,4 @@ function Detail() {
     )
 }
 
-export default Detail;
+export default Detail

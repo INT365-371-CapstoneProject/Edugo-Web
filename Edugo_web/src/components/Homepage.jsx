@@ -137,52 +137,44 @@ function Homepage() {
                 // Only proceed if we are on the approvals tab and the counts need initializing
                 if (activeTab !== 'approvals' || !providerCounts.initialized) return;
 
-                // ใช้ timeout เพื่อให้แน่ใจว่า UI จะไม่ค้าง
-                setTimeout(async () => {
-                    try {
-                        // Get total pages from pagination
-                        const totalPages = providerPagination.total_page || 1;
-                        let allProviders = [];
+                // Get total pages from pagination
+                const totalPages = providerPagination.total_page || 1;
+                const allProviders = [];
 
-                        // จำกัดจำนวนหน้าที่โหลดเพื่อป้องกัน memory leak
-                        const maxPages = Math.min(totalPages, 3); // ลดจำนวนหน้าลงเหลือ 3 หน้า
+                // Fetch data from all pages (up to reasonable limit)
+                const maxPages = Math.min(totalPages, 5); // Limit to first 5 pages
 
-                        // ในกรณีที่มีข้อมูลที่โหลดแล้ว ให้ใช้ข้อมูลนั้นเลย
-                        if (providerData && providerData.length > 0) {
-                            allProviders.push(...providerData);
-                        }
-
-                        // โหลดข้อมูลเฉพาะส่วนที่ยังไม่ได้โหลด
-                        for (let i = 1; i <= maxPages; i++) {
-                            // ข้ามหน้าปัจจุบันเพราะเราโหลดแล้ว
-                            if (i === providerCurrentPage) continue;
-
-                            const pageResponse = await getProvider(i, providersPerPage);
-                            if (pageResponse && pageResponse.data) {
-                                allProviders.push(...pageResponse.data);
-                            }
-                        }
-
-                        // นับตามสถานะ
-                        const pendingCount = allProviders.filter(p => p.verify === 'Waiting').length;
-                        const approvedCount = allProviders.filter(p => p.verify === 'Yes').length;
-                        const rejectedCount = allProviders.filter(p => p.verify === 'No').length;
-                        const totalCount = pendingCount + approvedCount + rejectedCount;
-
-                        // อัพเดทจำนวน
-                        setProviderCounts({
-                            total: totalCount,
-                            pending: pendingCount,
-                            approved: approvedCount,
-                            rejected: rejectedCount,
-                            initialized: true
-                        });
-                    } catch (error) {
-                        console.error("Error in fetchAllProviders timeout:", error);
+                for (let i = 1; i <= maxPages; i++) {
+                    // Skip the current page since we already have that data
+                    if (i === providerCurrentPage) {
+                        allProviders.push(...providerData);
+                        continue;
                     }
-                }, 100);
+
+                    const pageResponse = await getProvider(i, providersPerPage);
+                    if (pageResponse && pageResponse.data) {
+                        allProviders.push(...pageResponse.data);
+                    }
+                }
+
+                // Count providers by status
+                const pendingCount = allProviders.filter(p => p.verify === 'Waiting').length;
+                const approvedCount = allProviders.filter(p => p.verify === 'Yes').length;
+                const rejectedCount = allProviders.filter(p => p.verify === 'No').length;
+                const totalCount = pendingCount + approvedCount + rejectedCount;
+
+                // Update the counts
+                setProviderCounts({
+                    total: totalCount,
+                    pending: pendingCount,
+                    approved: approvedCount,
+                    rejected: rejectedCount,
+                    initialized: true
+                });
+
             } catch (error) {
                 console.error("Error fetching all providers:", error);
+                // Keep initialized true to prevent infinite retries
                 setProviderCounts(prev => ({ ...prev, initialized: true }));
             }
         };

@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import '../style/style.css'; // Import CSS file
 import '../style/home.css'; // Import CSS file
 const APT_ROOT = import.meta.env.VITE_API_ROOT;
-
 const ForgotPass = () => {
   const [email, setEmail] = useState('');
   const [otpCode, setOtpCode] = useState('');
@@ -16,79 +15,46 @@ const ForgotPass = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
-  const [isMobile, setIsMobile] = useState(false);
-  const redirectingRef = useRef(false); // ป้องกันการ redirect ซ้ำ
-  const deviceCheckedRef = useRef(false); // ตรวจสอบว่าได้ตรวจสอบ device เรียบร้อยแล้ว
-
-  // Check for mobile device once
-  useEffect(() => {
-    if (deviceCheckedRef.current) return;
-    
-    const checkMobile = () => {
-      const userAgent = navigator.userAgent.toLowerCase();
-      const isMobileDevice = /iphone|ipad|ipod|android/.test(userAgent);
-      setIsMobile(isMobileDevice);
-      deviceCheckedRef.current = true;
-    };
-    
-    // ใช้ setTimeout เพื่อป้องกัน state update ระหว่าง render cycle
-    setTimeout(checkMobile, 0);
-  }, []);
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
-    
-    if (loading) return; // ป้องกันการส่งฟอร์มซ้ำ
-    
     setLoading(true);
     setError('');
 
     try {
       await axios.post(`${APT_ROOT}/api/auth/forgot-password`, { email });
-      
-      // ใช้ setTimeout เพื่อป้องกัน state update ในระหว่าง render cycle
-      setTimeout(() => {
-        setStep(2); // Move to OTP verification step
-        setLoading(false);
-      }, 0);
+      setStep(2); // Move to OTP verification step
     } catch (err) {
-      let errorMessage = 'An unexpected error occurred';
-      
       if (err.response) {
         // Handle different error status codes
         switch (err.response.status) {
           case 400:
-            errorMessage = `Invalid request: ${err.response.data.message || 'Please check your email'}`;
+            setError(`Invalid request: ${err.response.data.message}`);
             break;
           case 404:
-            errorMessage = 'Email not found in our system';
+            setError('Email not found in our system');
             break;
           case 429:
-            errorMessage = 'Too many attempts. Please try again later';
+            setError('Too many attempts. Please try again later');
             break;
           case 500:
-            errorMessage = 'Server error. Please try again later';
+            setError('Server error. Please try again later');
             break;
           default:
-            errorMessage = err.response.data.message || 'An unexpected error occurred';
+            setError(err.response.data.message || 'An unexpected error occurred');
         }
       } else if (err.request) {
-        errorMessage = 'Network error. Please check your internet connection';
+        setError('Network error. Please check your internet connection');
+      } else {
+        setError('An unexpected error occurred');
       }
-      
-      // ใช้ setTimeout เพื่อป้องกัน state update ในระหว่าง render cycle
-      setTimeout(() => {
-        setError(errorMessage);
-        setLoading(false);
-      }, 0);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleVerifyOTP = async (e) => {
     e.preventDefault();
-    
-    if (loading || redirectingRef.current) return; // ป้องกันการส่งฟอร์มซ้ำและการ redirect ซ้ำ
-    
     setLoading(true);
     setError('');
     setPasswordError('');
@@ -106,60 +72,42 @@ const ForgotPass = () => {
         otp_code: otpCode,
         new_password: newPassword,
       });
-      
-      // ป้องกันการ redirect ซ้ำ
-      redirectingRef.current = true;
-      
-      // ใช้ localStorage เพื่อบันทึกสถานะเพื่อป้องกัน infinite loop
-      localStorage.setItem('passwordReset', 'true');
-      
-      // ใช้ setTimeout เพื่อหลีกเลี่ยงปัญหากับฝั่ง iOS
-      setTimeout(() => {
-        window.location.replace('/un2'); // ใช้ replace แทน href เพื่อป้องกัน history stack
-      }, 100);
+      // Redirect to login page after successful verification
+      window.location.href = '/un2'; // Redirect to home page
     } catch (err) {
-      let errorMessage = 'An unexpected error occurred';
-      
       if (err.response) {
         // Handle different error status codes
         switch (err.response.status) {
           case 400:
-            errorMessage = `Verification failed: ${err.response.data.message || 'Please check your input'}`;
+            setError(`Verification failed: ${err.response.data.message}`);
             break;
           case 401:
-            errorMessage = 'Invalid or expired OTP code';
+            setError('Invalid or expired OTP code');
             break;
           case 404:
-            errorMessage = 'Email not found';
+            setError('Email not found');
             break;
           case 429:
-            errorMessage = 'Too many attempts. Please try again later';
+            setError('Too many attempts. Please try again later');
             break;
           case 500:
-            errorMessage = 'Server error. Please try again later';
+            setError('Server error. Please try again later');
             break;
           default:
-            errorMessage = err.response.data.message || 'An unexpected error occurred';
+            setError(err.response.data.message || 'An unexpected error occurred');
         }
       } else if (err.request) {
-        errorMessage = 'Network error. Please check your internet connection';
+        setError('Network error. Please check your internet connection');
+      } else {
+        setError('An unexpected error occurred');
       }
-      
-      // ใช้ setTimeout เพื่อป้องกัน state update ในระหว่าง render cycle
-      setTimeout(() => {
-        setError(errorMessage);
-        setLoading(false);
-      }, 0);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // For mobile devices, adjust the UI to be more compact
-  const containerClass = isMobile 
-    ? "min-h-screen flex items-center justify-center bg-gray-50 p-4" 
-    : "min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8";
-
   return (
-    <div className={containerClass}>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">

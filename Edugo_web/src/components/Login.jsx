@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import axios from "axios";
 import imageLogin from "../assets/login.png";
@@ -12,38 +12,38 @@ const APT_ROOT = import.meta.env.VITE_API_ROOT;
 function Login() {
   const navigate = useNavigate();
   const [isMobileOrTablet, setIsMobileOrTablet] = useState(false);
-  const [deviceChecked, setDeviceChecked] = useState(false); // เพิ่ม state สำหรับตรวจสอบว่าได้ตรวจ device แล้ว
-  const warningShownRef = useRef(false); // ใช้ ref แทน state เพื่อป้องกัน re-render loop
-  const redirectingRef = useRef(false); // ป้องกันการเรียก navigate ซ้ำ
 
   useEffect(() => {
-    // ตรวจสอบว่าเคยตรวจ device แล้วหรือยัง
-    if (deviceChecked) return;
+    // ตรวจสอบขนาดหน้าจอเมื่อคอมโพเนนต์โหลด
+    checkScreenSize();
+    // เพิ่ม event listener สำหรับการเปลี่ยนแปลงขนาดหน้าจอ
+    window.addEventListener('resize', checkScreenSize);
     
-    // ตรวจสอบขนาดหน้าจอ ทำเพียงครั้งเดียว
-    const userAgent = navigator.userAgent.toLowerCase();
-    const isMobile = /iphone|ipad|ipod|android/.test(userAgent);
-    const isSmallScreen = window.innerWidth <= 1024;
-    
-    // Set state ทีเดียว
-    setIsMobileOrTablet(isMobile || isSmallScreen);
-    setDeviceChecked(true);
-    
-    // ถ้าเป็นมือถือและยังไม่เคยแสดง warning
-    if ((isMobile || isSmallScreen) && !warningShownRef.current) {
-      warningShownRef.current = true;
-      
-      // ใช้ setTimeout เพื่อป้องกัน Swal จะถูกเรียกในระหว่าง rendering cycle
-      setTimeout(() => {
-        Swal.fire({
-          title: 'ไม่รองรับการใช้งานบนอุปกรณ์นี้',
-          text: 'กรุณาใช้งานผ่านคอมพิวเตอร์เพื่อประสบการณ์การใช้งานที่ดีที่สุด',
-          icon: 'warning',
-          confirmButtonText: 'เข้าใจแล้ว'
-        });
-      }, 100);
+    // cleanup event listener เมื่อคอมโพเนนต์ถูกทำลาย
+    return () => {
+      window.removeEventListener('resize', checkScreenSize);
+    };
+  }, []);
+
+  const checkScreenSize = () => {
+    // ตรวจสอบว่าเป็นมือถือหรือแท็บเล็ตโดยดูจากความกว้างหน้าจอ
+    // โดยทั่วไป tablet มีความกว้างมากกว่า 480px แต่น้อยกว่า 1024px
+    if (window.innerWidth <= 1024) {
+      setIsMobileOrTablet(true);
+      // แสดง SweetAlert แจ้งเตือน
+      Swal.fire({
+        title: 'ไม่รองรับการใช้งานบนอุปกรณ์นี้',
+        text: 'กรุณาใช้งานผ่านคอมพิวเตอร์เพื่อประสบการณ์การใช้งานที่ดีที่สุด',
+        icon: 'warning',
+        confirmButtonText: 'เข้าใจแล้ว'
+      }).then(() => {
+        // เมื่อกดปุ่ม OK จะ redirect ไปหน้า Officialwebpage
+        navigate('/');
+      });
+    } else {
+      setIsMobileOrTablet(false);
     }
-  }, [deviceChecked]);
+  };
 
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -97,10 +97,6 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // ป้องกันไม่ให้ submit ซ้ำ
-    if (redirectingRef.current) return;
-    
     setInputErrors({ email_username: "", password: "" });
     
     const inputValue = formData.email || formData.username;
@@ -142,9 +138,6 @@ function Login() {
       if (response.status === 200) {
         const token = response.data.token;
         
-        // เก็บ token ก่อนที่จะทำการตรวจสอบต่างๆ
-        localStorage.setItem('token', token);
-        
         // Decode token to check role
         const decoded = jwt_decode(token);
         const validRoles = ['provider', 'admin', 'superadmin'];
@@ -156,90 +149,79 @@ function Login() {
             icon: 'error',
             confirmButtonColor: '#d33',
           });
-          localStorage.removeItem('token'); // ลบ token ถ้าไม่มีสิทธิ์
           return;
         }
 
-        try {
-          // ตรวจสอบสถานะผู้ใช้
-          const profileData = await checkUserStatus(token);
+        // ตรวจสอบสถานะผู้ใช้ก่อนที่จะให้เข้าสู่ระบบ
+        const profileData = await checkUserStatus(token);
+        
+        // Check for suspended account
+        if (profileData && profileData.profile.status === "Suspended") {
+          Swal.fire({
+            title: 'Account Suspended',
+            text: 'Your account has been suspended. Please contact administrator.',
+            icon: 'error',
+            confirmButtonText: 'Understood',
+            confirmButtonColor: '#d33',
+          });
+          return;
+        }
+        
+        // Check verification status for providers
+        if (decoded.role === 'provider' && profileData && profileData.profile) {
+          const verifyStatus = profileData.profile.verify;
           
-          // Check for suspended account
-          if (profileData && profileData.profile.status === "Suspended") {
+          if (verifyStatus === 'Waiting') {
             Swal.fire({
-              title: 'Account Suspended',
-              text: 'Your account has been suspended. Please contact administrator.',
+              title: 'Waiting for Approval',
+              text: 'Your account is waiting for approval. Please wait for admin verification.',
+              icon: 'info',
+              confirmButtonText: 'Understood',
+              confirmButtonColor: '#3085d6',
+            });
+            return;
+          } else if (verifyStatus === 'No') {
+            Swal.fire({
+              title: 'Verification Rejected',
+              text: 'Your account verification was rejected. Please contact administrator for assistance.',
               icon: 'error',
               confirmButtonText: 'Understood',
               confirmButtonColor: '#d33',
             });
-            localStorage.removeItem('token');
             return;
           }
-          
-          // Check verification status for providers
-          if (decoded.role === 'provider' && profileData && profileData.profile) {
-            const verifyStatus = profileData.profile.verify;
-            
-            if (verifyStatus === 'Waiting') {
-              Swal.fire({
-                title: 'Waiting for Approval',
-                text: 'Your account is waiting for approval. Please wait for admin verification.',
-                icon: 'info',
-                confirmButtonText: 'Understood',
-                confirmButtonColor: '#3085d6',
-              });
-              localStorage.removeItem('token');
-              return;
-            } else if (verifyStatus === 'No') {
-              Swal.fire({
-                title: 'Verification Rejected',
-                text: 'Your account verification was rejected. Please contact administrator for assistance.',
-                icon: 'error',
-                confirmButtonText: 'Understood',
-                confirmButtonColor: '#d33',
-              });
-              localStorage.removeItem('token');
-              return;
-            }
-          }
-
-          // ผ่านการตรวจสอบทั้งหมด
-          redirectingRef.current = true; // ป้องกันการเรียก navigate ซ้ำ
-          
-          await Swal.fire({
-            title: 'Welcome Back!',
-            text: 'Login successful',
-            icon: 'success',
-            showConfirmButton: false,
-            timer: 1500,
-            timerProgressBar: true,
-            backdrop: `rgba(0,0,123,0.2) left top no-repeat`,
-            customClass: { popup: 'animate-custom-popup' },
-            didOpen: (popup) => {
-              popup.style.transition = 'all 0.3s ease-out';
-              popup.style.transform = 'scale(1)';
-              popup.style.opacity = '1';
-            },
-            willClose: (popup) => {
-              popup.style.transform = 'scale(0.95)';
-              popup.style.opacity = '0';
-            }
-          });
-          
-          // แทนที่การใช้ window.location.href ด้วย navigate และใช้ timeout
-          setTimeout(() => {
-            window.location.replace('/un2');
-          }, 100);
-        } catch (profileError) {
-          console.error('Error checking user status:', profileError);
-          Swal.fire({
-            title: 'Error',
-            text: 'Failed to verify account status.',
-            icon: 'error'
-          });
-          localStorage.removeItem('token');
         }
+
+        // ถ้าผ่านการตรวจสอบทั้งหมด จึงบันทึก token และแสดงข้อความยินดีต้อนรับ
+        localStorage.setItem('token', token);
+        
+        await Swal.fire({
+          title: 'Welcome Back!',
+          text: 'Login successful',
+          icon: 'success',
+          showConfirmButton: false,
+          timer: 1500,
+          timerProgressBar: true,
+          backdrop: `
+            rgba(0,0,123,0.2)
+            left top
+            no-repeat
+          `,
+          customClass: {
+            popup: 'animate-custom-popup'
+          },
+          didOpen: (popup) => {
+            popup.style.transition = 'all 0.3s ease-out';
+            popup.style.transform = 'scale(1)';
+            popup.style.opacity = '1';
+          },
+          willClose: (popup) => {
+            popup.style.transform = 'scale(0.95)';
+            popup.style.opacity = '0';
+          }
+        });
+        
+        window.location.href = '/un2'; // Redirect to home page
       }
     } catch (err) {
       if (err.response) {
@@ -279,23 +261,7 @@ function Login() {
 
   return (
     <>
-      {isMobileOrTablet ? (
-        <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
-          <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full text-center">
-            <h2 className="text-2xl font-bold text-red-600 mb-4">อุปกรณ์ไม่รองรับ</h2>
-            <p className="text-gray-700 mb-6">
-              ระบบนี้ออกแบบมาสำหรับใช้งานบนคอมพิวเตอร์เท่านั้น 
-              กรุณาใช้งานผ่านคอมพิวเตอร์เพื่อประสบการณ์การใช้งานที่ดีที่สุด
-            </p>
-            <a 
-              href="https://www.edugo.co.th" 
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 inline-block"
-            >
-              ไปยังเว็บไซต์หลัก
-            </a>
-          </div>
-        </div>
-      ) : (
+      {!isMobileOrTablet && (
         <div className="flex items-center justify-center min-h-screen overflow-hidden font-['DM_Sans'] Backgound">
           <div className="card flex-shrink-0 w-full max-w-5xl shadow-sm bg-white border">
             <div className="hero-content flex-row gap-0 p-0">
