@@ -7,7 +7,6 @@ import '../style/style.css';
 import xicon from '../assets/xicon.svg';
 import vicon from '../assets/vicon.svg';
 
-
 const APT_ROOT = import.meta.env.VITE_API_ROOT;
 
 const getConfigWithToken = () => {
@@ -26,6 +25,7 @@ function ProviderDetail() {
   const [provider, setProvider] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [updateInProgress, setUpdateInProgress] = useState(false);
 
   // สถานะแสดงผลตามค่า verify
   const statusColors = {
@@ -42,6 +42,8 @@ function ProviderDetail() {
 
   useEffect(() => {
     const fetchProviderDetail = async () => {
+      if (!id) return;
+      
       try {
         setLoading(true);
         const response = await axios.get(`${APT_ROOT}/api/admin/provider/${id}`, getConfigWithToken());
@@ -71,8 +73,12 @@ function ProviderDetail() {
 
   // ฟังก์ชันสำหรับอัปเดตสถานะ provider
   const updateProviderStatus = async (newStatus) => {
+    if (updateInProgress) return; // ป้องกันการกดปุ่มซ้ำ
+    
     try {
-      await Swal.fire({
+      setUpdateInProgress(true);
+      
+      const result = await Swal.fire({
         title: 'Confirm Action',
         html: `<p class="text-gray-700 text-lg pb-4">
         Are you sure you want to 
@@ -88,32 +94,33 @@ function ProviderDetail() {
           confirmButton: 'swal2-confirm',
           cancelButton: 'swal2-cancel',
           popup: 'rounded-xl pb-10'
-        },buttonsStyling: false
-      }).then(async (result) => {
-        if (result.isConfirmed) {
-          // แก้ไข endpoint และรูปแบบข้อมูลที่ส่งไป
-          const response = await axios.put(
-            `${APT_ROOT}/api/admin/verify/${id}`, 
-            { status: newStatus }, // ส่งข้อมูลตามฟอร์แมตที่กำหนด
-            getConfigWithToken()
-          );
-          
-          if (response.status === 200) {
-            Swal.fire({
-              title: 'Success!',
-              text: `Provider has been ${newStatus === 'Yes' ? 'approved' : 'rejected'}.`,
-              icon: 'success',
-              confirmButtonText: 'OK'
-            });
-            
-            // อัปเดต state เพื่อแสดงผลข้อมูลล่าสุด
-            setProvider(prev => ({
-              ...prev,
-              verify: newStatus
-            }));
-          }
-        }
+        },
+        buttonsStyling: false
       });
+      
+      if (result.isConfirmed) {
+        // แก้ไข endpoint และรูปแบบข้อมูลที่ส่งไป
+        const response = await axios.put(
+          `${APT_ROOT}/api/admin/verify/${id}`, 
+          { status: newStatus }, 
+          getConfigWithToken()
+        );
+        
+        if (response.status === 200) {
+          await Swal.fire({
+            title: 'Success!',
+            text: `Provider has been ${newStatus === 'Yes' ? 'approved' : 'rejected'}.`,
+            icon: 'success',
+            confirmButtonText: 'OK'
+          });
+          
+          // อัปเดต state เพื่อแสดงผลข้อมูลล่าสุด
+          setProvider(prev => ({
+            ...prev,
+            verify: newStatus
+          }));
+        }
+      }
     } catch (err) {
       console.error('Error updating provider status:', err);
       Swal.fire({
@@ -122,6 +129,8 @@ function ProviderDetail() {
         icon: 'error',
         confirmButtonText: 'OK'
       });
+    } finally {
+      setUpdateInProgress(false);
     }
   };
 

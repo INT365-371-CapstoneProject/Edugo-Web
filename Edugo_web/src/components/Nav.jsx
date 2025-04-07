@@ -1,13 +1,12 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Menu, Calendar, Globe, ChevronRight } from 'lucide-react';
+import { Search, Menu, ChevronRight } from 'lucide-react';
 import img_edugo from '../assets/edugologo.svg';
 import defaultAvatar from '../assets/default-avatar.png';
 import '../style/navstyle.css';
 import { getAvatar, getProfile } from '../composable/getProfile';
 import { getCategory } from '../composable/getCategory';
 import axios from 'axios';
-import debounce from 'lodash/debounce';
 
 const APT_ROOT = import.meta.env.VITE_API_ROOT;
 
@@ -17,12 +16,10 @@ function Nav() {
   const [userData, setUserData] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
   const [searchEndpoint, setSearchEndpoint] = useState('announce-provider');
   const [categories, setCategories] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
-  const dropdownRef = useRef(null);
   const [showMainDropdown, setShowMainDropdown] = useState(false);
   const mainDropdownRef = useRef(null);
   const categoryDropdownRef = useRef(null);
@@ -31,54 +28,76 @@ function Nav() {
   const [showEducationDropdown, setShowEducationDropdown] = useState(false);
   const educationDropdownRef = useRef(null);
   const searchContainerRef = useRef(null);
+  const [dataFetched, setDataFetched] = useState(false);
+  const [isClientMobile, setIsClientMobile] = useState(false);
   
-  // Update overflow detection to be more precise
+  // Check if client is mobile - runs only once
   useEffect(() => {
+    const checkMobile = () => {
+      const userAgent = navigator.userAgent.toLowerCase();
+      const isMobile = /iphone|ipad|ipod|android/.test(userAgent);
+      setIsClientMobile(isMobile);
+    };
+    checkMobile();
+  }, []);
+  
+  // Optimized overflow detection that uses fewer resources
+  useEffect(() => {
+    if (!searchContainerRef.current) return;
+    
     const container = searchContainerRef.current;
-    if (!container) return;
-
     const checkOverflow = () => {
       const hasOverflow = container.scrollHeight > container.clientHeight || 
                          container.scrollWidth > container.clientWidth;
-      if (hasOverflow) {
-        container.classList.add('has-scroll');
-      } else {
-        container.classList.remove('has-scroll');
-      }
+      container.classList.toggle('has-scroll', hasOverflow);
     };
 
-    const observer = new ResizeObserver(checkOverflow);
-    observer.observe(container);
+    // Only observe if we have tags that might cause overflow
+    if (selectedCategories.length > 0 || selectedEducationLevels.length > 0) {
+      checkOverflow();
+      
+      // Use ResizeObserver only on desktop devices to prevent performance issues on mobile
+      if (!isClientMobile) {
+        const observer = new ResizeObserver(checkOverflow);
+        observer.observe(container);
+        return () => observer.disconnect();
+      }
+    }
+  }, [selectedCategories, selectedEducationLevels, isClientMobile]);
 
-    // Initial check
-    checkOverflow();
-
-    // Check when tags change
-    return () => observer.disconnect();
-  }, [selectedCategories, selectedEducationLevels]);
-
+  // Optimized data fetching - only fetch once
   useEffect(() => {
+    if (dataFetched) return;
+    
     const fetchData = async () => {
       try {
         const profileData = await getProfile();
-        setUserData(profileData.profile);
-        
-        // Set search endpoint based on user role
-        if (profileData.profile.role === 'admin' || profileData.profile.role === 'superadmin') {
-          setSearchEndpoint('announce-admin');
+        if (profileData && profileData.profile) {
+          setUserData(profileData.profile);
+          
+          // Set search endpoint based on user role
+          if (profileData.profile.role === 'admin' || profileData.profile.role === 'superadmin') {
+            setSearchEndpoint('announce-admin');
+          }
         }
 
-        const imageUrl = await getAvatar();
+        // Get avatar and category data in parallel
+        const [imageUrl, categoryData] = await Promise.all([
+          getAvatar(),
+          getCategory()
+        ]);
+        
         if (imageUrl) {
           setAvatarUrl(imageUrl);
         }
-
-        const categoryData = await getCategory();
-
-        setCategories(categoryData || []);
+        
+        if (categoryData) {
+          setCategories(categoryData);
+        }
+        
+        setDataFetched(true);
       } catch (error) {
         console.error('Error loading data:', error);
-        setAvatarUrl(null);
       }
     };
 
@@ -90,28 +109,26 @@ function Nav() {
         URL.revokeObjectURL(avatarUrl);
       }
     };
-  }, []);
+  }, [dataFetched]);
 
-  // Add click outside handler
+  // Consolidated click outside handlers for performance
   useEffect(() => {
     function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setShowCategoryDropdown(false);
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  // Add click outside handler for main dropdown
-  useEffect(() => {
-    function handleClickOutside(event) {
+      // Check all dropdowns in a single listener
       if (mainDropdownRef.current && !mainDropdownRef.current.contains(event.target)) {
         setShowMainDropdown(false);
       }
+      
+      if (categoryDropdownRef.current && !categoryDropdownRef.current.contains(event.target)) {
+        setShowCategoryDropdown(false);
+      }
+      
+      if (educationDropdownRef.current && !educationDropdownRef.current.contains(event.target)) {
+        setShowEducationDropdown(false);
+      }
     }
 
+    // Add single event listener for all dropdown handling
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
@@ -167,14 +184,13 @@ function Nav() {
       const searchUrl = `${APT_ROOT}/api/search/${searchEndpoint}`;
       const { data } = await axios.get(searchUrl, config);
       
-      // Update search results instead of navigating
+      // Update search results
       setSearchResults(data.data || []);
     } catch (error) {
       console.error('Search failed:', error.response?.data || error.message);
     }
   };
 
-  // Update search handler for input changes - remove auto-search
   const handleSearchChange = (e) => {
     const query = e.target.value;
     setSearchQuery(query);
@@ -187,7 +203,6 @@ function Nav() {
     }
   };
 
-  // Simplify handleKeyDown to only handle Enter
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();

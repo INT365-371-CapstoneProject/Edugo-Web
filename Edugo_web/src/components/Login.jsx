@@ -12,6 +12,7 @@ const APT_ROOT = import.meta.env.VITE_API_ROOT;
 function Login() {
   const navigate = useNavigate();
   const [isMobileOrTablet, setIsMobileOrTablet] = useState(false);
+  const [showMobileWarning, setShowMobileWarning] = useState(false);
 
   useEffect(() => {
     // ตรวจสอบขนาดหน้าจอเมื่อคอมโพเนนต์โหลด
@@ -27,21 +28,22 @@ function Login() {
 
   const checkScreenSize = () => {
     // ตรวจสอบว่าเป็นมือถือหรือแท็บเล็ตโดยดูจากความกว้างหน้าจอ
-    // โดยทั่วไป tablet มีความกว้างมากกว่า 480px แต่น้อยกว่า 1024px
     if (window.innerWidth <= 1024) {
       setIsMobileOrTablet(true);
-      // แสดง SweetAlert แจ้งเตือน
-      Swal.fire({
-        title: 'ไม่รองรับการใช้งานบนอุปกรณ์นี้',
-        text: 'กรุณาใช้งานผ่านคอมพิวเตอร์เพื่อประสบการณ์การใช้งานที่ดีที่สุด',
-        icon: 'warning',
-        confirmButtonText: 'เข้าใจแล้ว'
-      }).then(() => {
-        // เมื่อกดปุ่ม OK จะ redirect ไปหน้า Officialwebpage
-        navigate('/');
-      });
+      // ตรวจสอบว่าเราได้แสดง alert ไปแล้วหรือยัง
+      if (!showMobileWarning) {
+        setShowMobileWarning(true);
+        // แสดง SweetAlert แจ้งเตือน
+        Swal.fire({
+          title: 'ไม่รองรับการใช้งานบนอุปกรณ์นี้',
+          text: 'กรุณาใช้งานผ่านคอมพิวเตอร์เพื่อประสบการณ์การใช้งานที่ดีที่สุด',
+          icon: 'warning',
+          confirmButtonText: 'เข้าใจแล้ว'
+        });
+      }
     } else {
       setIsMobileOrTablet(false);
+      setShowMobileWarning(false);
     }
   };
 
@@ -261,7 +263,23 @@ function Login() {
 
   return (
     <>
-      {!isMobileOrTablet && (
+      {isMobileOrTablet ? (
+        <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
+          <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full text-center">
+            <h2 className="text-2xl font-bold text-red-600 mb-4">อุปกรณ์ไม่รองรับ</h2>
+            <p className="text-gray-700 mb-6">
+              ระบบนี้ออกแบบมาสำหรับใช้งานบนคอมพิวเตอร์เท่านั้น 
+              กรุณาใช้งานผ่านคอมพิวเตอร์เพื่อประสบการณ์การใช้งานที่ดีที่สุด
+            </p>
+            <button 
+              onClick={() => window.location.href = 'https://www.edugo.co.th'}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              ไปยังเว็บไซต์หลัก
+            </button>
+          </div>
+        </div>
+      ) : (
         <div className="flex items-center justify-center min-h-screen overflow-hidden font-['DM_Sans'] Backgound">
           <div className="card flex-shrink-0 w-full max-w-5xl shadow-sm bg-white border">
             <div className="hero-content flex-row gap-0 p-0">

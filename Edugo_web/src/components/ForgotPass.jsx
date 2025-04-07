@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import '../style/style.css'; // Import CSS file
 import '../style/home.css'; // Import CSS file
 const APT_ROOT = import.meta.env.VITE_API_ROOT;
+
 const ForgotPass = () => {
   const [email, setEmail] = useState('');
   const [otpCode, setOtpCode] = useState('');
@@ -15,9 +16,22 @@ const ForgotPass = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check for mobile device once
+  useEffect(() => {
+    const checkMobile = () => {
+      const userAgent = navigator.userAgent.toLowerCase();
+      setIsMobile(/iphone|ipad|ipod|android/.test(userAgent));
+    };
+    checkMobile();
+  }, []);
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
+    
+    if (loading) return; // ป้องกันการส่งฟอร์มซ้ำ
+    
     setLoading(true);
     setError('');
 
@@ -55,6 +69,9 @@ const ForgotPass = () => {
 
   const handleVerifyOTP = async (e) => {
     e.preventDefault();
+    
+    if (loading) return; // ป้องกันการส่งฟอร์มซ้ำ
+    
     setLoading(true);
     setError('');
     setPasswordError('');
@@ -72,6 +89,10 @@ const ForgotPass = () => {
         otp_code: otpCode,
         new_password: newPassword,
       });
+      
+      // Use a flag to handle redirection once to prevent recursion
+      localStorage.setItem('passwordReset', 'true');
+      
       // Redirect to login page after successful verification
       window.location.href = '/un2'; // Redirect to home page
     } catch (err) {
@@ -106,8 +127,13 @@ const ForgotPass = () => {
     }
   };
 
+  // For mobile devices, adjust the UI to be more compact
+  const containerClass = isMobile 
+    ? "min-h-screen flex items-center justify-center bg-gray-50 p-4" 
+    : "min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8";
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className={containerClass}>
       <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
