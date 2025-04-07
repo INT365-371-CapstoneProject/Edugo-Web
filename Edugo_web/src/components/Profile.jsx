@@ -158,25 +158,32 @@ const Profile = () => {
     };
 
     const handleAvatarChange = (e) => {
+        // แก้ไขเพื่อตรวจสอบ file ให้ถูกต้องก่อนใช้งาน
         const file = e.target.files[0];
-        if (file) {
-            if (file.size > 5 * 1024 * 1024) { // 5MB limit
-                notify.error("File size must be less than 5MB");
-                return;
-            }
-            
-            const validTypes = ['image/jpeg', 'image/png'];
-            if (!validTypes.includes(file.type)) {
-                notify.error("Please select a valid image file (JPEG, PNG)");
-                return;
-            }
-
-            setPreviousAvatarUrl(avatarUrl);
-            setNewAvatar(file);
-            const previewUrl = URL.createObjectURL(file);
-            setAvatarUrl(previewUrl);
-            notify.success("Image selected successfully!");
+        if (!file) return; // ตรวจสอบว่ามีไฟล์ถูกเลือกหรือไม่
+        
+        if (file.size > 5 * 1024 * 1024) { // 5MB limit
+            notify.error("File size must be less than 5MB");
+            return;
         }
+        
+        const validTypes = ['image/jpeg', 'image/png'];
+        if (!validTypes.includes(file.type)) {
+            notify.error("Please select a valid image file (JPEG, PNG)");
+            return;
+        }
+
+        setPreviousAvatarUrl(avatarUrl);
+        setNewAvatar(file);
+        
+        // ลบ URL เก่าก่อนสร้าง URL ใหม่เพื่อป้องกันการรั่วไหลของหน่วยความจำ
+        if (avatarUrl && avatarUrl.startsWith('blob:')) {
+            URL.revokeObjectURL(avatarUrl);
+        }
+        
+        const previewUrl = URL.createObjectURL(file);
+        setAvatarUrl(previewUrl);
+        notify.success("Image selected successfully!");
     };
 
     // Add notify object if not already defined
