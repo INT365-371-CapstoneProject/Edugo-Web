@@ -69,5 +69,16 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      // ตรวจสอบว่าเป็น iPhone หรือ iPad
+      if (/iPhone|iPad/i.test(navigator.userAgent)) {
+        var script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/eruda';
+        script.onload = function () {
+          eruda.init(); // เรียกใช้งาน eruda
+        };
+        document.body.appendChild(script);
+      }
+    </script>
   </body>
 </html>
