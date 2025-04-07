@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import axios from "axios";
 import imageLogin from "../assets/login.png";
@@ -12,40 +12,38 @@ const APT_ROOT = import.meta.env.VITE_API_ROOT;
 function Login() {
   const navigate = useNavigate();
   const [isMobileOrTablet, setIsMobileOrTablet] = useState(false);
-  const [showMobileWarning, setShowMobileWarning] = useState(false);
+  const [deviceChecked, setDeviceChecked] = useState(false); // เพิ่ม state สำหรับตรวจสอบว่าได้ตรวจ device แล้ว
+  const warningShownRef = useRef(false); // ใช้ ref แทน state เพื่อป้องกัน re-render loop
+  const redirectingRef = useRef(false); // ป้องกันการเรียก navigate ซ้ำ
 
   useEffect(() => {
-    // ตรวจสอบขนาดหน้าจอเมื่อคอมโพเนนต์โหลด
-    checkScreenSize();
-    // เพิ่ม event listener สำหรับการเปลี่ยนแปลงขนาดหน้าจอ
-    window.addEventListener('resize', checkScreenSize);
+    // ตรวจสอบว่าเคยตรวจ device แล้วหรือยัง
+    if (deviceChecked) return;
     
-    // cleanup event listener เมื่อคอมโพเนนต์ถูกทำลาย
-    return () => {
-      window.removeEventListener('resize', checkScreenSize);
-    };
-  }, []);
-
-  const checkScreenSize = () => {
-    // ตรวจสอบว่าเป็นมือถือหรือแท็บเล็ตโดยดูจากความกว้างหน้าจอ
-    if (window.innerWidth <= 1024) {
-      setIsMobileOrTablet(true);
-      // ตรวจสอบว่าเราได้แสดง alert ไปแล้วหรือยัง
-      if (!showMobileWarning) {
-        setShowMobileWarning(true);
-        // แสดง SweetAlert แจ้งเตือน
+    // ตรวจสอบขนาดหน้าจอ ทำเพียงครั้งเดียว
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isMobile = /iphone|ipad|ipod|android/.test(userAgent);
+    const isSmallScreen = window.innerWidth <= 1024;
+    
+    // Set state ทีเดียว
+    setIsMobileOrTablet(isMobile || isSmallScreen);
+    setDeviceChecked(true);
+    
+    // ถ้าเป็นมือถือและยังไม่เคยแสดง warning
+    if ((isMobile || isSmallScreen) && !warningShownRef.current) {
+      warningShownRef.current = true;
+      
+      // ใช้ setTimeout เพื่อป้องกัน Swal จะถูกเรียกในระหว่าง rendering cycle
+      setTimeout(() => {
         Swal.fire({
           title: 'ไม่รองรับการใช้งานบนอุปกรณ์นี้',
           text: 'กรุณาใช้งานผ่านคอมพิวเตอร์เพื่อประสบการณ์การใช้งานที่ดีที่สุด',
           icon: 'warning',
           confirmButtonText: 'เข้าใจแล้ว'
         });
-      }
-    } else {
-      setIsMobileOrTablet(false);
-      setShowMobileWarning(false);
+      }, 100);
     }
-  };
+  }, [deviceChecked]);
 
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -99,6 +97,10 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // ป้องกันไม่ให้ submit ซ้ำ
+    if (redirectingRef.current) return;
+    
     setInputErrors({ email_username: "", password: "" });
     
     const inputValue = formData.email || formData.username;
@@ -140,6 +142,9 @@ function Login() {
       if (response.status === 200) {
         const token = response.data.token;
         
+        // เก็บ token ก่อนที่จะทำการตรวจสอบต่างๆ
+        localStorage.setItem('token', token);
+        
         // Decode token to check role
         const decoded = jwt_decode(token);
         const validRoles = ['provider', 'admin', 'superadmin'];
@@ -151,79 +156,90 @@ function Login() {
             icon: 'error',
             confirmButtonColor: '#d33',
           });
+          localStorage.removeItem('token'); // ลบ token ถ้าไม่มีสิทธิ์
           return;
         }
 
-        // ตรวจสอบสถานะผู้ใช้ก่อนที่จะให้เข้าสู่ระบบ
-        const profileData = await checkUserStatus(token);
-        
-        // Check for suspended account
-        if (profileData && profileData.profile.status === "Suspended") {
-          Swal.fire({
-            title: 'Account Suspended',
-            text: 'Your account has been suspended. Please contact administrator.',
-            icon: 'error',
-            confirmButtonText: 'Understood',
-            confirmButtonColor: '#d33',
-          });
-          return;
-        }
-        
-        // Check verification status for providers
-        if (decoded.role === 'provider' && profileData && profileData.profile) {
-          const verifyStatus = profileData.profile.verify;
+        try {
+          // ตรวจสอบสถานะผู้ใช้
+          const profileData = await checkUserStatus(token);
           
-          if (verifyStatus === 'Waiting') {
+          // Check for suspended account
+          if (profileData && profileData.profile.status === "Suspended") {
             Swal.fire({
-              title: 'Waiting for Approval',
-              text: 'Your account is waiting for approval. Please wait for admin verification.',
-              icon: 'info',
-              confirmButtonText: 'Understood',
-              confirmButtonColor: '#3085d6',
-            });
-            return;
-          } else if (verifyStatus === 'No') {
-            Swal.fire({
-              title: 'Verification Rejected',
-              text: 'Your account verification was rejected. Please contact administrator for assistance.',
+              title: 'Account Suspended',
+              text: 'Your account has been suspended. Please contact administrator.',
               icon: 'error',
               confirmButtonText: 'Understood',
               confirmButtonColor: '#d33',
             });
+            localStorage.removeItem('token');
             return;
           }
-        }
-
-        // ถ้าผ่านการตรวจสอบทั้งหมด จึงบันทึก token และแสดงข้อความยินดีต้อนรับ
-        localStorage.setItem('token', token);
-        
-        await Swal.fire({
-          title: 'Welcome Back!',
-          text: 'Login successful',
-          icon: 'success',
-          showConfirmButton: false,
-          timer: 1500,
-          timerProgressBar: true,
-          backdrop: `
-            rgba(0,0,123,0.2)
-            left top
-            no-repeat
-          `,
-          customClass: {
-            popup: 'animate-custom-popup'
-          },
-          didOpen: (popup) => {
-            popup.style.transition = 'all 0.3s ease-out';
-            popup.style.transform = 'scale(1)';
-            popup.style.opacity = '1';
-          },
-          willClose: (popup) => {
-            popup.style.transform = 'scale(0.95)';
-            popup.style.opacity = '0';
+          
+          // Check verification status for providers
+          if (decoded.role === 'provider' && profileData && profileData.profile) {
+            const verifyStatus = profileData.profile.verify;
+            
+            if (verifyStatus === 'Waiting') {
+              Swal.fire({
+                title: 'Waiting for Approval',
+                text: 'Your account is waiting for approval. Please wait for admin verification.',
+                icon: 'info',
+                confirmButtonText: 'Understood',
+                confirmButtonColor: '#3085d6',
+              });
+              localStorage.removeItem('token');
+              return;
+            } else if (verifyStatus === 'No') {
+              Swal.fire({
+                title: 'Verification Rejected',
+                text: 'Your account verification was rejected. Please contact administrator for assistance.',
+                icon: 'error',
+                confirmButtonText: 'Understood',
+                confirmButtonColor: '#d33',
+              });
+              localStorage.removeItem('token');
+              return;
+            }
           }
-        });
-        
-        window.location.href = '/un2'; // Redirect to home page
+
+          // ผ่านการตรวจสอบทั้งหมด
+          redirectingRef.current = true; // ป้องกันการเรียก navigate ซ้ำ
+          
+          await Swal.fire({
+            title: 'Welcome Back!',
+            text: 'Login successful',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 1500,
+            timerProgressBar: true,
+            backdrop: `rgba(0,0,123,0.2) left top no-repeat`,
+            customClass: { popup: 'animate-custom-popup' },
+            didOpen: (popup) => {
+              popup.style.transition = 'all 0.3s ease-out';
+              popup.style.transform = 'scale(1)';
+              popup.style.opacity = '1';
+            },
+            willClose: (popup) => {
+              popup.style.transform = 'scale(0.95)';
+              popup.style.opacity = '0';
+            }
+          });
+          
+          // แทนที่การใช้ window.location.href ด้วย navigate และใช้ timeout
+          setTimeout(() => {
+            window.location.replace('/un2');
+          }, 100);
+        } catch (profileError) {
+          console.error('Error checking user status:', profileError);
+          Swal.fire({
+            title: 'Error',
+            text: 'Failed to verify account status.',
+            icon: 'error'
+          });
+          localStorage.removeItem('token');
+        }
       }
     } catch (err) {
       if (err.response) {
@@ -271,12 +287,12 @@ function Login() {
               ระบบนี้ออกแบบมาสำหรับใช้งานบนคอมพิวเตอร์เท่านั้น 
               กรุณาใช้งานผ่านคอมพิวเตอร์เพื่อประสบการณ์การใช้งานที่ดีที่สุด
             </p>
-            <button 
-              onClick={() => window.location.href = 'https://www.edugo.co.th'}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            <a 
+              href="https://www.edugo.co.th" 
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 inline-block"
             >
               ไปยังเว็บไซต์หลัก
-            </button>
+            </a>
           </div>
         </div>
       ) : (

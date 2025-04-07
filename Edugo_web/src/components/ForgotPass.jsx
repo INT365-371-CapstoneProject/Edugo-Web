@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import '../style/style.css'; // Import CSS file
@@ -17,14 +17,22 @@ const ForgotPass = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [isMobile, setIsMobile] = useState(false);
+  const redirectingRef = useRef(false); // ป้องกันการ redirect ซ้ำ
+  const deviceCheckedRef = useRef(false); // ตรวจสอบว่าได้ตรวจสอบ device เรียบร้อยแล้ว
 
   // Check for mobile device once
   useEffect(() => {
+    if (deviceCheckedRef.current) return;
+    
     const checkMobile = () => {
       const userAgent = navigator.userAgent.toLowerCase();
-      setIsMobile(/iphone|ipad|ipod|android/.test(userAgent));
+      const isMobileDevice = /iphone|ipad|ipod|android/.test(userAgent);
+      setIsMobile(isMobileDevice);
+      deviceCheckedRef.current = true;
     };
-    checkMobile();
+    
+    // ใช้ setTimeout เพื่อป้องกัน state update ระหว่าง render cycle
+    setTimeout(checkMobile, 0);
   }, []);
 
   const handleForgotPassword = async (e) => {
@@ -37,40 +45,49 @@ const ForgotPass = () => {
 
     try {
       await axios.post(`${APT_ROOT}/api/auth/forgot-password`, { email });
-      setStep(2); // Move to OTP verification step
+      
+      // ใช้ setTimeout เพื่อป้องกัน state update ในระหว่าง render cycle
+      setTimeout(() => {
+        setStep(2); // Move to OTP verification step
+        setLoading(false);
+      }, 0);
     } catch (err) {
+      let errorMessage = 'An unexpected error occurred';
+      
       if (err.response) {
         // Handle different error status codes
         switch (err.response.status) {
           case 400:
-            setError(`Invalid request: ${err.response.data.message}`);
+            errorMessage = `Invalid request: ${err.response.data.message || 'Please check your email'}`;
             break;
           case 404:
-            setError('Email not found in our system');
+            errorMessage = 'Email not found in our system';
             break;
           case 429:
-            setError('Too many attempts. Please try again later');
+            errorMessage = 'Too many attempts. Please try again later';
             break;
           case 500:
-            setError('Server error. Please try again later');
+            errorMessage = 'Server error. Please try again later';
             break;
           default:
-            setError(err.response.data.message || 'An unexpected error occurred');
+            errorMessage = err.response.data.message || 'An unexpected error occurred';
         }
       } else if (err.request) {
-        setError('Network error. Please check your internet connection');
-      } else {
-        setError('An unexpected error occurred');
+        errorMessage = 'Network error. Please check your internet connection';
       }
-    } finally {
-      setLoading(false);
+      
+      // ใช้ setTimeout เพื่อป้องกัน state update ในระหว่าง render cycle
+      setTimeout(() => {
+        setError(errorMessage);
+        setLoading(false);
+      }, 0);
     }
   };
 
   const handleVerifyOTP = async (e) => {
     e.preventDefault();
     
-    if (loading) return; // ป้องกันการส่งฟอร์มซ้ำ
+    if (loading || redirectingRef.current) return; // ป้องกันการส่งฟอร์มซ้ำและการ redirect ซ้ำ
     
     setLoading(true);
     setError('');
@@ -90,40 +107,49 @@ const ForgotPass = () => {
         new_password: newPassword,
       });
       
-      // Use a flag to handle redirection once to prevent recursion
+      // ป้องกันการ redirect ซ้ำ
+      redirectingRef.current = true;
+      
+      // ใช้ localStorage เพื่อบันทึกสถานะเพื่อป้องกัน infinite loop
       localStorage.setItem('passwordReset', 'true');
       
-      // Redirect to login page after successful verification
-      window.location.href = '/un2'; // Redirect to home page
+      // ใช้ setTimeout เพื่อหลีกเลี่ยงปัญหากับฝั่ง iOS
+      setTimeout(() => {
+        window.location.replace('/un2'); // ใช้ replace แทน href เพื่อป้องกัน history stack
+      }, 100);
     } catch (err) {
+      let errorMessage = 'An unexpected error occurred';
+      
       if (err.response) {
         // Handle different error status codes
         switch (err.response.status) {
           case 400:
-            setError(`Verification failed: ${err.response.data.message}`);
+            errorMessage = `Verification failed: ${err.response.data.message || 'Please check your input'}`;
             break;
           case 401:
-            setError('Invalid or expired OTP code');
+            errorMessage = 'Invalid or expired OTP code';
             break;
           case 404:
-            setError('Email not found');
+            errorMessage = 'Email not found';
             break;
           case 429:
-            setError('Too many attempts. Please try again later');
+            errorMessage = 'Too many attempts. Please try again later';
             break;
           case 500:
-            setError('Server error. Please try again later');
+            errorMessage = 'Server error. Please try again later';
             break;
           default:
-            setError(err.response.data.message || 'An unexpected error occurred');
+            errorMessage = err.response.data.message || 'An unexpected error occurred';
         }
       } else if (err.request) {
-        setError('Network error. Please check your internet connection');
-      } else {
-        setError('An unexpected error occurred');
+        errorMessage = 'Network error. Please check your internet connection';
       }
-    } finally {
-      setLoading(false);
+      
+      // ใช้ setTimeout เพื่อป้องกัน state update ในระหว่าง render cycle
+      setTimeout(() => {
+        setError(errorMessage);
+        setLoading(false);
+      }, 0);
     }
   };
 
