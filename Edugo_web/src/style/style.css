@@ -80,6 +80,32 @@ input::selection, textarea::selection {
   color: white;
 }
 
+/* แก้ไขปัญหาสำหรับอุปกรณ์ iOS */
+@supports (-webkit-touch-callout: none) {
+  html, body {
+    background-color: #F9FAFF !important;
+    color: #333 !important;
+  }
+  
+  input {
+    background-color: white !important;
+    color: #1a202c !important;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  
+  @media (prefers-color-scheme: dark) {
+    input {
+      background-color: white !important;
+      color: #1a202c !important;
+    }
+    
+    .ProfileContainer, .border-lightgrey, .border-section, .Maincontainer, .Background {
+      background-color: #FFF !important;
+      color: #333 !important;
+    }
+  }
+}
 
 .ProfileContainer {
   display: fixed;
