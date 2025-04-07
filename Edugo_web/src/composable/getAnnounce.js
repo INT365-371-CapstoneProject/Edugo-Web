@@ -76,25 +76,12 @@ const getAnnounceImage = async (id) => {
 
 const getAnnounceAttach = async (id) => {
     try {
-        // ตรวจสอบว่า id มีค่าและเป็นตัวเลขหรือไม่
-        if (!id || isNaN(parseInt(id))) {
-            console.warn('Invalid ID for attachment request:', id);
-            return null;
-        }
-
-        // ตรวจสอบข้อมูลประกาศก่อนเพื่อดูว่ามีไฟล์แนบหรือไม่
-        const announceData = await getAnnounceById(id);
-        if (!announceData || !announceData.attach_file) {
-            console.log(`No attachment available for announcement ID ${id}`);
-            return null;
-        }
-
         const attachConfig = {
             ...config,
             responseType: 'blob',
             headers: {
                 ...config.headers,
-                'Accept': 'application/pdf, application/octet-stream'
+                'Accept': 'application/pdf'
             }
         };
         

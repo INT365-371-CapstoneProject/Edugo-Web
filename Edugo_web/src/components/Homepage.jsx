@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import Nav from './Nav';
 import icon from '../assets/Vector.svg';
 import image2 from '../assets/bg-file-image.png';
@@ -391,6 +391,7 @@ function Homepage() {
             
             // Fetch current page data
             const response = await getAnnounce(page);
+            console.log("API Response for page", page, ":", response);
             if (response) {
                 setAnnounceData({
                     data: response.data || [],
@@ -618,50 +619,73 @@ function Homepage() {
         }
     }, [activeTab, userRole]);
 
-    const checkOpenAnnounce = useMemo(() => 
-        allAnnouncements.filter((announce) => {
-            const localPublishedDate = new Date(announce.publish_date);
-            const localCloseDate = new Date(announce.close_date);
-            const nowInLocalTime = new Date();
-            return localPublishedDate <= nowInLocalTime && localCloseDate >= nowInLocalTime;
-        }), 
-    [allAnnouncements]);
+    const checkOpenAnnounce = allAnnouncements.filter((announce) => {
+        const localPublishedDate = new Date(announce.publish_date);
+        const localCloseDate = new Date(announce.close_date);
+        const nowInLocalTime = new Date();
+        return localPublishedDate <= nowInLocalTime && localCloseDate >= nowInLocalTime;
+    });
 
-    const checkPendingAnnounce = useMemo(() => 
-        allAnnouncements.filter((announce) => {
-            const localPublishedDate = new Date(announce.publish_date);
-            const nowInLocalTime = new Date();
-            return localPublishedDate > nowInLocalTime;
-        }),
-    [allAnnouncements]);
+    const checkPendingAnnounce = allAnnouncements.filter((announce) => {
+        const localPublishedDate = new Date(announce.publish_date);
+        const nowInLocalTime = new Date();
+        return localPublishedDate > nowInLocalTime;
+    });
 
-    const checkCloseAnnounce = useMemo(() => 
-        allAnnouncements.filter((announce) => {
-            const localCloseDate = new Date(announce.close_date);
-            const nowInLocalTime = new Date();
-            return localCloseDate < nowInLocalTime;
-        }),
-    [allAnnouncements]);
+    const checkCloseAnnounce = allAnnouncements.filter((announce) => {
+        const localCloseDate = new Date(announce.close_date);
+        const nowInLocalTime = new Date();
+        return localCloseDate < nowInLocalTime;
+    });
 
-    // ใช้ useMemo แทนฟังก์ชัน filteredAnnounce เพื่อไม่ให้สร้างฟังก์ชันใหม่ในทุก render
-    const filteredAnnounceList = useMemo(() => {
-        if (!allAnnouncements || allAnnouncements.length === 0) {
-            return [];
+    // Optimize getFilteredData to work with allAnnouncements
+    const getFilteredData = () => {
+        const nowInLocalTime = new Date();
+        
+        if (filterType === 'All') {
+            return announceData.data;
         }
         
-        if (filterType === 'Open') return checkOpenAnnounce;
-        if (filterType === 'Close') return checkCloseAnnounce;
-        if (filterType === 'Pending') return checkPendingAnnounce;
-        return allAnnouncements; // Default to show all
-    }, [filterType, checkOpenAnnounce, checkCloseAnnounce, checkPendingAnnounce, allAnnouncements]);
+        return allAnnouncements.filter(announce => {
+            const publishDate = new Date(announce.publish_date);
+            const closeDate = new Date(announce.close_date);
+            
+            switch (filterType) {
+                case 'Pending':
+                    return publishDate > nowInLocalTime;
+                case 'Open':
+                    return publishDate <= nowInLocalTime && closeDate >= nowInLocalTime;
+                case 'Close':
+                    return closeDate < nowInLocalTime;
+                default:
+                    return true;
+            }
+        });
+    };
 
-    // ใช้ useCallback สำหรับ event handlers
-    const handleFilterClick = useCallback((type) => {
+    // แก้ไข filteredAnnounce function ไม่ให้มี state update
+    // Update filteredAnnounce function to use announceData directly when appropriate
+    const filteredAnnounce = () => {
+        // For non-filtered views, just return the current page data from API
+        if (filterType === 'All') {
+            return announceData.data || [];
+        }
+        
+        // For filtered views, return the appropriate slice of filtered data
+        const filteredData = getFilteredData();
+        const startIndex = (currentPage - 1) * (announceData.per_page || 10);
+        const endIndex = startIndex + (announceData.per_page || 10);
+        return filteredData.slice(startIndex, endIndex);
+    };
+
+    // แก้ไข handleFilterClick function
+    // Update handleFilterClick to work with the full dataset for accurate filtering
+    const handleFilterClick = async (type) => {
         setFilterType(type);
         setCurrentPage(1); // Reset to first page when changing filters
         
         if (type === 'All') {
-            fetchAllAnnouncements(1);
+            await fetchAllAnnouncements(1);
         } else {
             // For filtered views, we'll use the existing allAnnouncements data
             const filteredData = getFilteredData();
@@ -673,10 +697,22 @@ function Homepage() {
                 last_page: Math.ceil(filteredData.length / prev.per_page)
             }));
         }
-    }, []);
-    
-    // ปรับฟังก์ชัน formatDateRange ให้ไม่ถูกสร้างใหม่ทุกครั้งที่ render
-    const formatDateRange = useCallback((startDateString, endDateString) => {
+    };
+
+    // เพิ่ม useEffect สำหรับจัดการ pagination เมื่อ currentPage เปลี่ยน
+    useEffect(() => {
+        if (filterType !== 'All') {
+            const filteredData = getFilteredData();
+            const startIndex = (currentPage - 1) * announceData.per_page;
+            const endIndex = startIndex + announceData.per_page;
+            setAnnounceData(prev => ({
+                ...prev,
+                data: filteredData.slice(startIndex, endIndex)
+            }));
+        }
+    }, [currentPage, filterType]);
+
+    const formatDateRange = (startDateString, endDateString) => {
         const startDate = new Date(startDateString);
         const endDate = new Date(endDateString);
         const optionsSameYear = { day: 'numeric', month: 'short' };
@@ -687,15 +723,7 @@ function Homepage() {
         } else {
             return `${startDate.toLocaleDateString('en-GB', optionsDifferentYear)} - ${endDate.toLocaleDateString('en-GB', optionsDifferentYear)}`;
         }
-    }, []);
-
-    const handleNavigateToDetail = useCallback((id) => {
-        navigate(`/detail/${id}`);
-    }, [navigate]);
-
-    const handleNavigateToAdd = useCallback(() => {
-        navigate('/add');
-    }, [navigate]);
+    };
 
     // แก้ไข handlePageChange function
     // Modify handlePageChange to use API pagination for "All" filter
@@ -1392,7 +1420,7 @@ function Homepage() {
                             <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mx-6 my-2 flex items-center justify-between">
                                 <span className="font-medium flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 001.414 0l4-4z" clipRule="evenodd" />
+                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 00-1.414 1.414l2 2a1 1 001.414 0l4-4z" clipRule="evenodd" />
                                     </svg>
                                     {actionSuccess}
                                 </span>
@@ -2306,7 +2334,7 @@ function Homepage() {
                             </div>
                             <div className="mt-5 flex justify-end">
                                 <button
-                                    onClick={handleNavigateToAdd}
+                                    onClick={() => navigate('/add')}
                                     className="btn button"
                                 >
                                     Post New Scholarship
@@ -2385,11 +2413,11 @@ function Homepage() {
                     {/* Scholarship List */}
                     <div className="ScholarLayout">
                         {/* When showing unfiltered data, use announceData.data directly to ensure we see the correct page */}
-                        {(filterType === 'All' ? announceData.data : filteredAnnounceList).map((announce, index) => (
+                        {(filterType === 'All' ? announceData.data : filteredAnnounce()).map((announce, index) => (
                             <div
                                 key={announce.id}
                                 className="border-lightgrey scholarship-card"
-                                onClick={() => handleNavigateToDetail(announce.id)}
+                                onClick={() => navigate(`/detail/${announce.id}`)}
                             >
                                 <div className="grid grid-cols-12 gap-4">
                                     {/* รูปภาพด้านซ้าย */}
@@ -2532,42 +2560,6 @@ function Homepage() {
         }
     }, [activeTab, adminCurrentPage]); // เพิ่ม dependency adminCurrentPage
 
-    useEffect(() => {
-        const checkToken = async () => {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                console.log('No token found, redirecting to login');
-                navigate('/login');
-                return;
-            }
-            
-            try {
-                // ตรวจสอบข้อมูล token และตั้งค่า userRole
-                const decoded = JSON.parse(atob(token.split('.')[1]));
-                setUserRole(decoded.role || null);
-                
-                // หากเป็น admin หรือ superadmin ให้โหลดข้อมูลประกาศของ admin
-                if (decoded.role === 'admin' || decoded.role === 'superadmin') {
-                    console.log('Admin user detected, loading admin content');
-                    // Load admin-specific content
-                } else if (decoded.role === 'provider') {
-                    console.log('Provider user detected, loading provider content');
-                    // Load provider-specific content
-                } else {
-                    console.log('Regular user detected, loading user content');
-                    // Load regular user content
-                }
-            } catch (error) {
-                console.error('Error checking token:', error);
-                // หากมีปัญหาในการตรวจสอบ token ให้ลบ token และ redirect ไปยังหน้า login
-                localStorage.removeItem('token');
-                navigate('/login');
-            }
-        };
-        
-        checkToken();
-    }, [navigate]);
-
     return (
         <>
             <Nav />
@@ -2588,4 +2580,4 @@ function Homepage() {
     );
 }
 
-export default React.memo(Homepage);
+export default Homepage;

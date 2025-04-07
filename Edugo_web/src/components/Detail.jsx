@@ -34,51 +34,60 @@ function Detail() {
         }
     }, []);
 
-    // แยก useEffect สำหรับการโหลดข้อมูลและไฟล์มีเดีย
+    // แยก useEffect สำหรับการโหลดข้อมูลและรูปภาพ
     useEffect(() => {
-        const fetchMediaData = async () => {
+        window.scrollTo(0, 0);
+        const fetchAnnounceData = async () => {
             try {
-                // โหลดข้อมูลประกาศ
                 const announceData = await getAnnounceById(id);
                 if (announceData) {
                     setAnnounce(announceData);
-                    
+                }
+            } catch (error) {
+                console.error('Error fetching announce data:', error);
+            }
+        };
+        fetchAnnounceData();
+    }, [id]);
+
+    // แก้ไข useEffect สำหรับการโหลดรูปภาพและไฟล์แนบ
+    useEffect(() => {
+        const fetchMediaData = async () => {
+            try {
+                if (id) {
                     // โหลดรูปภาพ
                     const imgUrl = await getAnnounceImage(id);
                     if (imgUrl) {
                         setImageUrl(imgUrl);
                     }
 
-                    // โหลดไฟล์แนบเฉพาะเมื่อประกาศมี attach_file
-                    if (announceData.attach_file) {
-                        try {
-                            const attUrl = await getAnnounceAttach(id);
-                            if (attUrl) {
-                                setAttachUrl(attUrl);
-                            }
-                        } catch (attachError) {
-                            console.log('No attachment available or error fetching:', attachError);
-                        }
+                    // โหลดไฟล์แนบ - เช็คจาก attach_file แทน
+
+                    const attUrl = await getAnnounceAttach(id);
+                    if (attUrl) {
+                        setAttachUrl(attUrl);
                     }
+
                 }
             } catch (error) {
-                console.error('Error fetching data:', error);
+                console.error('Error fetching media:', error);
             }
         };
 
         fetchMediaData();
+    }, [id, announce?.attach_file]); // ลบ imageUrl ออกจาก dependencies
 
-        // Cleanup function
+    // แยก useEffect สำหรับ cleanup
+    useEffect(() => {
         return () => {
-            // Clear blob URLs when component unmounts
-            if (imageUrl && imageUrl.startsWith('blob:')) {
+            if (imageUrl) {
                 URL.revokeObjectURL(imageUrl);
             }
-            if (attachUrl && attachUrl.startsWith('blob:')) {
+            if (attachUrl) {
                 URL.revokeObjectURL(attachUrl);
             }
         };
-    }, [id]);
+    }, []); // ทำ cleanup เฉพาะตอน unmount
 
     // เอา published_date มาแปลงเป็นวันที่และเวลาเพื่อเอามา show
     const publishedDate = new Date(announce?.publish_date)
