@@ -1,9 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
 
-:root {
-  color-scheme: light !important;
-}
-
 /* เพิ่มการจัดหน้าให้ตรง */
 body {
     font-family: 'DM Sans', sans-serif; 
@@ -331,4 +327,38 @@ body {
       color: inherit !important;
     }
   }
+
+
+  /* บังคับให้พื้นหลังเป็นสีขาวและตัวอักษรเป็นสีดำเสมอ */
+:root {
+  color-scheme: light !important;
+}
+
+html, body {
+  background-color: #F9FAFF !important;
+  color: #000000 !important;
+}
+
+/* ป้องกัน input และองค์ประกอบต่าง ๆ ไม่ให้ถูกบังคับเป็น Dark Mode */
+input, textarea, select, button {
+  background-color: #F9FAFF !important;
+  color: #000000 !important;
+}
+
+/* แก้ไขสำหรับอุปกรณ์ที่รองรับ dark mode */
+@media (prefers-color-scheme: dark) {
+  html, body {
+    background-color: #F9FAFF !important;
+    color: #000000 !important;
+  }
+}
+
+/* ป้องกัน Dark Mode บนอุปกรณ์ iOS */
+@supports (-webkit-touch-callout: none) {
+  html, body {
+    background-color: #F9FAFF !important;
+    color: #000000 !important;
+  }
+}
+
 }
