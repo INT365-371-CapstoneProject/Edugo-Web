@@ -32,19 +32,25 @@ function Nav() {
   const educationDropdownRef = useRef(null);
   const searchContainerRef = useRef(null);
   
-  // Update overflow detection to be more precise
+  // ปรับปรุงการตรวจสอบ overflow เพื่อลดการคำนวณซ้ำซ้อน
   useEffect(() => {
     const container = searchContainerRef.current;
     if (!container) return;
 
+    // ใช้ ResizeObserver แบบมีการป้องกันการทำงานซ้ำซ้อน
+    let timeoutId = null;
     const checkOverflow = () => {
-      const hasOverflow = container.scrollHeight > container.clientHeight || 
-                         container.scrollWidth > container.clientWidth;
-      if (hasOverflow) {
-        container.classList.add('has-scroll');
-      } else {
-        container.classList.remove('has-scroll');
-      }
+      if (timeoutId) clearTimeout(timeoutId);
+      
+      timeoutId = setTimeout(() => {
+        const hasOverflow = container.scrollHeight > container.clientHeight || 
+                          container.scrollWidth > container.clientWidth;
+        if (hasOverflow) {
+          container.classList.add('has-scroll');
+        } else {
+          container.classList.remove('has-scroll');
+        }
+      }, 100); // ลดความถี่ของการทำงาน
     };
 
     const observer = new ResizeObserver(checkOverflow);
@@ -54,34 +60,37 @@ function Nav() {
     checkOverflow();
 
     // Check when tags change
-    return () => observer.disconnect();
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      observer.disconnect();
+    };
   }, [selectedCategories, selectedEducationLevels]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const profileData = await getProfile();
-        setUserData(profileData.profile);
-        
-        // Set search endpoint based on user role
-        if (profileData.profile.role === 'admin' || profileData.profile.role === 'superadmin') {
-          setSearchEndpoint('announce-admin');
-        }
-
-        const imageUrl = await getAvatar();
-        if (imageUrl) {
-          setAvatarUrl(imageUrl);
-        }
-
-        const categoryData = await getCategory();
-
-        setCategories(categoryData || []);
-      } catch (error) {
-        console.error('Error loading data:', error);
-        setAvatarUrl(null);
+  // แยกฟังก์ชัน fetchData ออกมาและใช้ useCallback
+  const fetchData = useCallback(async () => {
+    try {
+      const profileData = await getProfile();
+      setUserData(profileData.profile);
+      
+      // Set search endpoint based on user role
+      if (profileData.profile.role === 'admin' || profileData.profile.role === 'superadmin') {
+        setSearchEndpoint('announce-admin');
       }
-    };
 
+      const imageUrl = await getAvatar();
+      if (imageUrl) {
+        setAvatarUrl(imageUrl);
+      }
+
+      const categoryData = await getCategory();
+      setCategories(categoryData || []);
+    } catch (error) {
+      console.error('Error loading data:', error);
+      setAvatarUrl(null);
+    }
+  }, []);
+
+  useEffect(() => {
     fetchData();
 
     // Cleanup function
@@ -90,19 +99,20 @@ function Nav() {
         URL.revokeObjectURL(avatarUrl);
       }
     };
+  }, [fetchData]);
+
+  // ใช้ useCallback สำหรับ click handler
+  const handleClickOutside = useCallback((event) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      setShowCategoryDropdown(false);
+    }
   }, []);
 
   // Add click outside handler
   useEffect(() => {
-    function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setShowCategoryDropdown(false);
-      }
-    }
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [handleClickOutside]);
 
   // Add click outside handler for main dropdown
   useEffect(() => {

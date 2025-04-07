@@ -34,60 +34,51 @@ function Detail() {
         }
     }, []);
 
-    // แยก useEffect สำหรับการโหลดข้อมูลและรูปภาพ
-    useEffect(() => {
-        window.scrollTo(0, 0);
-        const fetchAnnounceData = async () => {
-            try {
-                const announceData = await getAnnounceById(id);
-                if (announceData) {
-                    setAnnounce(announceData);
-                }
-            } catch (error) {
-                console.error('Error fetching announce data:', error);
-            }
-        };
-        fetchAnnounceData();
-    }, [id]);
-
-    // แก้ไข useEffect สำหรับการโหลดรูปภาพและไฟล์แนบ
+    // แยก useEffect สำหรับการโหลดข้อมูลและไฟล์มีเดีย
     useEffect(() => {
         const fetchMediaData = async () => {
             try {
-                if (id) {
+                // โหลดข้อมูลประกาศ
+                const announceData = await getAnnounceById(id);
+                if (announceData) {
+                    setAnnounce(announceData);
+                    
                     // โหลดรูปภาพ
                     const imgUrl = await getAnnounceImage(id);
                     if (imgUrl) {
                         setImageUrl(imgUrl);
                     }
 
-                    // โหลดไฟล์แนบ - เช็คจาก attach_file แทน
-
-                    const attUrl = await getAnnounceAttach(id);
-                    if (attUrl) {
-                        setAttachUrl(attUrl);
+                    // โหลดไฟล์แนบเฉพาะเมื่อประกาศมี attach_file
+                    if (announceData.attach_file) {
+                        try {
+                            const attUrl = await getAnnounceAttach(id);
+                            if (attUrl) {
+                                setAttachUrl(attUrl);
+                            }
+                        } catch (attachError) {
+                            console.log('No attachment available or error fetching:', attachError);
+                        }
                     }
-
                 }
             } catch (error) {
-                console.error('Error fetching media:', error);
+                console.error('Error fetching data:', error);
             }
         };
 
         fetchMediaData();
-    }, [id, announce?.attach_file]); // ลบ imageUrl ออกจาก dependencies
 
-    // แยก useEffect สำหรับ cleanup
-    useEffect(() => {
+        // Cleanup function
         return () => {
-            if (imageUrl) {
+            // Clear blob URLs when component unmounts
+            if (imageUrl && imageUrl.startsWith('blob:')) {
                 URL.revokeObjectURL(imageUrl);
             }
-            if (attachUrl) {
+            if (attachUrl && attachUrl.startsWith('blob:')) {
                 URL.revokeObjectURL(attachUrl);
             }
         };
-    }, []); // ทำ cleanup เฉพาะตอน unmount
+    }, [id]);
 
     // เอา published_date มาแปลงเป็นวันที่และเวลาเพื่อเอามา show
     const publishedDate = new Date(announce?.publish_date)

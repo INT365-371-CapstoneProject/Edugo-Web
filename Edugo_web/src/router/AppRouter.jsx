@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext, createContext } from 'react';
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import jwt_decode from 'jwt-decode';
@@ -17,183 +17,107 @@ import ChangePassword from '../components/ChangePassword';
 import EditUser from '../components/EditUser';
 import Officialwebpage from '../components/Officialwebpage.jsx';
 
-// ฟังก์ชันตรวจสอบการเข้าสู่ระบบ สถานะ และบทบาท
+// ถ้ายังไม่ได้สร้าง context จริงๆ ให้สร้าง temporary context ง่ายๆ ก่อน
+const AuthContext = createContext({
+  auth: {
+    isValid: false,
+    role: null,
+    status: null,
+    verifyStatus: null,
+    message: null
+  }
+});
+
+// สร้างฟังก์ชันตรวจสอบสิทธิ์และ token ที่ปรับปรุงแล้ว
 const checkAuth = async () => {
-  const token = localStorage.getItem('token');
-  const validRoles = ['provider', 'admin', 'superadmin'];
+  const token = localStorage.getItem("token");
+  if (!token) {
+    return false;
+  }
   
-  if (!token) return { isValid: false };
-  if (isTokenExpired(token)) {
-    localStorage.removeItem('token');
-    return { isValid: false };
-  }
-
   try {
-    const decoded = jwt_decode(token);
-    const hasValidRole = decoded && decoded.role && validRoles.includes(decoded.role);
+    // ตรวจสอบว่า token หมดอายุหรือไม่
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const now = Math.floor(Date.now() / 1000);
     
-    // เพิ่มการตรวจสอบสถานะผู้ใช้จาก API โดยใช้ฟังก์ชัน checkUserStatus แทน
-    const profileData = await checkUserStatus(token);
-    
-    // ตรวจสอบถ้าสถานะผู้ใช้เป็น "Suspended"
-    if (profileData && profileData.profile.status === "Suspended") {
-      return {
-        isValid: false,
-        role: decoded.role,
-        status: "Suspended",
-        message: "Your account has been suspended. Please contact administrator."
-      };
+    if (payload.exp && payload.exp < now) {
+      console.log("Token expired");
+      localStorage.removeItem("token");
+      return false;
     }
     
-    // เพิ่มการตรวจสอบสถานะการยืนยัน (verify) สำหรับ provider
-    if (decoded.role === 'provider' && profileData && profileData.profile) {
-      const verifyStatus = profileData.profile.verify;
-      
-      if (verifyStatus === 'Waiting') {
-        return {
-          isValid: false,
-          role: 'provider',
-          status: "Active",
-          verifyStatus: "Waiting",
-          message: "Your account is waiting for approval. Please wait for admin verification."
-        };
-      } else if (verifyStatus === 'No') {
-        return {
-          isValid: false,
-          role: 'provider',
-          status: "Active",
-          verifyStatus: "Rejected",
-          message: "Your account verification was rejected. Please contact administrator for assistance."
-        };
-      }
-    }
-    
-    return {
-      isValid: hasValidRole,
-      role: decoded.role,
-      status: profileData?.profile.status || "Unknown",
-      verifyStatus: profileData?.profile.verify || null
-    };
+    return true;
   } catch (error) {
-    console.error('Token decode error:', error);
-    localStorage.removeItem('token');
-    return { isValid: false };
+    console.error("Invalid token:", error);
+    localStorage.removeItem("token");
+    return false;
   }
 };
 
-// คอมโพเนนต์สำหรับป้องกันเส้นทางส่วนตัว
+// ปรับปรุง PrivateRoute Component
 const PrivateRoute = ({ children }) => {
-  const [authState, setAuthState] = useState({ isValid: null, loading: true });
-  const [hasAlerted, setHasAlerted] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const verifyAuth = async () => {
       const auth = await checkAuth();
-      setAuthState({ ...auth, loading: false });
-      
-      // แสดงแจ้งเตือนตามสถานะต่างๆ
-      if (!auth.isValid) {
-        if (auth.status === "Suspended" && !hasAlerted) {
-          Swal.fire({
-            title: 'Account Suspended',
-            text: auth.message || 'Your account has been suspended. Please contact administrator.',
-            icon: 'error',
-            confirmButtonText: 'Understood',
-            confirmButtonColor: '#3085d6',
-            customClass: {
-              popup: 'animated fadeInDown'
-            }
-          });
-          setHasAlerted(true);
-          localStorage.removeItem('token');
-        } else if (auth.role === 'provider' && auth.verifyStatus === "Waiting" && !hasAlerted) {
-          Swal.fire({
-            title: 'Waiting for Approval',
-            text: auth.message || 'Your account is waiting for approval. Please wait for admin verification.',
-            icon: 'info',
-            confirmButtonText: 'Understood',
-            confirmButtonColor: '#3085d6',
-            customClass: {
-              popup: 'animated fadeInDown'
-            }
-          });
-          setHasAlerted(true);
-          localStorage.removeItem('token');
-        } else if (auth.role === 'provider' && auth.verifyStatus === "Rejected" && !hasAlerted) {
-          Swal.fire({
-            title: 'Verification Rejected',
-            text: auth.message || 'Your account verification was rejected. Please contact administrator for assistance.',
-            icon: 'error',
-            confirmButtonText: 'Understood',
-            confirmButtonColor: '#3085d6',
-            customClass: {
-              popup: 'animated fadeInDown'
-            }
-          });
-          setHasAlerted(true);
-          localStorage.removeItem('token');
-        } else if (!hasAlerted) {
-          Swal.fire({
-            title: 'Access Denied',
-            text: 'Please log in to continue.',
-            icon: 'warning',
-            confirmButtonText: 'OK',
-            confirmButtonColor: '#3085d6',
-            customClass: {
-              popup: 'animated fadeInDown'
-            }
-          });
-          setHasAlerted(true);
-        }
-      }
+      setIsAuthenticated(auth);
+      setIsLoading(false);
     };
     
     verifyAuth();
-  }, [hasAlerted]);
+  }, []);
 
-  if (authState.loading) {
-    return <div>Loading...</div>;
+  if (isLoading) {
+    // แสดง loading indicator ในระหว่างตรวจสอบ token
+    return <div className="flex justify-center items-center h-screen">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+    </div>;
   }
 
-  return authState.isValid ? children : <Navigate to="/login" replace />;
+  return isAuthenticated ? children : <Navigate to="/login" />;
 };
 
-// คอมโพเนนต์สำหรับเส้นทางสาธารณะ
+// ปรับปรุง PublicRoute Component ให้ทำงานได้โดยไม่ต้องพึ่ง AuthContext
 const PublicRoute = ({ children }) => {
-  const [authState, setAuthState] = useState({ isValid: null, loading: true });
   const [hasAlerted, setHasAlerted] = useState(false);
-
+  const [user, setUser] = useState(null);
+  
   useEffect(() => {
-    const verifyAuth = async () => {
-      const auth = await checkAuth();
-      setAuthState({ ...auth, loading: false });
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    
+    try {
+      const decoded = JSON.parse(atob(token.split('.')[1]));
+      setUser(decoded);
       
-      // แสดงแจ้งเตือนตามสถานะต่างๆ
-      if (!auth.isValid) {
-        if (auth.status === "Suspended" && !hasAlerted) {
+      // ตรวจสอบสถานะพิเศษของผู้ใช้
+      if (decoded && !hasAlerted) {
+        if (decoded.status === "Suspended") {
           Swal.fire({
             title: 'Account Suspended',
-            text: auth.message || 'Your account has been suspended. Please contact administrator.',
+            text: 'Your account has been suspended. Please contact administrator.',
             icon: 'error',
             confirmButtonText: 'Understood',
             confirmButtonColor: '#3085d6',
           });
           localStorage.removeItem('token');
           setHasAlerted(true);
-        } else if (auth.role === 'provider' && auth.verifyStatus === "Waiting" && !hasAlerted) {
+        } else if (decoded.role === 'provider' && decoded.verifyStatus === "Waiting") {
           Swal.fire({
             title: 'Waiting for Approval',
-            text: auth.message || 'Your account is waiting for approval. Please wait for admin verification.',
+            text: 'Your account is waiting for approval. Please wait for admin verification.',
             icon: 'info',
             confirmButtonText: 'Understood',
             confirmButtonColor: '#3085d6',
           });
           localStorage.removeItem('token');
           setHasAlerted(true);
-        } else if (auth.role === 'provider' && auth.verifyStatus === "Rejected" && !hasAlerted) {
+        } else if (decoded.role === 'provider' && decoded.verifyStatus === "Rejected") {
           Swal.fire({
             title: 'Verification Rejected',
-            text: auth.message || 'Your account verification was rejected. Please contact administrator for assistance.',
+            text: 'Your account verification was rejected. Please contact administrator for assistance.',
             icon: 'error',
             confirmButtonText: 'Understood',
             confirmButtonColor: '#3085d6',
@@ -202,18 +126,12 @@ const PublicRoute = ({ children }) => {
           setHasAlerted(true);
         }
       }
-    };
-    
-    verifyAuth();
+    } catch (error) {
+      console.error("Error decoding token:", error);
+    }
   }, [hasAlerted]);
-
-  if (authState.loading) {
-    return <div>Loading...</div>;
-  }
-
-  return (authState.isValid && authState.status !== "Suspended" && (authState.role !== 'provider' || authState.verifyStatus === 'Yes')) 
-    ? <Navigate to="/homepage" replace /> 
-    : children;
+  
+  return children;
 };
 
 // คอมโพเนนต์สำหรับเส้นทางที่เฉพาะ Provider เท่านั้นและต้องผ่านการยืนยัน
@@ -367,19 +285,23 @@ const AdminAndSuperadminRoute = ({ children }) => {
     : <Navigate to="/homepage" replace />;
 };
 
-// กำหนด base URL สำหรับการ routing
-const router = createBrowserRouter(
-  [
+// ปรับปรุง router configuration
+const AppRouter = () => {
+  const router = createBrowserRouter([
     {
-      path: '/',
+      path: "/",
+      element: (
+        <PrivateRoute>
+          <Homepage />
+        </PrivateRoute>
+      ),
+    },
+    {
+      path: "/un2",
       element: <Navigate to="/Officialwebpage" replace />,
     },
     {
-      path: '/un2',
-      element: <Navigate to="/Officialwebpage" replace />,
-    },
-    {
-      path: '/homepage',
+      path: "/homepage",
       element: (
         <PrivateRoute>
           <Homepage />
@@ -387,7 +309,7 @@ const router = createBrowserRouter(
       )
     },
     {
-      path: '/detail/:id',
+      path: "/detail/:id",
       element: (
         <PrivateRoute>
           <Detail />
@@ -395,7 +317,7 @@ const router = createBrowserRouter(
       ),
     },
     {
-      path: '/provider/detail/:id',
+      path: "/provider/detail/:id",
       element: (
         <PrivateRoute>
           <ProviderDetail />
@@ -403,7 +325,7 @@ const router = createBrowserRouter(
       ),
     },
     {
-      path: '/add',
+      path: "/add",
       element: (
         <PrivateRoute>
           <ProviderOnlyRoute>
@@ -413,7 +335,7 @@ const router = createBrowserRouter(
       ),
     },
     {
-      path: '/edit/:id',
+      path: "/edit/:id",
       element: (
         <PrivateRoute>
           <ProviderOnlyRoute>
@@ -423,7 +345,7 @@ const router = createBrowserRouter(
       ),
     },
     {
-      path: '/login',
+      path: "/login",
       element: (
         <PublicRoute>
           <Login />
@@ -431,7 +353,7 @@ const router = createBrowserRouter(
       ),
     },
     {
-      path: '/Officialwebpage',
+      path: "/Officialwebpage",
       element: (
         <PublicRoute>
           <Officialwebpage />
@@ -439,11 +361,11 @@ const router = createBrowserRouter(
       )
     },
     {
-      path: '/forgot-password',
+      path: "/forgot-password",
       element: <ForgotPass />,
     },
     {
-      path: '/profile',
+      path: "/profile",
       element: (
         <PrivateRoute>
           <Profile />
@@ -451,7 +373,7 @@ const router = createBrowserRouter(
       ),
     },
     {
-      path: '/admin/user/add',
+      path: "/admin/user/add",
       element: (
         <PrivateRoute>
           <SuperAdminRoute>
@@ -461,7 +383,7 @@ const router = createBrowserRouter(
       ),
     },
     {
-      path: '/admin/user/edit/:id',
+      path: "/admin/user/edit/:id",
       element: (
         <PrivateRoute>
           <AdminAndSuperadminRoute>
@@ -471,7 +393,7 @@ const router = createBrowserRouter(
       ),
     },
     {
-      path: '/change-password',
+      path: "/change-password",
       element: (
         <PrivateRoute>
           <ChangePassword />
@@ -479,17 +401,12 @@ const router = createBrowserRouter(
       ),
     },
     {
-      path: '*',
+      path: "*",
       element: <NotFound />,
     }
-  ],
-  {
-    basename: import.meta.env.BASE_URL,
-  }
-);
+  ]);
 
-function AppRouter() {
   return <RouterProvider router={router} />;
-}
+};
 
 export default AppRouter;

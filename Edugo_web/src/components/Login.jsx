@@ -95,6 +95,14 @@ function Login() {
     return "";
   };
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      // ถ้ามี token อยู่แล้ว ให้ redirect ไปที่หน้า homepage
+      navigate('/');
+    }
+  }, [navigate]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setInputErrors({ email_username: "", password: "" });
@@ -221,7 +229,10 @@ function Login() {
           }
         });
         
-        window.location.href = '/un2'; // Redirect to home page
+        setTimeout(() => {
+          // ทำการ redirect ไปยังหน้า homepage
+          navigate('/', { replace: true });
+        }, 100);
       }
     } catch (err) {
       if (err.response) {

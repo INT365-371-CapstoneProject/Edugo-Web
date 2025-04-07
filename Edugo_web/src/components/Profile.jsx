@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Nav from './Nav';
@@ -34,6 +34,34 @@ const validatePostalCode = (code) => {
 };
 
 const Profile = () => {
+    // Define notify at the top of the component before it's used
+    const notify = {
+        success: (msg) => toast.success(msg, {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            theme: "light"
+        }),
+        error: (msg) => toast.error(msg, {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            theme: "light"
+        }),
+        loading: (msg) => toast.loading(msg, {
+            position: "top-right",
+            closeOnClick: false,
+            closeButton: false,
+            theme: "light"
+        })
+    };
+
     const countryOptions = Country.getAllCountries().map(country => ({
         value: country.isoCode,
         label: country.name
@@ -157,55 +185,45 @@ const Profile = () => {
         }));
     };
 
-    const handleAvatarChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            if (file.size > 5 * 1024 * 1024) { // 5MB limit
-                notify.error("File size must be less than 5MB");
-                return;
-            }
-            
-            const validTypes = ['image/jpeg', 'image/png'];
-            if (!validTypes.includes(file.type)) {
-                notify.error("Please select a valid image file (JPEG, PNG)");
-                return;
-            }
-
-            setPreviousAvatarUrl(avatarUrl);
-            setNewAvatar(file);
-            const previewUrl = URL.createObjectURL(file);
-            setAvatarUrl(previewUrl);
-            notify.success("Image selected successfully!");
+    const handleAvatarChange = useCallback((e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        
+        if (file.size > 5 * 1024 * 1024) { // 5MB limit
+            notify.error("File size must be less than 5MB");
+            return;
         }
-    };
+        
+        const validTypes = ['image/jpeg', 'image/png'];
+        if (!validTypes.includes(file.type)) {
+            notify.error("Please select a valid image file (JPEG, PNG)");
+            return;
+        }
 
-    // Add notify object if not already defined
-    const notify = {
-        success: (msg) => toast.success(msg, {
-            position: "top-right",
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            theme: "light"
-        }),
-        error: (msg) => toast.error(msg, {
-            position: "top-right",
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            theme: "light"
-        }),
-        loading: (msg) => toast.loading(msg, {
-            position: "top-right",
-            closeOnClick: false,
-            closeButton: false,
-            theme: "light"
-        })
-    };
+        setPreviousAvatarUrl(avatarUrl);
+        setNewAvatar(file);
+        
+        // Revoke previous blob URL if exists to prevent memory leaks
+        if (avatarUrl && avatarUrl.startsWith('blob:')) {
+            URL.revokeObjectURL(avatarUrl);
+        }
+        
+        const previewUrl = URL.createObjectURL(file);
+        setAvatarUrl(previewUrl);
+        notify.success("Image selected successfully!");
+    }, [avatarUrl, notify]);
+
+    // เพิ่ม cleanup สำหรับ blob URLs เมื่อ component unmount
+    useEffect(() => {
+        return () => {
+            if (avatarUrl && avatarUrl.startsWith('blob:')) {
+                URL.revokeObjectURL(avatarUrl);
+            }
+            if (previousAvatarUrl && previousAvatarUrl.startsWith('blob:')) {
+                URL.revokeObjectURL(previousAvatarUrl);
+            }
+        };
+    }, [avatarUrl, previousAvatarUrl]);
 
     const handleSaveAvatar = async () => {
         if (!newAvatar) return;
