@@ -64,7 +64,7 @@ function AdminUserAdd() {
       [name]: value
     });
     
-    // Clear error when field is modified
+    // Clear error when field is modifie
     if (errors[name]) {
       setErrors({
         ...errors,
@@ -72,7 +72,6 @@ function AdminUserAdd() {
       });
     }
   };
-
   const validateForm = () => {
     const newErrors = {};
     
