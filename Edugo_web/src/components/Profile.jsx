@@ -39,17 +39,7 @@ const Profile = () => {
         label: country.name
     }));
 
-    const [userInfo, setUserInfo] = useState({});
-    const [userData, setUserData] = useState({
-        data: [],
-        pagination: {
-            limit: 10,
-            page: 1,
-            total: 0,
-            total_page: 1
-        },
-        currentUser: null
-    });
+    const [userData, setUserData] = useState({});
     const [avatarUrl, setAvatarUrl] = useState(null);
     const [userRole, setUserRole] = useState(null);
     const [editAvatar, setEditAvatar] = useState(false);
@@ -98,7 +88,7 @@ const Profile = () => {
         const fetchData = async () => {
             try {
                 const profileData = await getProfile();
-                setUserInfo(profileData.profile);
+                setUserData(profileData.profile);
                 
                 const imageUrl = await getAvatar();
                 if (imageUrl) {
@@ -122,9 +112,9 @@ const Profile = () => {
     }, []);
 
     useEffect(() => {
-        if (userInfo.country) {
+        if (userData.country) {
             const country = Country.getAllCountries().find(
-                c => c.name === userInfo.country
+                c => c.name === userData.country
             );
             if (country) {
                 setSelectedCountry({
@@ -140,16 +130,16 @@ const Profile = () => {
                 }));
                 setCities(cityOptions);
                 
-                // Set selected city if it exists in userInfo
-                if (userInfo.city) {
-                    const cityOption = cityOptions.find(c => c.label === userInfo.city);
+                // Set selected city if it exists in userData
+                if (userData.city) {
+                    const cityOption = cityOptions.find(c => c.label === userData.city);
                     if (cityOption) {
                         setSelectedCity(cityOption);
                     }
                 }
             }
         }
-    }, [userInfo.country, userInfo.city]);
+    }, [userData.country, userData.city]);
 
     const handleNameChange = (e) => {
         const { name, value } = e.target;
@@ -168,32 +158,25 @@ const Profile = () => {
     };
 
     const handleAvatarChange = (e) => {
-        // แก้ไขเพื่อตรวจสอบ file ให้ถูกต้องก่อนใช้งาน
         const file = e.target.files[0];
-        if (!file) return; // ตรวจสอบว่ามีไฟล์ถูกเลือกหรือไม่
-        
-        if (file.size > 5 * 1024 * 1024) { // 5MB limit
-            notify.error("File size must be less than 5MB");
-            return;
-        }
-        
-        const validTypes = ['image/jpeg', 'image/png'];
-        if (!validTypes.includes(file.type)) {
-            notify.error("Please select a valid image file (JPEG, PNG)");
-            return;
-        }
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                notify.error("File size must be less than 5MB");
+                return;
+            }
+            
+            const validTypes = ['image/jpeg', 'image/png'];
+            if (!validTypes.includes(file.type)) {
+                notify.error("Please select a valid image file (JPEG, PNG)");
+                return;
+            }
 
-        setPreviousAvatarUrl(avatarUrl);
-        setNewAvatar(file);
-        
-        // ลบ URL เก่าก่อนสร้าง URL ใหม่เพื่อป้องกันการรั่วไหลของหน่วยความจำ
-        if (avatarUrl && avatarUrl.startsWith('blob:')) {
-            URL.revokeObjectURL(avatarUrl);
+            setPreviousAvatarUrl(avatarUrl);
+            setNewAvatar(file);
+            const previewUrl = URL.createObjectURL(file);
+            setAvatarUrl(previewUrl);
+            notify.success("Image selected successfully!");
         }
-        
-        const previewUrl = URL.createObjectURL(file);
-        setAvatarUrl(previewUrl);
-        notify.success("Image selected successfully!");
     };
 
     // Add notify object if not already defined
@@ -306,8 +289,8 @@ const Profile = () => {
 
         try {
             // ตรวจสอบว่ามีการเปลี่ยนแปลง first_name หรือ last_name หรือไม่
-            const nameChanged = (formData.first_name !== userInfo.first_name) || 
-                              (formData.last_name !== userInfo.last_name);
+            const nameChanged = (formData.first_name !== userData.first_name) || 
+                              (formData.last_name !== userData.last_name);
 
             // ถ้าไม่มีการกรอกชื่อเลย ให้ส่งค่าเป็น null หรือ empty string
             const dataToUpdate = {
@@ -325,7 +308,7 @@ const Profile = () => {
                 notify.success("Personal information updated successfully!");
                 
                 // Update UI
-                setUserInfo(prev => ({
+                setUserData(prev => ({
                     ...prev,
                     ...dataToUpdate
                 }));
@@ -341,13 +324,13 @@ const Profile = () => {
         } catch (error) {
             notify.error(error.response?.data?.message || "Failed to update personal information");
             // Revert form data to original values
-            setFormData(userInfo);
+            setFormData(userData);
         }
     };
 
     const handleSaveCompany = async () => {
-        // ตรวจสอบว่ามี First Name และ Last Name หรือไม่จาก userInfo
-        if (!userInfo.first_name || !userInfo.last_name) {
+        // ตรวจสอบว่ามี First Name และ Last Name หรือไม่จาก userData
+        if (!userData.first_name || !userData.last_name) {
             notify.error("Please enter your First Name and Last Name in Personal Information section before updating company details");
             return;
         }
@@ -371,7 +354,7 @@ const Profile = () => {
         try {
             // Update UI immediately
             const updatedData = { ...formData };
-            setUserInfo(prev => ({ ...prev, ...updatedData }));
+            setUserData(prev => ({ ...prev, ...updatedData }));
             setEditCompany(false);
 
             // Send request in background
@@ -384,7 +367,7 @@ const Profile = () => {
             notify.success("Company information updated successfully!");
         } catch (error) {
             notify.error("Failed to update company information");
-            setUserInfo(prev => ({ ...prev })); // This line doesn't restore the previous state correctly
+            setUserData(prev => ({ ...prev }));
         }
     };
 
@@ -392,7 +375,7 @@ const Profile = () => {
         try {
             // Update UI immediately
             const updatedName = { ...nameFormData };
-            setUserInfo(prev => ({
+            setUserData(prev => ({
                 ...prev,
                 ...updatedName
             }));
@@ -414,7 +397,7 @@ const Profile = () => {
         } catch (error) {
             console.error('Error updating name:', error);
             // Revert changes if save fails
-            setUserInfo(prev => ({ ...prev }));
+            setUserData(prev => ({ ...prev }));
         }
     };
 
@@ -607,11 +590,11 @@ const Profile = () => {
             <>
                 <div>
                     <p className="text-sm text-gray-500">Country</p>
-                    <p className="text-base">{userInfo.country || 'Not specified'}</p>
+                    <p className="text-base">{userData.country || 'Not specified'}</p>
                 </div>
                 <div>
                     <p className="text-sm text-gray-500">City</p>
-                    <p className="text-base">{userInfo.city || 'Not specified'}</p>
+                    <p className="text-base">{userData.city || 'Not specified'}</p>
                 </div>
             </>
         );
@@ -626,9 +609,9 @@ const Profile = () => {
                     <div className="flex-1 text-center md:text-left">
                         <div className="flex flex-col gap-2">
                             <h2 className="name-font">
-                                {userInfo.first_name && userInfo.last_name 
-                                    ? `${userInfo.first_name} ${userInfo.last_name} (Admin name)`
-                                    : `${userInfo.username} (Admin name)`}
+                                {userData.first_name && userData.last_name 
+                                    ? `${userData.first_name} ${userData.last_name} (Admin name)`
+                                    : `${userData.username} (Admin name)`}
                             </h2>
                             <p className="text-sm text-gray-500">
                                 {userRole === 'superadmin' ? 'Super Admin' : 'Administrator'}
@@ -649,7 +632,7 @@ const Profile = () => {
                             () => setEditPersonal(false),
                             () => {
                                 setEditPersonal(true);
-                                setFormData(userInfo);
+                                setFormData(userData);
                             }
                         )}
                     </div>
@@ -701,11 +684,11 @@ const Profile = () => {
                             <>
                                 <div>
                                     <p className="text-sm text-gray-500">First Name</p>
-                                    <p className="text-base">{userInfo.first_name || 'Not specified'}</p>
+                                    <p className="text-base">{userData.first_name || 'Not specified'}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-500">Last Name</p>
-                                    <p className="text-base">{userInfo.last_name || 'Not specified'}</p>
+                                    <p className="text-base">{userData.last_name || 'Not specified'}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-500">Role</p>
@@ -713,11 +696,11 @@ const Profile = () => {
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-500">Phone</p>
-                                    <p className="text-base">{userInfo.phone_number || 'Not specified'}</p>
+                                    <p className="text-base">{userData.phone_number || 'Not specified'}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-500">Email Address</p>
-                                    <p className="text-base">{userInfo.email || 'Not specified'}</p>
+                                    <p className="text-base">{userData.email || 'Not specified'}</p>
                                 </div>
                             </>
                         )}
@@ -748,7 +731,7 @@ const Profile = () => {
                                 />
                             ) : (
                                 <h2 className="name-font">
-                                    {userInfo.company_name} (Company name)
+                                    {userData.company_name} (Company name)
                                 </h2>
                             )}
                             <p className="text-sm text-gray-500 mt-2">Provider</p>
@@ -760,13 +743,13 @@ const Profile = () => {
                         () => {
                             setEditName(false);
                             setNameFormData({
-                                company_name: userInfo.company_name || '',
+                                company_name: userData.company_name || '',
                             });
                         },
                         () => {
                             setEditName(true);
                             setNameFormData({
-                                company_name: userInfo.company_name || '',
+                                company_name: userData.company_name || '',
                             });
                         }
                     )}
@@ -784,7 +767,7 @@ const Profile = () => {
                             () => setEditCompany(false),
                             () => {
                                 setEditCompany(true);
-                                setFormData(userInfo);
+                                setFormData(userData);
                             }
                         )}
                     </div>
@@ -888,23 +871,23 @@ const Profile = () => {
                             <>
                                 <div>
                                     <p className="text-sm text-gray-500 mt-1">Address</p>
-                                    <p className="text-base mt-5 mb-4">{userInfo.address}</p>
+                                    <p className="text-base mt-5 mb-4">{userData.address}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-500 mt-1">Country</p>
-                                    <p className="text-base mt-5 mb-4">{userInfo.country}</p>
+                                    <p className="text-base mt-5 mb-4">{userData.country}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-500">City</p>
-                                    <p className="text-base mt-5">{userInfo.city}</p>
+                                    <p className="text-base mt-5">{userData.city}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-500">Postal code</p>
-                                    <p className="text-base mt-5">{userInfo.postal_code}</p>
+                                    <p className="text-base mt-5">{userData.postal_code}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-500 mt-3">Phone</p>
-                                    <p className="text-base mt-5">{userInfo.phone}</p>
+                                    <p className="text-base mt-5">{userData.phone}</p>
                                 </div>
                             </>
                         )}
@@ -913,7 +896,7 @@ const Profile = () => {
             </div>
 
             {/* แนะนำให้กรอก Personal Information ก่อนถ้ายังไม่มี First Name และ Last Name */}
-            {(!userInfo.first_name || !userInfo.last_name) && (
+            {(!userData.first_name || !userData.last_name) && (
                 <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
                     <div className="flex">
                         <div className="ml-3">
@@ -936,7 +919,7 @@ const Profile = () => {
                             () => setEditPersonal(false),
                             () => {
                                 setEditPersonal(true);
-                                setFormData(userInfo);
+                                setFormData(userData);
                             }
                         )}
                     </div>
@@ -988,23 +971,23 @@ const Profile = () => {
                             <>
                                 <div>
                                     <p className="text-sm text-gray-500">First Name</p>
-                                    <p className="text-base">{userInfo.first_name || '-'}</p>
+                                    <p className="text-base">{userData.first_name || '-'}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-500">Last Name</p>
-                                    <p className="text-base">{userInfo.last_name || '-'}</p>
+                                    <p className="text-base">{userData.last_name || '-'}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-500">Role</p>
-                                    <p className="text-base">{userInfo.role}</p>
+                                    <p className="text-base">{userData.role}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-500">Phone</p>
-                                    <p className="text-base">{userInfo.phone_person || '-'}</p>
+                                    <p className="text-base">{userData.phone_person || '-'}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-500">Email Address</p>
-                                    <p className="text-base">{userInfo.email}</p>
+                                    <p className="text-base">{userData.email}</p>
                                 </div>
                             </>
                         )}

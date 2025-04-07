@@ -64,7 +64,6 @@ function Add() {
     // เพิ่ม state ใหม่สำหรับเก็บ URL รูปภาพจริง
     const [actualImageUrl, setActualImageUrl] = useState('');
     const [displayImage, setDisplayImage] = useState(image);
-    const [pdfPreviewUrl, setPdfPreviewUrl] = useState(null);
 
     const handletoHome = () => {
         if (isEditMode) {
@@ -503,26 +502,16 @@ function Add() {
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
-        if (file && file.type === 'application/pdf') {
-            // สร้าง URL สำหรับ preview PDF
-            const fileUrl = URL.createObjectURL(file);
-            setPdfPreviewUrl(fileUrl);
+        if (file && file.type !== 'application/pdf') {
+            toast.error('Only PDF files are allowed');
+            document.getElementById('fileNameInput').placeholder = attachFileName || 'No file chosen';
+            setAddPost({ ...addPost, attach_file: null });
+        } else if (file) {
             setAttachFileName(file.name);
+            document.getElementById('fileNameInput').placeholder = file.name;
             setAddPost({ ...addPost, attach_file: file });
-        } else {
-            toast.error('รองรับเฉพาะไฟล์ PDF เท่านั้น');
-            setPdfPreviewUrl(null);
         }
     };
-
-    // Cleanup เมื่อ component unmount
-    useEffect(() => {
-        return () => {
-            if (pdfPreviewUrl) {
-                URL.revokeObjectURL(pdfPreviewUrl);
-            }
-        };
-    }, [pdfPreviewUrl]);
 
     // ฟังก์ชันจัดรูปแบบวันที่
     const handleDateChange = (e) => {
@@ -858,15 +847,6 @@ function Add() {
                                     </div>
                                     {/* description */}
                                 </div>
-                                {pdfPreviewUrl && (
-                                    <div className="mt-4">
-                                        <iframe
-                                            src={pdfPreviewUrl}
-                                            className="w-full h-96 border rounded"
-                                            title="PDF Preview"
-                                        />
-                                    </div>
-                                )}
                                 <div className='-mt-28 border-section mb-40'>
                                     <div className='mx-8 mt-6 flex flex-col'>
                                         <label className='heading-text'>Description

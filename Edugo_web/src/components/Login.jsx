@@ -12,7 +12,6 @@ const APT_ROOT = import.meta.env.VITE_API_ROOT;
 function Login() {
   const navigate = useNavigate();
   const [isMobileOrTablet, setIsMobileOrTablet] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     // ตรวจสอบขนาดหน้าจอเมื่อคอมโพเนนต์โหลด
@@ -98,7 +97,6 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
     setInputErrors({ email_username: "", password: "" });
     
     const inputValue = formData.email || formData.username;
@@ -122,10 +120,7 @@ function Login() {
       hasError = true;
     }
 
-    if (hasError) {
-      setIsLoading(false);
-      return;
-    }
+    if (hasError) return;
 
     try {
       const payload = {
@@ -261,8 +256,6 @@ function Login() {
           password: "Please check your internet connection"
         });
       }
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -350,19 +343,8 @@ function Login() {
                   </div>
                   {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
                   <div className="form-control mt-6">
-                    <button 
-                      type="submit" 
-                      disabled={isLoading}
-                      className={`btn btn-primary ${isLoading ? 'opacity-50' : ''}`}
-                    >
-                      {isLoading ? (
-                        <div className="flex items-center">
-                          <div className="w-5 h-5 border-t-2 border-b-2 border-white rounded-full animate-spin mr-2"></div>
-                          กำลังเข้าสู่ระบบ...
-                        </div>
-                      ) : (
-                        'เข้าสู่ระบบ'
-                      )}
+                    <button type="submit" className="btn btn-primary bg-[#355FFF] hover:bg-[#2347DD] text-white border-0">
+                      Login
                     </button>
                   </div>
                 </form>
