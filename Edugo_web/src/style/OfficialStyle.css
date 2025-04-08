@@ -54,16 +54,9 @@ body {
   
   /* เอฟเฟกต์เมื่อ hover */
   .login-btn:hover {
-    background-color: #0056b3; /* เปลี่ยนเป็นสีน้ำเงินเข้มเมื่อ hover */
-    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.5); /* เพิ่มเงาให้ดูลอยขึ้น */
-    transform: translateY(-2px); /* ทำให้ปุ่มลอยขึ้นเล็กน้อย */
+    background-color: #007BFF; /* เปลี่ยนเป็นสีน้ำเงินเข้มเมื่อ hover */
+    box-shadow: 0 4px 15px rgba(74, 161, 255, 0.5); /* เพิ่มเงาให้ดูลอยขึ้น */
   }
-  
-  /* เอฟเฟกต์เมื่อกด */
-  .login-btn:active {
-    transform: translateY(2px); /* เมื่อกดปุ่มจะทำให้ปุ่มดูเหมือนกดลง */
-  }
-
 /* Main Content */
 .content {
     color: rgb(0, 0, 0);
@@ -103,6 +96,7 @@ body {
   border: none;
   border-radius: 8px;
   cursor: pointer;
+  transition: all 0.3s ease; /* เพิ่มการเปลี่ยนแปลงอย่างนุ่มนวล */
 }
 
   /* เอฟเฟกต์เมื่อ hover */
