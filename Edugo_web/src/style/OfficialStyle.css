@@ -190,15 +190,22 @@ body {
   }
 
   .home-container {
-    background-size: 110%; /* ปรับขนาดรูปเป็น 50% ของพื้นที่ */
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    background-position: -15px 620px; /* ปรับตำแหน่งของรูป */
+    background-image: none; /* ลบภาพพื้นหลัง */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    height: 100vh;
 }
 
   /* Main Content */
   .content {
-    margin-top: -120px; /* เอา margin-top ออกเพื่อให้ content ชิดกับ navbar */
+    flex-direction: column; /* จัดเรียงเนื้อหาเป็นแนวตั้ง */
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin-top: 0; /* เอา margin-top ออกเพื่อให้ชิดกลาง */
     width: 90%;
   }
   /* Text Container */
@@ -314,5 +321,4 @@ html, body {
     color: #000000 !important;
   }
 }
-
 }
