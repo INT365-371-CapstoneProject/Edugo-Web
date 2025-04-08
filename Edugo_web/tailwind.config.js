@@ -39,6 +39,8 @@ export default {
         // ตั้งค่า theme ของ DaisyUI ให้เป็นสีขาว
         light: {
           "base-100": "#ffffff", // สีพื้นหลัง
+          "primary": "#007BFF", // สีนำเงิน (หรือใช้ชื่อ custom)
+          "primary-content": "#ffffff", // สีตัวหนังสือของ primary
         }
       },
     ],
