@@ -1,14 +1,3 @@
-/* ✅ ทำให้เนื้อหาทั้งหมดอยู่ตรงกลางจอ */
-.Background {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;  /* จัดตรงกลางแนวตั้ง */
-  align-items: center;  /* จัดตรงกลางแนวนอน */
-  height: 100vh; /* ให้เต็มจอ */
-  text-align: center;
-  padding: 20px;
-}
-
 /* ✅ ปรับขนาดรูปภาพให้เหมาะสม */
 .picture {
   width: 60%;
