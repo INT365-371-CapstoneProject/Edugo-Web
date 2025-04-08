@@ -242,7 +242,78 @@ body {
   }
 }
 
+/* Responsive สำหรับ iPad Air (แนวตั้ง) */
+@media (min-width: 820px) and (max-width: 1024px){
+  .content {
+    flex-direction: column; /* จัดเรียงเนื้อหาเป็นแนวตั้ง */
+    align-items: center;
+    text-align: center;
+    width: 92%;
+  }
+  .text-container {
+    max-width: 90%;
+    text-align: left;
+  }
 
+  .image-container {
+    display: none; /* ซ่อนรูปภาพ */
+  }
+
+  .headline {
+    font-size: 24px;
+  }
+
+  .subtext {
+    font-size: 16px;
+    width: 100%;
+  }
+  .download-btn {
+    padding: 15px 20px;  /* ปรับขนาด padding */
+    font-size: 16px;     /* ปรับขนาดตัวอักษร */
+    width: 100%;         /* ทำให้กว้างขึ้นแต่ไม่เต็ม 100% */
+    max-width: 800px;   /* จำกัดความกว้างสูงสุด */
+  }
+  .login-btn {
+    display: none;
+}
+}
+
+/* Responsive สำหรับ iPad Pro (แนวตั้ง) */
+@media (min-width: 1025px) and (max-width: 1366px) and (orientation: portrait) {
+  .content {
+    flex-direction: column; /* จัดเรียงเนื้อหาเป็นแนวตั้ง */
+    align-items: center;
+    text-align: center;
+    width: 80%;
+  }
+
+  .text-container {
+    max-width: 90%;
+    text-align: left;
+  }
+
+  .image-container {
+    display: none; /* ซ่อนรูปภาพ */
+  }
+
+  .headline {
+    font-size: 24px;
+  }
+
+  .subtext {
+    font-size: 16px;
+    width: 100%;
+  }
+  .download-btn {
+    padding: 15px 20px;  /* ปรับขนาด padding */
+    font-size: 16px;     /* ปรับขนาดตัวอักษร */
+    width: 100%;         /* ทำให้กว้างขึ้นแต่ไม่เต็ม 100% */
+    max-width: 800px;   /* จำกัดความกว้างสูงสุด */
+  }
+  .login-btn {
+    display: none;
+}
+}
 /* แอนิเมชัน Fade In และ Slide Up */
 @keyframes fadeInSlideUp {
   0% {
