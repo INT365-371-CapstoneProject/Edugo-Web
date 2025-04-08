@@ -16,7 +16,7 @@
     
     border-radius: 15px;
     border: 1.5px solid var(--Foundation-Grey-Normal, #CBD5E0);
-    background: var(--White, #FFF);
+    background-color: white !important;
 }
 .Background {
     @apply min-h-screen bg-gray-50;
@@ -101,7 +101,7 @@ input::selection, textarea::selection {
     }
     
     .ProfileContainer, .border-lightgrey, .border-section, .Maincontainer, .Background {
-      background-color: #FFF !important;
+      background-color: #ffffff !important;
       color: #333 !important;
     }
   }

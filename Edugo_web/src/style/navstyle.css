@@ -7,7 +7,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        background-color: white;
+        background-color: white !important;
         box-shadow: 0px 2px 10px 0px rgba(0, 0, 0, 0.07)!important;
         position: sticky; /* ทำให้ navbar ติดอยู่ด้านบน */
         top: 0; /* อยู่ที่ด้านบนสุด */
