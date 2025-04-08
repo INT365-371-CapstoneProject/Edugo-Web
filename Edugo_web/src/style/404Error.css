@@ -1,18 +1,64 @@
-.picture{
-margin-top: 68px;
-width: 30%;
-justify-content: center;
-align-items: center;
+/* ทำให้ div กลางจอ */
+.Background {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  text-align: center;
+  padding: 20px;
 }
-.errofont{
-padding: 33px;
-color: #000;
-text-align: center;
-font-size: 28.818px;
-font-style: normal;
-font-weight: 600;
-line-height: 43.227px; /* 150% */
+
+/* ปรับขนาดรูปภาพให้เหมาะกับจอมือถือ */
+.picture {
+  width: 70%;
+  max-width: 450px;
+  margin-top: 20px;
 }
-.errorspan {
-    display: block;
+
+/* ปรับข้อความให้อ่านง่ายบนจอเล็ก */
+.errofont {
+  padding: 20px;
+  font-size: 24px;
+  line-height: 36px;
+}
+
+/* ปรับปุ่มให้ขนาดเหมาะสมกับมือถือ */
+button {
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  margin-top: 20px;
+}
+  /* เอฟเฟกต์เมื่อ hover */
+  .button:hover {
+    background-color: #0056b3; /* เปลี่ยนเป็นสีน้ำเงินเข้มเมื่อ hover */
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.5); /* เพิ่มเงาให้ดูลอยขึ้น */
+    transform: translateY(-2px); /* ทำให้ปุ่มลอยขึ้นเล็กน้อย */
   }
+  
+  /* เอฟเฟกต์เมื่อกด */
+  .button:active {
+    transform: translateY(2px); /* เมื่อกดปุ่มจะทำให้ปุ่มดูเหมือนกดลง */
+  }
+
+/* Responsive สำหรับมือถือ */
+@media (max-width: 768px) {
+  .picture {
+      width: 90%;
+      max-width: 500px;
+  }
+
+  .errofont {
+    padding-top: 32px;
+      font-size: 24px;
+      line-height: 30px;
+  }
+
+  button {
+      width: 100%;
+      max-width: 250px;
+  }
+}
