@@ -240,7 +240,7 @@ body {
 }
 
 /* Media Queries สำหรับจอที่ใหญ่กว่า Desktop (เช่น 1200px ขึ้นไป) */
-@media (min-width: 1920px) {
+@media (min-width: 2040px) {
   /* ปรับความกว้างของ .home-container */
     .home-container {
       background-size: 45%; /* ปรับขนาดพื้นหลัง */
