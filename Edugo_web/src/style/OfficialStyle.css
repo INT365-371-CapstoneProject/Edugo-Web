@@ -256,8 +256,8 @@ body {
   }
 
   .text-container {
-    max-width: 100%;
-    text-align: center;
+    max-width: 70%;
+    text-align: left;
   }
 
   .headline {
