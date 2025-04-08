@@ -11,39 +11,23 @@ const APT_ROOT = import.meta.env.VITE_API_ROOT;
 
 function Login() {
   const navigate = useNavigate();
-  const [isMobileOrTablet, setIsMobileOrTablet] = useState(false);
 
+  // ตรวจสอบประเภทอุปกรณ์เมื่อคอมโพเนนต์โหลด (เฉพาะครั้งแรกเท่านั้น)
   useEffect(() => {
-    // ตรวจสอบขนาดหน้าจอเมื่อคอมโพเนนต์โหลด
-    checkScreenSize();
-    // เพิ่ม event listener สำหรับการเปลี่ยนแปลงขนาดหน้าจอ
-    window.addEventListener('resize', checkScreenSize);
-    
-    // cleanup event listener เมื่อคอมโพเนนต์ถูกทำลาย
-    return () => {
-      window.removeEventListener('resize', checkScreenSize);
+    // ฟังก์ชันตรวจสอบว่าเป็นอุปกรณ์มือถือหรือแท็บเล็ตหรือไม่ โดยไม่สนใจขนาดหน้าจอ
+    const isMobileOrTabletDevice = () => {
+      const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+      // สร้าง pattern สำหรับตรวจจับเฉพาะอุปกรณ์มือถือและแท็บเล็ต
+      const mobilePattern = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
+      return mobilePattern.test(userAgent);
     };
-  }, []);
-
-  const checkScreenSize = () => {
-    // ตรวจสอบว่าเป็นมือถือหรือแท็บเล็ตโดยดูจากความกว้างหน้าจอ
-    // โดยทั่วไป tablet มีความกว้างมากกว่า 480px แต่น้อยกว่า 1024px
-    if (window.innerWidth <= 1024) {
-      setIsMobileOrTablet(true);
-      // แสดง SweetAlert แจ้งเตือน
-      Swal.fire({
-        title: 'ไม่รองรับการใช้งานบนอุปกรณ์นี้',
-        text: 'กรุณาใช้งานผ่านคอมพิวเตอร์เพื่อประสบการณ์การใช้งานที่ดีที่สุด',
-        icon: 'warning',
-        confirmButtonText: 'เข้าใจแล้ว'
-      }).then(() => {
-        // เมื่อกดปุ่ม OK จะ redirect ไปหน้า Officialwebpage
-        navigate('/');
-      });
-    } else {
-      setIsMobileOrTablet(false);
+    
+    // ถ้าเป็นอุปกรณ์มือถือหรือแท็บเล็ต ให้เปลี่ยนเส้นทางไปยังหน้า Officialwebpage
+    if (isMobileOrTabletDevice()) {
+      navigate('/');
     }
-  };
+    // ไม่ต้องเพิ่ม event listener สำหรับการเปลี่ยนขนาดหน้าจอ
+  }, [navigate]); // ทำงานเพียงครั้งเดียวเมื่อคอมโพเนนต์โหลด
 
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -259,110 +243,106 @@ function Login() {
     }
   };
 
+  // ปรับปรุงส่วน return โดยเพิ่มเงื่อนไขการแสดงผล
   return (
-    <>
-      {!isMobileOrTablet && (
-        <div className="flex items-center justify-center min-h-screen overflow-hidden font-['DM_Sans'] Backgound">
-          <div className="card flex-shrink-0 w-full max-w-5xl shadow-sm bg-white border">
-            <div className="hero-content flex-row gap-0 p-0">
-              <div className="w-1/2 p-12">
-                <form onSubmit={handleSubmit}>
-                  <div className="form-control text-left">
-                    <h2 className="text-4xl font-normal text-gray-800 mb-4">Welcome back</h2>
-                    <p className="text-sm font-light text-gray-600 mb-6">Welcome back to EDUGO! Discover valuable educational information and opportunities. Register for access to reliable scholarships and resources.</p>
-                  </div>
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text text-[18px] leading-[25px] text-black font-normal">Email/Username</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="email_or_username"
-                      value={formData.email || formData.username}
-                      onChange={handleChange}
-                      placeholder="Enter your email address or username"
-                      className={`input transition-colors border rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-100
-                        ${inputErrors.email_username 
-                          ? 'bg-red-50 border-red-500 focus:border-red-500' 
-                          : 'bg-gray-100 focus:bg-gray-100'}`}
-                    />
-                    {/* Only show message if it's not the combined error state */}
-                    {inputErrors.email_username && inputErrors.email_username !== "error" && (
-                      <label className="label">
-                        <span className="label-text-alt text-red-500">{inputErrors.email_username}</span>
-                      </label>
-                    )}
-                  </div>
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text text-[18px] leading-[25px] text-black mt-4 font-normal">Password</span>
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        placeholder="Enter your password"
-                        className={`input w-full transition-colors border rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-100
-                          ${inputErrors.password 
-                            ? 'bg-red-50 border-red-500 focus:border-red-500' 
-                            : 'bg-gray-100 focus:bg-gray-100'}`}
-                      />
-                      <button
-                        type="button"
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-500"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
-                      </button>
-                    </div>
-                    {inputErrors.password && (
-                      <label className="label">
-                        <span className="label-text-alt text-red-500">{inputErrors.password}</span>
-                      </label>
-                    )}
-                    <div className="flex items-center justify-between mt-2">
-                      <label className="flex items-center gap-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          name="remember_me"
-                          checked={formData.remember_me}
-                          onChange={handleChange}
-                          className="checkbox checkbox-sm checkbox-primary"
-                        />
-                        <span className="label-text text-gray-600">Remember me</span>
-                      </label>
-                      <Link 
-                        to="/forgot-password" 
-                        className="label-text-alt link link-hover text-[#64738B] pt-12"
-                      >
-                        Forgot password?
-                      </Link>
-                    </div>
-                  </div>
-                  {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
-                  <div className="form-control mt-6">
-                    <button type="submit" className="btn btn-primary bg-[#355FFF] hover:bg-[#2347DD] text-white border-0">
-                      Login
-                    </button>
-                  </div>
-                </form>
+    <div className="flex items-center justify-center min-h-screen overflow-hidden font-['DM_Sans'] Backgound">
+      <div className="card flex-shrink-0 w-full max-w-5xl shadow-sm bg-white border">
+        <div className="hero-content flex-row gap-0 p-0">
+          <div className="w-1/2 p-12">
+            <form onSubmit={handleSubmit}>
+              <div className="form-control text-left">
+                <h2 className="text-4xl font-normal text-gray-800 mb-4">Welcome back</h2>
+                <p className="text-sm font-light text-gray-600 mb-6">Welcome back to EDUGO! Discover valuable educational information and opportunities. Register for access to reliable scholarships and resources.</p>
               </div>
-
-              <div className="bg-[#EBEFFF] flex items-center justify-center mr-12 py-16 bordder rounded-lg">
-                <img
-                  src={imageLogin}
-                  alt="Edugo Welcome"
-                  className="welcomelogin"
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text text-[18px] leading-[25px] text-black font-normal">Email/Username</span>
+                </label>
+                <input
+                  type="text"
+                  name="email_or_username"
+                  value={formData.email || formData.username}
+                  onChange={handleChange}
+                  placeholder="Enter your email address or username"
+                  className={`input transition-colors border rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-100
+                    ${inputErrors.email_username 
+                      ? 'bg-red-50 border-red-500 focus:border-red-500' 
+                      : 'bg-gray-100 focus:bg-gray-100'}`}
                 />
+                {/* Only show message if it's not the combined error state */}
+                {inputErrors.email_username && inputErrors.email_username !== "error" && (
+                  <label className="label">
+                    <span className="label-text-alt text-red-500">{inputErrors.email_username}</span>
+                  </label>
+                )}
               </div>
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text text-[18px] leading-[25px] text-black mt-4 font-normal">Password</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    placeholder="Enter your password"
+                    className={`input w-full transition-colors border rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-100
+                      ${inputErrors.password 
+                        ? 'bg-red-50 border-red-500 focus:border-red-500' 
+                        : 'bg-gray-100 focus:bg-gray-100'}`}
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-500"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
+                  </button>
+                </div>
+                {inputErrors.password && (
+                  <label className="label">
+                    <span className="label-text-alt text-red-500">{inputErrors.password}</span>
+                  </label>
+                )}
+                <div className="flex items-center justify-between mt-2">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      name="remember_me"
+                      checked={formData.remember_me}
+                      onChange={handleChange}
+                      className="checkbox checkbox-sm checkbox-primary"
+                    />
+                    <span className="label-text text-gray-600">Remember me</span>
+                  </label>
+                  <Link 
+                    to="/forgot-password" 
+                    className="label-text-alt link link-hover text-[#64738B] pt-12"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
+              </div>
+              {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
+              <div className="form-control mt-6">
+                <button type="submit" className="btn btn-primary bg-[#355FFF] hover:bg-[#2347DD] text-white border-0">
+                  Login
+                </button>
+              </div>
+            </form>
+          </div>
 
-            </div>
+          <div className="bg-[#EBEFFF] flex items-center justify-center mr-12 py-16 bordder rounded-lg">
+            <img
+              src={imageLogin}
+              alt="Edugo Welcome"
+              className="welcomelogin"
+            />
           </div>
         </div>
-      )}
-    </>
+      </div>
+    </div>
   );
 }
 
