@@ -33,4 +33,14 @@ export default {
   corePlugins: {
     // ...existing corePlugins
   },
+  daisyui: {
+    themes: [
+      {
+        // ตั้งค่า theme ของ DaisyUI ให้เป็นสีขาว
+        light: {
+          "base-100": "#ffffff", // สีพื้นหลัง
+        }
+      },
+    ],
+  },
 }
