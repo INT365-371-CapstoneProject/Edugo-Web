@@ -12,8 +12,7 @@ function NotFound() {
     <>
         <div className="Background">
       <img src={error404} alt="" className="picture" />
-      <p className="errofont">We couldn’t find the page 
-      <span className='errorspan'>you were looking for..</span></p>
+      <p className="errofont">We couldn’t find the page you were looking for...</p>
       <button
         onClick={() => navigate('/')}
         className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none"
