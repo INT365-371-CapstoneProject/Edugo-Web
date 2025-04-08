@@ -68,15 +68,29 @@ const Profile = () => {
     };
 
     useEffect(() => {
+        const checkUserRole = () => {
+            const token = localStorage.getItem('token');
+            if (token) {
+                try {
+                    const decoded = jwt_decode(token);
+                    setUserRole(decoded.role);
+                } catch (error) {
+                    console.error('Error decoding token:', error);
+                    setUserRole('provider');
+                }
+            } else {
+                setUserRole('provider');
+            }
+        };
+
+        checkUserRole();
+        
         const fetchData = async () => {
             try {
-                // ใช้ Promise.all เพื่อเรียกข้อมูลพร้อมกัน
-                const [profileData, imageUrl] = await Promise.all([
-                    getProfile(),
-                    getAvatar()
-                ]);
-
+                const profileData = await getProfile();
                 setUserData(profileData.profile);
+                
+                const imageUrl = await getAvatar();
                 if (imageUrl) {
                     setAvatarUrl(imageUrl);
                     setPreviousAvatarUrl(imageUrl);
@@ -88,59 +102,48 @@ const Profile = () => {
             }
         };
 
-        const checkUserRole = () => {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                setUserRole('provider');
-                return;
-            }
-            
-            try {
-                const decoded = jwt_decode(token);
-                setUserRole(decoded.role || 'provider');
-            } catch (error) {
-                console.error('Error decoding token:', error);
-                setUserRole('provider');
-            }
-        };
-
-        checkUserRole();
         fetchData();
 
-        // Cleanup function
         return () => {
-            if (avatarUrl?.startsWith('blob:')) {
+            if (avatarUrl && avatarUrl.startsWith('blob:')) {
                 URL.revokeObjectURL(avatarUrl);
             }
         };
-    }, []); // ลดการ dependency เหลือแค่ array เปล่า
+    }, []);
 
-    // แยก useEffect สำหรับการจัดการ country/city
     useEffect(() => {
-        if (!userData.country) return;
-
-        const country = Country.getAllCountries().find(
-            c => c.name === userData.country
-        );
-        
-        if (!country) return;
-
-        setSelectedCountry({
-            value: country.isoCode,
-            label: country.name
-        });
-        
-        const countryCities = City.getCitiesOfCountry(country.isoCode) || [];
-        const cityOptions = countryCities.map(city => ({
-            value: city.name,
-            label: city.name
-        }));
-        setCities(cityOptions);
-        
-        if (userData.city) {
-            const cityOption = cityOptions.find(c => c.label === userData.city);
-            if (cityOption) {
-                setSelectedCity(cityOption);
+        if (userData.country) {
+            const country = Country.getAllCountries().find(
+                c => c.name === userData.country
+            );
+            if (country) {
+                // ป้องกันการตั้งค่า state ซ้ำซ้อนโดยตรวจสอบค่าเดิมก่อน
+                if (!selectedCountry || selectedCountry.label !== country.name) {
+                    setSelectedCountry({
+                        value: country.isoCode,
+                        label: country.name
+                    });
+                }
+                
+                // Load cities for the selected country
+                const countryCities = City.getCitiesOfCountry(country.isoCode) || [];
+                const cityOptions = countryCities.map(city => ({
+                    value: city.name,
+                    label: city.name
+                }));
+                
+                // ป้องกันการตั้งค่า state ซ้ำซ้อนโดยเปรียบเทียบค่าเดิม
+                if (JSON.stringify(cities) !== JSON.stringify(cityOptions)) {
+                    setCities(cityOptions);
+                }
+                
+                // Set selected city if it exists in userData
+                if (userData.city) {
+                    const cityOption = cityOptions.find(c => c.label === userData.city);
+                    if (cityOption && (!selectedCity || selectedCity.label !== cityOption.label)) {
+                        setSelectedCity(cityOption);
+                    }
+                }
             }
         }
     }, [userData.country, userData.city]);
@@ -406,26 +409,28 @@ const Profile = () => {
     };
 
     const handleCountryChange = (selectedOption) => {
-        setSelectedCountry(selectedOption);
-        setFormData(prev => ({
-            ...prev,
-            // ถ้า selectedOption เป็น null ให้เซ็ตเป็นค่าว่าง
-            country: selectedOption ? selectedOption.label : '',
-            city: '' // Reset city when country changes
-        }));
-        
-        // Get cities for selected country
-        if (selectedOption) {
-            const countryCities = City.getCitiesOfCountry(selectedOption.value) || [];
-            const cityOptions = countryCities.map(city => ({
-                value: city.name,
-                label: city.name
+        // ป้องกันการตั้งค่า state ซ้ำซ้อน
+        if (selectedCountry?.value !== selectedOption?.value) {
+            setSelectedCountry(selectedOption);
+            setFormData(prev => ({
+                ...prev,
+                country: selectedOption ? selectedOption.label : '',
+                city: '' // Reset city when country changes
             }));
-            setCities(cityOptions);
-        } else {
-            setCities([]);
+            
+            // Get cities for selected country
+            if (selectedOption) {
+                const countryCities = City.getCitiesOfCountry(selectedOption.value) || [];
+                const cityOptions = countryCities.map(city => ({
+                    value: city.name,
+                    label: city.name
+                }));
+                setCities(cityOptions);
+            } else {
+                setCities([]);
+            }
+            setSelectedCity(null);
         }
-        setSelectedCity(null);
     };
 
     const handleCityChange = (selectedOption) => {
