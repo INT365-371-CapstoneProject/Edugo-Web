@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import error404 from '../assets/error404.png'
+import error404 from '../assets/404animated.gif'
 import '../style/404Error.css'; // Import CSS file
 import Nav from './Nav';
 
