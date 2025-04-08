@@ -14,13 +14,6 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-
-    /* ตั้งค่ารูปพื้นหลัง */
-    background-image: url('../assets/world.gif'); /* ใส่พาธรูปภาพ */
-    background-size: 65%; /* ปรับขนาดรูปเป็น 50% ของพื้นที่ */
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    background-position: 700px 30px; /* ปรับตำแหน่งของรูป */
 }
 
 /* Navbar */
@@ -68,9 +61,28 @@ body {
   margin-top: 70px; /* เพิ่มช่องว่างระหว่าง navbar และเนื้อหาหลัก */
 }
 
-/* Text Container */
+/* Left Text Container */
 .text-container {
+  flex: 1;
   max-width: 50%;
+}
+
+/* Right Image Container */
+.image-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative; /* เพิ่ม position เพื่อรองรับการปรับตำแหน่ง */
+}
+
+/* ปรับขนาดรูปภาพและตำแหน่ง */
+.preview-img {
+  width: 200%;
+  max-width: 980px; /* ปรับขนาดสูงสุดของภาพ */
+  border-radius: 10px;
+  /* ปรับตำแหน่งของภาพ */
+  transform: translate(130px, 115px); /* เลื่อนภาพไปทางขวา 30px และลงล่าง 20px */
 }
 
 .headline {
@@ -136,6 +148,101 @@ body {
     height: auto;  /* ให้ความสูงปรับอัตโนมัติตามสัดส่วน */
 }
 
+  /* Responsive สำหรับมือถือ (ต่ำกว่า 768px) */
+  @media (max-width: 768px) {
+    .content {
+      flex-direction: column; /* จัดเรียงเนื้อหาเป็นแนวตั้ง */
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      margin-top: 0; /* เอา margin-top ออกเพื่อให้ชิดกลาง */
+      width: 90%;
+  
+    }
+
+    .text-container {
+      max-width: 100%;
+      text-align: left;
+    }
+
+    .image-container {
+      display: none; /* ซ่อนรูปภาพ */
+    }
+
+    .headline {
+      font-size: 24px;
+    }
+
+    .subtext {
+      font-size: 16px;
+      width: 100%;
+    }
+    .download-btn {
+      padding: 15px 20px;  /* ปรับขนาด padding */
+      font-size: 16px;     /* ปรับขนาดตัวอักษร */
+      width: 100%;         /* ทำให้กว้างขึ้นแต่ไม่เต็ม 100% */
+      max-width: 320px;   /* จำกัดความกว้างสูงสุด */
+    }
+    .login-btn {
+      display: none;
+  }
+  }
+
+/* สำหรับจอที่กว้างกว่า 2560px (Ultrawide) */
+@media (min-width: 1900px) {
+  .content {
+    width: 80%;
+    padding: 50px;
+  }
+
+  .headline {
+    font-size: 42px;
+  }
+
+  .subtext {
+    font-size: 20px;
+    width: 90%;
+  }
+
+  .download-btn {
+    padding: 22px 120px;
+    font-size: 20px;
+  }
+
+  .preview-img {
+    max-width: 800px;
+    transform: translate(40px, 0px); /* เลื่อนภาพไปทางขวา 30px และลงล่าง 20px */
+  }
+}
+
+/* สำหรับจอที่กว้างกว่า 3840px (4K) */
+@media (min-width: 3040px) {
+  .content {
+    width: 70%;
+    padding: 60px;
+  }
+
+  .headline {
+    font-size: 50px;
+  }
+
+  .subtext {
+    font-size: 24px;
+    width: 90%;
+  }
+
+  .download-btn {
+    padding: 25px 140px;
+    font-size: 22px;
+  }
+
+  .preview-img {
+    max-width: 1400px;
+    transform: translate(40px, 0px);
+  }
+}
+
+
 /* แอนิเมชัน Fade In และ Slide Up */
 @keyframes fadeInSlideUp {
   0% {
@@ -164,183 +271,6 @@ body {
 .download-btn { animation-delay: 1.5s; }
 
 
-/* Media Queries สำหรับทำให้ Navbar และ Layout Responsive */
-@media (max-width: 768px) {
-  /* Navbar */
-  .navbar {
-    padding: 15px;
-    position: fixed; /* ทำให้ navbar อยู่ข้างบนตลอด */
-    top: 0; /* กำหนดให้ navbar อยู่ที่ด้านบน */
-    left: 0; /* กำหนดให้ navbar อยู่ที่ด้านซ้าย */
-    width: 100%; /* กำหนดความกว้างของ navbar ให้เต็มหน้าจอ */
-    z-index: 1000; /* ทำให้ navbar อยู่เหนือส่วนอื่นๆ */
-  }
-
-  .login-btn {
-    display: none; /* ซ่อนปุ่มล็อกอินเมื่อหน้าจอเล็กกว่า 768px */
-  }
-
-  .logo {
-    font-size: 20px;
-  }
-
-  .home-container {
-    background-image: none; /* ลบภาพพื้นหลัง */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    height: 100vh;
-}
-
-  /* Main Content */
-  .content {
-    flex-direction: column; /* จัดเรียงเนื้อหาเป็นแนวตั้ง */
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    margin-top: 0; /* เอา margin-top ออกเพื่อให้ชิดกลาง */
-    width: 90%;
-  }
-  /* Text Container */
-  .text-container {
-    max-width: 100%;
-    text-align: left; /* จัดข้อความให้ชิดซ้าย */
-  }
-
-  .headline {
-    font-size: 24px;
-  }
-
-  .subtext {
-    font-size: 16px;
-  }
-
-  /* ปรับขนาดปุ่มดาวน์โหลด */
-  .download-btn {
-    padding: 10px 30px;
-  }
-
-  /* ปรับขนาดของรูปภาพ */
-  .image-container {
-    max-width: 80%;
-    margin-top: 20px;
-  }
-
-  .image {
-    max-width: 100%;
-    border-radius: 10px;
-  }
-}
-
- /* Responsive สำหรับ iPad Air และ Pro */
-@media (max-width: 1024px) {
-  .home-container {
-    background-image: none; /* ลบภาพพื้นหลัง */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    height: 100vh;
-  }
-
-  .content {
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    margin-top: 0;
-    width: 90%;
-  }
-
-  .text-container {
-    max-width: 70%;
-    text-align: left;
-  }
-
-  .headline {
-    font-size: 28px;
-  }
-
-  .subtext {
-    font-size: 18px;
-    width: 100%;
-  }
-
-  .download-btn {
-    padding: 14px 60px;
-  }
-
-  .image-container {
-    max-width: 80%;
-    margin-top: 20px;
-  }
-
-  .image {
-    max-width: 350px;
-  }
-}
-
-/* Media Queries สำหรับจอที่ใหญ่กว่า Desktop (เช่น 1200px ขึ้นไป) */
-@media (min-width: 2280px){
-  /* ปรับความกว้างของ .home-container */
-    .home-container {
-      background-size: 45%; /* ปรับขนาดพื้นหลัง */
-      background-position: right bottom; /* ปรับตำแหน่งของพื้นหลัง */
-      padding-top: 30px;
-    }
-
-  /* ปรับความกว้างของ .content */
-  .content {
-    width: 80%; /* กำหนดความกว้างของเนื้อหาหลัก */
-    justify-content: start;
-  }
-
-  /* ปรับขนาดของ headline */
-  .headline {
-    font-size: 48px; /* เพิ่มขนาดตัวอักษรให้ใหญ่ขึ้น */
-  }
-
-  /* ปรับขนาดของ subtext */
-  .subtext {
-    font-size: 24px; /* เพิ่มขนาดข้อความ */
-    width: 100%;
-  }
-
-  /* ปรับขนาดปุ่มดาวน์โหลด */
-  .download-btn {
-    padding: 20px 100px; /* ปรับขนาดปุ่มดาวน์โหลด */
-  }
-
-  /* ปรับขนาดโลโก้ */
-  .logo-img {
-    width: 250px;  /* เพิ่มขนาดโลโก้ */
-  }
-
-  /* ปรับขนาดของรูปภาพ */
-  .image-container {
-    max-width: 60%; /* ปรับขนาดรูปภาพ */
-  }
-
-  .image {
-    max-width: 450px; /* เพิ่มขนาดสูงสุดของรูปภาพ */
-  }
-
- 
-  @media (prefers-color-scheme: dark) {
-    /* กำหนดสีพื้นหลังสำหรับโหมดมืด */
-    html, body {
-      background-color: #F9FAFF !important; /* เปลี่ยนเป็นสีพื้นหลังมืด */
-    }
-    .navbar {
-      padding: 15px;
-      background-color: #ffffff !important; /* เปลี่ยนเป็นสีพื้นหลังมืด */
-    }
-
-  }
-
   /* บังคับให้พื้นหลังเป็นสีขาวและตัวอักษรเป็นสีดำเสมอ */
 :root {
   color-scheme: light !important;
@@ -365,5 +295,4 @@ html, body {
     background-color: #F9FAFF !important;
     color: #000000 !important;
   }
-}
 }
