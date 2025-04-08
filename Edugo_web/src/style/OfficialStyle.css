@@ -163,6 +163,7 @@ body {
 .subtext { animation-delay: 1.2s; }
 .download-btn { animation-delay: 1.5s; }
 
+
 /* Media Queries สำหรับทำให้ Navbar และ Layout Responsive */
 @media (max-width: 768px) {
   /* Navbar */
@@ -233,6 +234,55 @@ body {
   }
 }
 
+ /* Responsive สำหรับ iPad Air และ Pro */
+@media (max-width: 1024px) {
+  .home-container {
+    background-image: none; /* ลบภาพพื้นหลัง */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    height: 100vh;
+  }
+
+  .content {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin-top: 0;
+    width: 90%;
+  }
+
+  .text-container {
+    max-width: 100%;
+    text-align: center;
+  }
+
+  .headline {
+    font-size: 28px;
+  }
+
+  .subtext {
+    font-size: 18px;
+    width: 100%;
+  }
+
+  .download-btn {
+    padding: 14px 60px;
+  }
+
+  .image-container {
+    max-width: 80%;
+    margin-top: 20px;
+  }
+
+  .image {
+    max-width: 350px;
+  }
+}
+
 /* Media Queries สำหรับจอที่ใหญ่กว่า Desktop (เช่น 1200px ขึ้นไป) */
 @media (min-width: 2280px){
   /* ปรับความกว้างของ .home-container */
@@ -278,6 +328,7 @@ body {
     max-width: 450px; /* เพิ่มขนาดสูงสุดของรูปภาพ */
   }
 
+ 
   @media (prefers-color-scheme: dark) {
     /* กำหนดสีพื้นหลังสำหรับโหมดมืด */
     html, body {
