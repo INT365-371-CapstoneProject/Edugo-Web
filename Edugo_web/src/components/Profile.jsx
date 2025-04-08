@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Nav from './Nav';
@@ -9,9 +9,9 @@ import jwt_decode from 'jwt-decode';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Select from 'react-select';
-import '../style/profile.css'; // Import CSS file
-import '../style/style.css'; // Import CSS file
-import { Country, City } from 'country-state-city';
+import '../style/profile.css';
+import '../style/style.css';
+import { simpleCountries, getCitiesForCountry } from '../utils/countryData';
 
 // Add validation functions at the top of the file
 const validateEmail = (email) => {
@@ -34,10 +34,12 @@ const validatePostalCode = (code) => {
 };
 
 const Profile = () => {
-    const countryOptions = Country.getAllCountries().map(country => ({
-        value: country.isoCode,
-        label: country.name
-    }));
+    const countryOptions = useMemo(() => {
+        return simpleCountries.map(country => ({
+            value: country.code,
+            label: country.name
+        }));
+    }, []);
 
     const [userData, setUserData] = useState({});
     const [avatarUrl, setAvatarUrl] = useState(null);
@@ -96,23 +98,24 @@ const Profile = () => {
                     setPreviousAvatarUrl(imageUrl);
                 }
 
-                // ย้ายการตั้งค่า country/city มาที่นี่แทนที่จะใช้ useEffect แยก
+                // ย้ายการตั้งค่า country/city มาที่นี่ และใช้ข้อมูลจากที่เราสร้างขึ้นเอง
                 if (profileData.profile.country) {
-                    const country = Country.getAllCountries().find(
+                    const country = simpleCountries.find(
                         c => c.name === profileData.profile.country
                     );
                     
                     if (country) {
                         setSelectedCountry({
-                            value: country.isoCode,
+                            value: country.code,
                             label: country.name
                         });
                         
-                        const countryCities = City.getCitiesOfCountry(country.isoCode) || [];
-                        const cityOptions = countryCities.map(city => ({
-                            value: city.name,
-                            label: city.name
+                        // ใช้ฟังก์ชัน getCitiesForCountry แทน City.getCitiesOfCountry
+                        const cityOptions = getCitiesForCountry(country.code).map(city => ({
+                            value: city,
+                            label: city
                         }));
+                        
                         setCities(cityOptions);
                         
                         if (profileData.profile.city) {
@@ -400,18 +403,15 @@ const Profile = () => {
     };
 
     const handleCountryChange = (selectedOption) => {
-        // อัพเดท state ทั้งหมดในครั้งเดียว เพื่อลดการ re-render
         setSelectedCountry(selectedOption);
         
         if (selectedOption) {
-            // ดึงรายการเมืองของประเทศที่เลือก
-            const countryCities = City.getCitiesOfCountry(selectedOption.value) || [];
-            const cityOptions = countryCities.map(city => ({
-                value: city.name,
-                label: city.name
+            // ใช้ฟังก์ชัน getCitiesForCountry แทน City.getCitiesOfCountry
+            const cityOptions = getCitiesForCountry(selectedOption.value).map(city => ({
+                value: city,
+                label: city
             }));
             
-            // อัพเดท state และ formData พร้อมกัน
             setCities(cityOptions);
             setSelectedCity(null);
             
@@ -421,7 +421,6 @@ const Profile = () => {
                 city: ''
             }));
         } else {
-            // ถ้าไม่ได้เลือกประเทศ ให้ล้างค่าที่เกี่ยวข้อง
             setCities([]);
             setSelectedCity(null);
             
