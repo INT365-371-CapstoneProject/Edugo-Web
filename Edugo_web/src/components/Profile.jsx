@@ -95,6 +95,34 @@ const Profile = () => {
                     setAvatarUrl(imageUrl);
                     setPreviousAvatarUrl(imageUrl);
                 }
+
+                // ย้ายการตั้งค่า country/city มาที่นี่แทนที่จะใช้ useEffect แยก
+                if (profileData.profile.country) {
+                    const country = Country.getAllCountries().find(
+                        c => c.name === profileData.profile.country
+                    );
+                    
+                    if (country) {
+                        setSelectedCountry({
+                            value: country.isoCode,
+                            label: country.name
+                        });
+                        
+                        const countryCities = City.getCitiesOfCountry(country.isoCode) || [];
+                        const cityOptions = countryCities.map(city => ({
+                            value: city.name,
+                            label: city.name
+                        }));
+                        setCities(cityOptions);
+                        
+                        if (profileData.profile.city) {
+                            const cityOption = cityOptions.find(c => c.label === profileData.profile.city);
+                            if (cityOption) {
+                                setSelectedCity(cityOption);
+                            }
+                        }
+                    }
+                }
             } catch (error) {
                 console.error('Error loading data:', error);
                 setAvatarUrl(null);
@@ -110,43 +138,6 @@ const Profile = () => {
             }
         };
     }, []);
-
-    useEffect(() => {
-        if (userData.country) {
-            const country = Country.getAllCountries().find(
-                c => c.name === userData.country
-            );
-            if (country) {
-                // ป้องกันการตั้งค่า state ซ้ำซ้อนโดยตรวจสอบค่าเดิมก่อน
-                if (!selectedCountry || selectedCountry.label !== country.name) {
-                    setSelectedCountry({
-                        value: country.isoCode,
-                        label: country.name
-                    });
-                }
-                
-                // Load cities for the selected country
-                const countryCities = City.getCitiesOfCountry(country.isoCode) || [];
-                const cityOptions = countryCities.map(city => ({
-                    value: city.name,
-                    label: city.name
-                }));
-                
-                // ป้องกันการตั้งค่า state ซ้ำซ้อนโดยเปรียบเทียบค่าเดิม
-                if (JSON.stringify(cities) !== JSON.stringify(cityOptions)) {
-                    setCities(cityOptions);
-                }
-                
-                // Set selected city if it exists in userData
-                if (userData.city) {
-                    const cityOption = cityOptions.find(c => c.label === userData.city);
-                    if (cityOption && (!selectedCity || selectedCity.label !== cityOption.label)) {
-                        setSelectedCity(cityOption);
-                    }
-                }
-            }
-        }
-    }, [userData.country, userData.city]);
 
     const handleNameChange = (e) => {
         const { name, value } = e.target;
@@ -409,40 +400,51 @@ const Profile = () => {
     };
 
     const handleCountryChange = (selectedOption) => {
-        // ป้องกันการตั้งค่า state ซ้ำซ้อน
-        if (selectedCountry?.value !== selectedOption?.value) {
-            setSelectedCountry(selectedOption);
-            setFormData(prev => ({
-                ...prev,
-                country: selectedOption ? selectedOption.label : '',
-                city: '' // Reset city when country changes
+        // อัพเดท state ทั้งหมดในครั้งเดียว เพื่อลดการ re-render
+        setSelectedCountry(selectedOption);
+        
+        if (selectedOption) {
+            // ดึงรายการเมืองของประเทศที่เลือก
+            const countryCities = City.getCitiesOfCountry(selectedOption.value) || [];
+            const cityOptions = countryCities.map(city => ({
+                value: city.name,
+                label: city.name
             }));
             
-            // Get cities for selected country
-            if (selectedOption) {
-                const countryCities = City.getCitiesOfCountry(selectedOption.value) || [];
-                const cityOptions = countryCities.map(city => ({
-                    value: city.name,
-                    label: city.name
-                }));
-                setCities(cityOptions);
-            } else {
-                setCities([]);
-            }
+            // อัพเดท state และ formData พร้อมกัน
+            setCities(cityOptions);
             setSelectedCity(null);
+            
+            setFormData(prev => ({
+                ...prev,
+                country: selectedOption.label,
+                city: ''
+            }));
+        } else {
+            // ถ้าไม่ได้เลือกประเทศ ให้ล้างค่าที่เกี่ยวข้อง
+            setCities([]);
+            setSelectedCity(null);
+            
+            setFormData(prev => ({
+                ...prev,
+                country: '',
+                city: ''
+            }));
         }
     };
 
     const handleCityChange = (selectedOption) => {
         setSelectedCity(selectedOption);
+        
+        // อัพเดท formData ตามการเลือกเมือง
         setFormData(prev => ({
             ...prev,
-            // ถ้า selectedOption เป็น null ให้เซ็ตเป็นค่าว่าง
             city: selectedOption ? selectedOption.label : ''
         }));
     };
 
-    const ActionButton = ({ onClick, icon: Icon, label, variant = 'primary' }) => {
+    // ใช้ React.memo หรือ useMemo สำหรับ component ที่มี render ซับซ้อน
+    const ActionButton = React.memo(({ onClick, icon: Icon, label, variant = 'primary' }) => {
         const baseStyles = "AllButton";
         const variants = {
             primary: "primary-button",
@@ -460,7 +462,7 @@ const Profile = () => {
                 {label}
             </button>
         );
-    };
+    });
 
     const renderEditButtons = (isEditing, onSave, onCancel, onEdit) => {
         if (isEditing) {
