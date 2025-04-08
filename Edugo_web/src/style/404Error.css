@@ -25,7 +25,9 @@
 }
 
 /* ✅ ปุ่มกด */
-button {
+.myct-button {
+  background-color: #007BFF;
+  color: rgb(255, 255, 255);
   padding: 12px 24px;
   font-size: 16px;
   font-weight: bold;
@@ -33,6 +35,13 @@ button {
   transition: all 0.3s ease;
   margin-top: 30px;
 }
+
+  /* เอฟเฟกต์เมื่อ hover */
+  .myct-button:hover {
+    background-color: #007BFF; /* เปลี่ยนเป็นสีน้ำเงินเข้มเมื่อ hover */
+    box-shadow: 0 4px 15px rgba(74, 161, 255, 0.5); /* เพิ่มเงาให้ดูลอยขึ้น */
+    transform: translateY(-2px); /* ทำให้ปุ่มลอยขึ้นเล็กน้อย */
+  }
 
 /* 📱 Responsive สำหรับมือถือ */
 @media (max-width: 768px) {
