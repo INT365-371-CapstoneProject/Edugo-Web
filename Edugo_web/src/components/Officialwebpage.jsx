@@ -29,7 +29,14 @@ const Officialwebpage = () => {
           <div className="logo"><img src={Logocolor} alt="Logo" className="logowhite-img" /></div>
           <p className="headline">Scholarship Management and Study Abroad Community Application</p>
           <p className="subtext">An all-in-one platform for streamlined scholarship management and a thriving community for students pursuing international education, offering resources, guidance, and networking.</p>
-          <button className="download-btn">Download Now (APK Version 1.0)</button>
+          <a
+            className="download-btn"
+            href="https://drive.google.com/uc?export=download&id=1p1tX0iGMaIABMJO56QatUlm5J2qfwST7"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Download Now (APK Version 1.0)
+          </a>
         </div>
 
         {/* Image Section */}
