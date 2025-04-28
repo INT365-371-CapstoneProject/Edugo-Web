@@ -31,7 +31,7 @@ const Officialwebpage = () => {
           <p className="subtext">An all-in-one platform for streamlined scholarship management and a thriving community for students pursuing international education, offering resources, guidance, and networking.</p>
           <a
             className="download-btn"
-            href="https://drive.google.com/uc?export=download&id=14mogr5xxZz_QQTu4EEhlTwgcwvVwToCy"
+            href="https://drive.google.com/uc?export=download&id=1CCLeysyoHgZIN5Cp3yUlRzN_h2eKWpv4"
             target="_blank"
             rel="noopener noreferrer"
           >
